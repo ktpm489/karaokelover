@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_viewpager_hot_karaoke"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imgv_video_thumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="115dp"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/gradient_hot_karaoke_footer" />
+
+    <TextView
+        android:id="@+id/tv_title_hot_karaoke"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:ellipsize="marquee"
+        android:maxLines="1"
+        android:textColor="@color/color_title_text_darktheme"
+        android:textSize="20sp" />
+
+    <RelativeLayout
+        android:id="@+id/layout_hot_karaoke_sub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_title_hot_karaoke"
+        android:layout_marginBottom="28dp"
+        android:layout_marginStart="16dp">
+
+        <TextView
+            android:id="@+id/tv_sub_hot_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/color_subtitle_text_darktheme"
+            android:textSize="16sp" />
+
+        <View
+            android:id="@+id/circle_divider"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="8dp"
+            android:layout_toEndOf="@id/tv_sub_hot_count"
+            android:background="@drawable/drawable_circle_divider" />
+
+        <TextView
+            android:id="@+id/tv_sub_hot_like"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_toEndOf="@id/circle_divider"
+            android:textColor="@color/color_subtitle_text_darktheme"
+            android:textSize="16sp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
