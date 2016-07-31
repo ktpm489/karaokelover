@@ -1,27 +1,30 @@
 package vn.com.frankle.karaokelover;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
+import android.app.ActivityOptions;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.widget.ActionMenuView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.pushtorefresh.storio.sqlite.StorIOSQLite;
 import com.viewpagerindicator.CirclePageIndicator;
@@ -49,12 +52,15 @@ import vn.com.frankle.karaokelover.models.ResponseYoutubeSnippetStatistics;
 import vn.com.frankle.karaokelover.presenters.KHotArtistAdapter;
 import vn.com.frankle.karaokelover.presenters.KPagerAdapterHotKaraokeSong;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
+import vn.com.frankle.karaokelover.util.AnimUtils;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 
 public class KActivity_home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private final String ACTIVITY_NAME = this.getClass().getSimpleName();
+
+    private static final int RC_SEARCH = 0;
 
     // In this sample app we use dependency injection (DI) to keep the code clean
     // Just remember that it's already configured instance of StorIOSQLite from DbModule
@@ -93,6 +99,8 @@ public class KActivity_home extends AppCompatActivity
 
         KApplication.get(this).appComponent().inject(this);
 
+        setSupportActionBar(mToolbar);
+
         // Get screen width in dp
         Configuration configuration = this.getResources().getConfiguration();
         mPhysicScreenWidthInDp = configuration.screenWidthDp; //The current width of the available screen space, in dp units, corresponding to screen width resource qualifier.
@@ -102,7 +110,7 @@ public class KActivity_home extends AppCompatActivity
         display.getSize(size);
         mPhyScreenWidthInPixel = size.x;
 
-        setSupportActionBar(mToolbar);
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawerLayout.addDrawerListener(toggle);
@@ -110,10 +118,12 @@ public class KActivity_home extends AppCompatActivity
 
         setUpNavigationView();
 
+
         setUpViews();
 
         retrieveHotTrendAndArtistsKaraokes();
     }
+
 
     /**
      * Get observable for hot karaoke trends
@@ -196,6 +206,23 @@ public class KActivity_home extends AppCompatActivity
         setHotArtistLoadingState(true);
     }
 
+    private void popAnim(View v, int startDelay, int duration) {
+        if (v != null) {
+            v.setAlpha(0f);
+            v.setScaleX(0f);
+            v.setScaleY(0f);
+
+            v.animate()
+                    .alpha(1f)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setStartDelay(startDelay)
+                    .setDuration(duration)
+                    .setInterpolator(AnimationUtils.loadInterpolator(this,
+                            android.R.interpolator.overshoot));
+        }
+    }
+
     private void setUpNavigationView() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         /**
@@ -204,6 +231,7 @@ public class KActivity_home extends AppCompatActivity
          **/
         navigationView.getLayoutParams().width = Utils.convertDpToPixel(this, Math.min(320, mPhysicScreenWidthInDp - 56));
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.getMenu().getItem(0).setChecked(true);
     }
 
     @Override
@@ -231,7 +259,15 @@ public class KActivity_home extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_search) {
+        if (id == R.id.menu_search) {
+            // get the icon's location on screen to pass through to the search screen
+            View searchMenuView = mToolbar.findViewById(R.id.menu_search);
+            int[] loc = new int[2];
+            searchMenuView.getLocationOnScreen(loc);
+            startActivityForResult(KSearchActivity.createStartIntent(this, loc[0], loc[0] +
+                    (searchMenuView.getWidth() / 2)), RC_SEARCH, ActivityOptions
+                    .makeSceneTransitionAnimation(this).toBundle());
+            searchMenuView.setAlpha(0f);
             return true;
         }
 
@@ -263,6 +299,24 @@ public class KActivity_home extends AppCompatActivity
         return true;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case RC_SEARCH:
+                // reset the search icon which we hid
+                View searchMenuView = mToolbar.findViewById(R.id.menu_search);
+                if (searchMenuView != null) {
+                    searchMenuView.setAlpha(1f);
+                }
+                if (resultCode == KSearchActivity.RESULT_CODE_SAVE) {
+                    String query = data.getStringExtra(KSearchActivity.EXTRA_QUERY);
+                    if (TextUtils.isEmpty(query)) return;
+                }
+                break;
+        }
+    }
+
+
     /**
      * ---------------------------------------EVENTs HANDLING-------------------------------------
      */
@@ -287,16 +341,7 @@ public class KActivity_home extends AppCompatActivity
         if (loading) {
             mProgressBarHotArtist.setVisibility(View.VISIBLE);
         } else {
-            mProgressBarHotArtist.animate()
-                    .alpha(0.0f)
-                    .setDuration(500)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            mProgressBarHotArtist.setVisibility(View.GONE);
-                        }
-                    });
+            mProgressBarHotArtist.setVisibility(View.GONE);
         }
     }
 }

@@ -11,7 +11,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="16dp"
         android:text="MORE"
-        android:textColor="@color/color_subtitle_text_darktheme"
+        android:textColor="@color/text_secondary_light"
         android:textStyle="bold" />
 
     <TextView

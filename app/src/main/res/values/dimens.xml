@@ -7,5 +7,12 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
+    <!-- Spacing -->
+    <dimen name="spacing_micro">4dp</dimen>
+    <dimen name="spacing_huge">64dp</dimen>
+    <dimen name="padding_normal">16dp</dimen>
+
+    <!-- Z axis elevation -->
+    <dimen name="z_app_bar">4dp</dimen>
 
 </resources>

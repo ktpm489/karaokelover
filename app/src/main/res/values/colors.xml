@@ -3,11 +3,24 @@
     <color name="colorPrimary">#FF2C2E35</color>
     <color name="colorPrimaryDark">#FF24252B</color>
     <color name="colorAccent">#FF5722</color>
-    <color name="background_light">#F9F9F9</color>
     <color name="background_dark">#FF242429</color>
 
-    <color name="color_title_text_darktheme">#FFFFFF</color>
-    <color name="color_subtitle_text_darktheme">#B3FFFFFF</color>
+    <!-- Common colors for Dark Theme -->
+    <color name="text_primary_light">#ffffffff</color>
+    <color name="text_secondary_light">#b3ffffff</color> <!-- 70% -->
+    <color name="text_disabled_light">#4dffffff</color> <!-- 30% -->
 
-    <color name="color_text_primary_lighttheme">#DE000000</color>
+    <!-- Common colors for Light Theme -->
+    <color name="text_primary_dark">#de000000</color> <!-- 87% -->
+    <color name="text_secondary_dark">#8a000000</color> <!-- 54% -->
+    <color name="text_tertiary_dark">#61000000</color> <!-- 38% -->
+
+    <!-- NavigationDrawer -->
+    <color name="color_nav_item_selected_bg">#33FFFFFF</color>
+    <color name="color_nav_item_color_tint">#B3FFFFFF</color>
+
+    <!-- Search Activity -->
+    <color name="scrim">#99323232</color>
+
+
 </resources>

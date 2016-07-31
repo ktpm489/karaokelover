@@ -12,9 +12,9 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="115dp"
+        android:layout_height="130dp"
         android:layout_alignParentTop="true"
-        android:background="@drawable/gradient_hot_karaoke_footer" />
+        android:background="@drawable/drawable_gradient_hot_karaoke_footer" />
 
     <TextView
         android:id="@+id/tv_title_hot_karaoke"
@@ -26,9 +26,10 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:ellipsize="marquee"
+        android:fontFamily="sans-serif-medium"
         android:maxLines="1"
-        android:textColor="@color/color_title_text_darktheme"
-        android:textSize="20sp" />
+        android:textColor="@color/text_primary_light"
+        android:textSize="18sp" />
 
     <RelativeLayout
         android:id="@+id/layout_hot_karaoke_sub"
@@ -44,8 +45,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerHorizontal="true"
-            android:textColor="@color/color_subtitle_text_darktheme"
-            android:textSize="16sp" />
+            android:textColor="@color/text_secondary_light"
+            android:textSize="14sp" />
 
         <View
             android:id="@+id/circle_divider"
@@ -62,8 +63,8 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_toEndOf="@id/circle_divider"
-            android:textColor="@color/color_subtitle_text_darktheme"
-            android:textSize="16sp" />
+            android:textColor="@color/text_secondary_light"
+            android:textSize="14sp" />
 
     </RelativeLayout>
 
