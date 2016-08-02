@@ -18,8 +18,8 @@
         android:layout_alignStart="@id/imgv_item_hot_karaoke_item_preview"
         android:layout_below="@id/imgv_item_hot_karaoke_item_preview"
         android:layout_marginTop="8dp"
-        android:ellipsize="marquee"
-        android:maxLines="1"
+        android:ellipsize="end"
+        android:maxLines="2"
         android:textColor="@color/text_primary_light"
         android:textSize="16sp" />
 

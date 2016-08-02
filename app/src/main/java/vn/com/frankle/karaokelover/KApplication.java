@@ -15,7 +15,6 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.schedulers.Schedulers;
 import vn.com.frankle.karaokelover.database.DbModule;
-import vn.com.frankle.karaokelover.services.KaraokeLoverAPIEndpointInterface;
 import vn.com.frankle.karaokelover.services.YoutubeAPIEndpointInterface;
 
 /**
@@ -32,11 +31,8 @@ public class KApplication extends Application {
     public static EventBus eventBus;
 
     private Retrofit retrofitClient;
-    private Retrofit rxRetrofitService;
     private Retrofit rxYoutubeAPI;
 
-    public static KaraokeLoverAPIEndpointInterface karaokeLoverAPIService;
-    public static KaraokeLoverAPIEndpointInterface rxKaraokeLoverAPIService;
     public static YoutubeAPIEndpointInterface rxYoutubeAPIService;
 
     @Nullable
@@ -60,16 +56,6 @@ public class KApplication extends Application {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        // Retrofit in combine with
-        // Default network calls to be asynchronous (Schedulers.io())
-        rxRetrofitService = new Retrofit.Builder()
-                .client(okHttpClient)
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
-                .build();
-        rxKaraokeLoverAPIService = rxRetrofitService.create(KaraokeLoverAPIEndpointInterface.class);
-
         rxYoutubeAPI = new Retrofit.Builder()
                 .client(okHttpClient)
                 .baseUrl(YOUTUBE_BASE_URL)
@@ -82,14 +68,6 @@ public class KApplication extends Application {
     @NonNull
     public static KApplication get(@NonNull Context context) {
         return (KApplication) context.getApplicationContext();
-    }
-
-    public static KaraokeLoverAPIEndpointInterface getKaraokeLoverAPIService() {
-        return karaokeLoverAPIService;
-    }
-
-    public static KaraokeLoverAPIEndpointInterface getRxKaraokeLoverAPIService() {
-        return rxKaraokeLoverAPIService;
     }
 
     public static YoutubeAPIEndpointInterface getRxYoutubeAPIService() {

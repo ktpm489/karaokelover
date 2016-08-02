@@ -1,16 +1,19 @@
-package vn.com.frankle.karaokelover.models;
+package vn.com.frankle.karaokelover.services.responses;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import javax.annotation.Generated;
 
+import vn.com.frankle.karaokelover.models.Id;
+import vn.com.frankle.karaokelover.models.Snippet;
+
 /**
  * Created by duclm on 8/1/2016.
  */
 
 @Generated("org.jsonschema2pojo")
-public class ItemSnippetSearch {
+public class ItemSearch {
 
     @SerializedName("id")
     @Expose

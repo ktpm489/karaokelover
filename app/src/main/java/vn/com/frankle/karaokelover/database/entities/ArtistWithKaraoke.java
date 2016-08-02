@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import vn.com.frankle.karaokelover.models.ResponseYoutubeSnippetContentDetails;
+import vn.com.frankle.karaokelover.services.responses.ResponseSnippetContentDetails;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -19,14 +19,14 @@ public final class ArtistWithKaraoke {
 
     private List<String> karaokes;
 
-    private List<ResponseYoutubeSnippetContentDetails> responseYoutubeVideos;
+    private List<ResponseSnippetContentDetails> responseYoutubeVideos;
 
     public ArtistWithKaraoke() {
         artist = null;
         karaokes = null;
     }
 
-    public ArtistWithKaraoke(String artist, List<String> karaokes, List<ResponseYoutubeSnippetContentDetails> listYoutubeVideos) {
+    public ArtistWithKaraoke(String artist, List<String> karaokes, List<ResponseSnippetContentDetails> listYoutubeVideos) {
         this.artist = artist;
         this.karaokes = karaokes;
         this.responseYoutubeVideos = listYoutubeVideos;
@@ -63,11 +63,11 @@ public final class ArtistWithKaraoke {
         return new ArtistWithKaraoke(list.get(0).getArtist(), video_ids);
     }
 
-    public List<ResponseYoutubeSnippetContentDetails> getResponseYoutubeVideos() {
+    public List<ResponseSnippetContentDetails> getResponseYoutubeVideos() {
         return responseYoutubeVideos;
     }
 
-    public void setResponseYoutubeVideos(List<ResponseYoutubeSnippetContentDetails> responseYoutubeVideos) {
+    public void setResponseYoutubeVideos(List<ResponseSnippetContentDetails> responseYoutubeVideos) {
         this.responseYoutubeVideos = responseYoutubeVideos;
     }
 }

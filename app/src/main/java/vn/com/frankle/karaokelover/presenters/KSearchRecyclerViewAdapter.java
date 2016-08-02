@@ -11,12 +11,15 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import vn.com.frankle.karaokelover.R;
-import vn.com.frankle.karaokelover.Utils;
-import vn.com.frankle.karaokelover.models.ResponseYoutubeSearch;
-import vn.com.frankle.karaokelover.models.Snippet;
+import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 
 /**
  * Created by duclm on 7/17/2016.
@@ -25,15 +28,15 @@ import vn.com.frankle.karaokelover.models.Snippet;
 public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecyclerViewAdapter.ViewHolder> {
 
     private Context mContext;
-    private ResponseYoutubeSearch mSearchResult;
+    private List<VideoSearchItem> mSearchResult;
 
 
     public KSearchRecyclerViewAdapter(Context context) {
         mContext = context;
-        mSearchResult = new ResponseYoutubeSearch();
+        mSearchResult = new ArrayList<>();
     }
 
-    public KSearchRecyclerViewAdapter(Context context, ResponseYoutubeSearch searchResult) {
+    public KSearchRecyclerViewAdapter(Context context, List<VideoSearchItem> searchResult) {
         mContext = context;
         this.mSearchResult = searchResult;
     }
@@ -51,26 +54,37 @@ public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecy
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Snippet youtubeKaraoke = mSearchResult.getItems().get(position).getSnippet();
+        VideoSearchItem itemVideo = mSearchResult.get(position);
 
         // Set item views based on your views and data model
-        holder.title.setText(youtubeKaraoke.getTitle());
-        Glide.with(mContext).load(Utils.getThumbnailURL(youtubeKaraoke.getThumbnails())).into(holder.preview);
+        holder.title.setText(itemVideo.getTitle());
+        holder.playCount.setText(itemVideo.getViewCount());
+        holder.likeCount.setText(itemVideo.getLikeCount());
+        holder.duration.setText(itemVideo.getDuration());
+        Glide.with(mContext).load(itemVideo.getThumbnails()).into(holder.preview);
     }
 
     @Override
     public int getItemCount() {
-        return mSearchResult.getItems().size();
+        return mSearchResult.size();
     }
 
-    public void populateWithData(ResponseYoutubeSearch searchData) {
+    /**
+     * Populate adapter with new data set
+     *
+     * @param searchData : new data set
+     */
+    public void populateWithData(List<VideoSearchItem> searchData) {
         this.mSearchResult = searchData;
         notifyDataSetChanged();
     }
 
+    /**
+     * Remove all item from current data set
+     */
     public void clearData() {
-        if (this.mSearchResult != null && this.mSearchResult.getItems().size() > 0) {
-            this.mSearchResult.getItems().clear();
+        if (this.mSearchResult != null && this.mSearchResult.size() > 0) {
+            this.mSearchResult.clear();
             notifyDataSetChanged();
         }
     }
@@ -82,8 +96,14 @@ public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecy
         // for any view that will be set as you render a row
         @BindView(R.id.item_search_video_title)
         TextView title;
+        @BindView(R.id.item_search_play_count)
+        TextView playCount;
+        @BindView(R.id.item_search_like_count)
+        TextView likeCount;
         @BindView(R.id.item_search_video_preview)
         ImageView preview;
+        @BindView(R.id.item_search_duration)
+        TextView duration;
         @BindView(R.id.item_search_more)
         ImageButton btnMore;
 

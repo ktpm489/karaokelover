@@ -37,6 +37,8 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import java.util.List;
+
 import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,7 +47,7 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
-import vn.com.frankle.karaokelover.models.ResponseYoutubeSearch;
+import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.presenters.KSearchRecyclerViewAdapter;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
 import vn.com.frankle.karaokelover.util.AnimUtils;
@@ -351,10 +353,7 @@ public class KSearchActivity extends AppCompatActivity {
                 return true;
             }
         });
-        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-            }
+        searchView.setOnQueryTextFocusChangeListener((v, hasFocus) -> {
         });
     }
 
@@ -372,13 +371,10 @@ public class KSearchActivity extends AppCompatActivity {
             if (noResults == null) {
                 noResults = (BaselineGridTextView) ((ViewStub)
                         findViewById(R.id.stub_no_search_results)).inflate();
-                noResults.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        searchView.setQuery("", false);
-                        searchView.requestFocus();
-                        ImeUtils.showIme(searchView);
-                    }
+                noResults.setOnClickListener(v -> {
+                    searchView.setQuery("", false);
+                    searchView.requestFocus();
+                    ImeUtils.showIme(searchView);
                 });
             }
             String message = String.format(getString(R
@@ -395,15 +391,22 @@ public class KSearchActivity extends AppCompatActivity {
         }
     }
 
-    private void handleSearchResult(ResponseYoutubeSearch searchResult) {
-        Log.i("SearchResult", "Search result size = " + searchResult.getItems().size());
+    private void handleSearchResult(List<VideoSearchItem> searchResults) {
+        Log.i("SearchResult", "Search result size = " + searchResults.size());
 
-        if (results.getVisibility() != View.VISIBLE) {
+        if (searchResults.size() > 0) {
+            if (results.getVisibility() != View.VISIBLE) {
+                TransitionManager.beginDelayedTransition(container, auto);
+                progress.setVisibility(View.GONE);
+                results.setVisibility(View.VISIBLE);
+
+                mSearchAdapter.populateWithData(searchResults);
+            }
+        } else {
+            // No result to display
             TransitionManager.beginDelayedTransition(container, auto);
             progress.setVisibility(View.GONE);
-            results.setVisibility(View.VISIBLE);
-
-            mSearchAdapter.populateWithData(searchResult);
+            setNoResultsVisibility(View.VISIBLE);
         }
     }
 
@@ -414,7 +417,7 @@ public class KSearchActivity extends AppCompatActivity {
         searchView.clearFocus();
         Toast.makeText(KSearchActivity.this, "Search for: " + query, Toast.LENGTH_SHORT).show();
 
-        Observable<ResponseYoutubeSearch> searchRequest = ReactiveHelper.searchKarokeVideos(query);
+        Observable<List<VideoSearchItem>> searchRequest = ReactiveHelper.searchKarokeVideos(query);
         compositeSubscriptionForOnStop.add(searchRequest
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())

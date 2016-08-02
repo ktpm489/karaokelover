@@ -1,7 +1,5 @@
 package vn.com.frankle.karaokelover.services;
 
-import android.util.Log;
-
 import com.pushtorefresh.storio.sqlite.StorIOSQLite;
 import com.pushtorefresh.storio.sqlite.queries.RawQuery;
 
@@ -15,10 +13,11 @@ import vn.com.frankle.karaokelover.database.entities.ArtistWithKaraoke;
 import vn.com.frankle.karaokelover.database.entities.DAOArtist;
 import vn.com.frankle.karaokelover.database.entities.DAOHotTrend;
 import vn.com.frankle.karaokelover.database.entities.KaraokeAndArtist;
+import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.database.tables.ArtistTable;
 import vn.com.frankle.karaokelover.database.tables.KaraokeTable;
-import vn.com.frankle.karaokelover.models.ResponseYoutubeSearch;
-import vn.com.frankle.karaokelover.models.ResponseYoutubeSnippetStatistics;
+import vn.com.frankle.karaokelover.services.responses.ItemSearch;
+import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
 
 /**
  * Created by duclm on 7/28/2016.
@@ -27,12 +26,12 @@ import vn.com.frankle.karaokelover.models.ResponseYoutubeSnippetStatistics;
 public class ReactiveHelper {
 
     /**
-     * Get observable to get list of ResponseYoutubeSnippetStatistics from list of DAOHotTrend
+     * Get observable to get list of ResponseSnippetStatistics from list of DAOHotTrend
      *
      * @param listDAOHotTrend : list hot trend to be acquired
      * @return
      */
-    public static Observable<List<ResponseYoutubeSnippetStatistics>> getObsListHotTrend(List<DAOHotTrend> listDAOHotTrend) {
+    public static Observable<List<ResponseSnippetStatistics>> getObsListHotTrend(List<DAOHotTrend> listDAOHotTrend) {
         return Observable.from(listDAOHotTrend)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -79,15 +78,32 @@ public class ReactiveHelper {
                 .toList();
     }
 
+
+    private static Observable<VideoSearchItem> getStatisticsContentDetails(ItemSearch itemSearch) {
+        return KApplication.getRxYoutubeAPIService().getStatisticContentDetailById(itemSearch.getId().getVideoId())
+                .map(responseStatisticContentDetails
+                        -> new VideoSearchItem(itemSearch.getSnippet().getTitle(),
+                        responseStatisticContentDetails.getDurationISO8601Format(),
+                        responseStatisticContentDetails.getViewCount(),
+                        responseStatisticContentDetails.getLikeCount(),
+                        itemSearch.getSnippet().getThumbnails()));
+    }
+
     /**
      * Search for karaoke videos
      *
      * @param query : video title to search
      * @return
      */
-    public static Observable<ResponseYoutubeSearch> searchKarokeVideos(String query) {
+    public static Observable<List<VideoSearchItem>> searchKarokeVideos(String query) {
         // Append "karaoke" at the end of query string for searching for Karaoke video
-        String karaokeQuery = new StringBuilder(query).append(" karaoke").toString();
-        return KApplication.getRxYoutubeAPIService().searchKaraokeVideos(karaokeQuery);
+        String karaokeQuery = query + " karaoke";
+        return KApplication.getRxYoutubeAPIService()
+                .searchKaraokeVideos(karaokeQuery)
+                .concatMap(
+                        responseSearch -> Observable.from(responseSearch.getItems())
+                                .subscribeOn(Schedulers.newThread())
+                                .concatMap(ReactiveHelper::getStatisticsContentDetails))
+                .toList();
     }
 }

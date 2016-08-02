@@ -20,7 +20,7 @@ import rx.subscriptions.CompositeSubscription;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.Utils;
 import vn.com.frankle.karaokelover.database.entities.ArtistWithKaraoke;
-import vn.com.frankle.karaokelover.models.ResponseYoutubeSnippetContentDetails;
+import vn.com.frankle.karaokelover.services.responses.ResponseSnippetContentDetails;
 
 /**
  * Created by duclm on 7/17/2016.
@@ -29,7 +29,7 @@ import vn.com.frankle.karaokelover.models.ResponseYoutubeSnippetContentDetails;
 public class KHotKaraokeRecycleAdapter extends RecyclerView.Adapter<KHotKaraokeRecycleAdapter.ViewHolder> {
 
     private Context mContext;
-    private List<ResponseYoutubeSnippetContentDetails> mYoutubeKaraokes;
+    private List<ResponseSnippetContentDetails> mYoutubeKaraokes;
 
     @NonNull
     private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
@@ -58,7 +58,7 @@ public class KHotKaraokeRecycleAdapter extends RecyclerView.Adapter<KHotKaraokeR
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        ResponseYoutubeSnippetContentDetails youtubeKaraoke = mYoutubeKaraokes.get(position);
+        ResponseSnippetContentDetails youtubeKaraoke = mYoutubeKaraokes.get(position);
 
         // Set item views based on your views and data model
         holder.title.setText(youtubeKaraoke.getItems().get(0).getSnippet().getTitle());

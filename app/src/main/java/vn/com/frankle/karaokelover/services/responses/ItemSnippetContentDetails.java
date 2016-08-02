@@ -1,10 +1,13 @@
 
-package vn.com.frankle.karaokelover.models;
+package vn.com.frankle.karaokelover.services.responses;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import javax.annotation.Generated;
+
+import vn.com.frankle.karaokelover.models.ContentDetails;
+import vn.com.frankle.karaokelover.models.Snippet;
 
 @Generated("org.jsonschema2pojo")
 public class ItemSnippetContentDetails {

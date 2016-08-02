@@ -9,7 +9,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import java.util.List;
 
 import vn.com.frankle.karaokelover.Utils;
-import vn.com.frankle.karaokelover.models.ResponseYoutubeSnippetStatistics;
+import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
 import vn.com.frankle.karaokelover.views.FragmentHotKaraoke;
 
 /**
@@ -20,9 +20,9 @@ public class KPagerAdapterHotKaraokeSong extends FragmentPagerAdapter {
     private static final int MAX_HOT_KARAOKE = 5;
 
     private Context mContext;
-    private List<ResponseYoutubeSnippetStatistics> mListHotTrendKaraokes;
+    private List<ResponseSnippetStatistics> mListHotTrendKaraokes;
 
-    public KPagerAdapterHotKaraokeSong(FragmentManager fragmentManager, List<ResponseYoutubeSnippetStatistics> listHotTrendKaraokes) {
+    public KPagerAdapterHotKaraokeSong(FragmentManager fragmentManager, List<ResponseSnippetStatistics> listHotTrendKaraokes) {
         super(fragmentManager);
         this.mListHotTrendKaraokes = listHotTrendKaraokes;
     }
@@ -30,7 +30,7 @@ public class KPagerAdapterHotKaraokeSong extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        ResponseYoutubeSnippetStatistics karaoke = mListHotTrendKaraokes.get(position);
+        ResponseSnippetStatistics karaoke = mListHotTrendKaraokes.get(position);
         Bundle args = new Bundle();
         args.putString("title", karaoke.getItems().get(0).getSnippet().getTitle());
         args.putString("play_count", karaoke.getItems().get(0).getStatistics().getViewCount());

@@ -14,7 +14,7 @@
   limitations under the License.
   -->
 
-<io.plaidapp.ui.widget.BaselineGridTextView xmlns:android="http://schemas.android.com/apk/res/android"
+<vn.com.frankle.karaokelover.views.widgets.BaselineGridTextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/no_search_results"
     style="@style/Widget.KaraokeLover.EmptyText"
     android:layout_width="match_parent"

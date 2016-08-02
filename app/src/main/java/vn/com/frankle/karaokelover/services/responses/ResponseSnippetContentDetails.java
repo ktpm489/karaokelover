@@ -1,5 +1,5 @@
 
-package vn.com.frankle.karaokelover.models;
+package vn.com.frankle.karaokelover.services.responses;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -9,8 +9,10 @@ import java.util.List;
 
 import javax.annotation.Generated;
 
+import vn.com.frankle.karaokelover.models.PageInfo;
+
 @Generated("org.jsonschema2pojo")
-public class ResponseYoutubeSnippetContentDetails {
+public class ResponseSnippetContentDetails {
 
     @SerializedName("kind")
     @Expose

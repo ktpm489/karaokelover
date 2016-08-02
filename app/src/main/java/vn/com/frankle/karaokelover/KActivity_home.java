@@ -21,10 +21,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
-import android.widget.ActionMenuView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.pushtorefresh.storio.sqlite.StorIOSQLite;
 import com.viewpagerindicator.CirclePageIndicator;
@@ -48,11 +46,10 @@ import vn.com.frankle.karaokelover.database.entities.DAOHotTrend;
 import vn.com.frankle.karaokelover.database.tables.ArtistTable;
 import vn.com.frankle.karaokelover.database.tables.HotTrendTable;
 import vn.com.frankle.karaokelover.events.EventFinishLoadingHotTrendAndArtist;
-import vn.com.frankle.karaokelover.models.ResponseYoutubeSnippetStatistics;
+import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
 import vn.com.frankle.karaokelover.presenters.KHotArtistAdapter;
 import vn.com.frankle.karaokelover.presenters.KPagerAdapterHotKaraokeSong;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
-import vn.com.frankle.karaokelover.util.AnimUtils;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 
 public class KActivity_home extends AppCompatActivity
@@ -129,7 +126,7 @@ public class KActivity_home extends AppCompatActivity
      *
      * @return
      */
-    private Observable<List<ResponseYoutubeSnippetStatistics>> getObservableHotTrend() {
+    private Observable<List<ResponseSnippetStatistics>> getObservableHotTrend() {
         return storIOSQLite
                 .get()
                 .listOfObjects(DAOHotTrend.class)

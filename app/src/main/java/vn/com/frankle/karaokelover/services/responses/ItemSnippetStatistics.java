@@ -1,9 +1,12 @@
 
-package vn.com.frankle.karaokelover.models;
+package vn.com.frankle.karaokelover.services.responses;
 
 import javax.annotation.Generated;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import vn.com.frankle.karaokelover.models.Snippet;
+import vn.com.frankle.karaokelover.models.Statistics;
 
 @Generated("org.jsonschema2pojo")
 public class ItemSnippetStatistics {
