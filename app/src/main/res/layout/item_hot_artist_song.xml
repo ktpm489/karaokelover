@@ -37,7 +37,7 @@
         android:paddingLeft="6dp"
         android:paddingRight="6dp"
         android:paddingTop="2dp"
-        android:textColor="@color/text_secondary_light"
+        android:textColor="@color/text_primary_light"
         android:textSize="14sp" />
 
 </RelativeLayout>

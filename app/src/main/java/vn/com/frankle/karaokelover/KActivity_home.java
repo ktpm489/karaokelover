@@ -88,7 +88,6 @@ public class KActivity_home extends AppCompatActivity
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
 
-    private KPagerAdapterHotKaraokeSong mHotKaraokePagerAdapter;
     private KHotArtistAdapter mHotArtistAdapter = new KHotArtistAdapter(this);
 
     @Override
@@ -322,7 +321,7 @@ public class KActivity_home extends AppCompatActivity
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventFinishLoadingHotTrendAndArtistsKaraokes(EventFinishLoadingHotTrendAndArtist event) {
-        mHotKaraokePagerAdapter = new KPagerAdapterHotKaraokeSong(getSupportFragmentManager(), event.getListHotTrendKaraokes());
+        KPagerAdapterHotKaraokeSong mHotKaraokePagerAdapter = new KPagerAdapterHotKaraokeSong(getSupportFragmentManager(), event.getListHotTrendKaraokes());
         mCoverContainer.setAdapter(mHotKaraokePagerAdapter);
         mCoverContainer.setOffscreenPageLimit(4);
         mViewpagerIndicator.setViewPager(mCoverContainer);

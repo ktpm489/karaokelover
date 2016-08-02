@@ -11,8 +11,10 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.SpannableStringBuilder;
@@ -22,6 +24,7 @@ import android.text.style.StyleSpan;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.transition.TransitionManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -38,9 +41,17 @@ import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
+import vn.com.frankle.karaokelover.models.ResponseYoutubeSearch;
+import vn.com.frankle.karaokelover.presenters.KSearchRecyclerViewAdapter;
+import vn.com.frankle.karaokelover.services.ReactiveHelper;
 import vn.com.frankle.karaokelover.util.AnimUtils;
 import vn.com.frankle.karaokelover.util.ImeUtils;
 import vn.com.frankle.karaokelover.util.ViewUtils;
+import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 import vn.com.frankle.karaokelover.views.widgets.BaselineGridTextView;
 
 /**
@@ -54,6 +65,9 @@ public class KSearchActivity extends AppCompatActivity {
     public static final String EXTRA_SAVE_DRIBBBLE = "EXTRA_SAVE_DRIBBBLE";
     public static final String EXTRA_SAVE_DESIGNER_NEWS = "EXTRA_SAVE_DESIGNER_NEWS";
     public static final int RESULT_CODE_SAVE = 7;
+
+    @NonNull
+    private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
 
     @BindView(R.id.searchback)
     ImageButton searchBack;
@@ -87,6 +101,8 @@ public class KSearchActivity extends AppCompatActivity {
     private int searchIconCenterX;
     private boolean dismissing;
 
+    private KSearchRecyclerViewAdapter mSearchAdapter;
+
     public static Intent createStartIntent(Context context, int menuIconLeft, int menuIconCenterX) {
         Intent starter = new Intent(context, KSearchActivity.class);
         starter.putExtra(EXTRA_MENU_LEFT, menuIconLeft);
@@ -100,6 +116,7 @@ public class KSearchActivity extends AppCompatActivity {
         setContentView(R.layout.layout_activity_search);
         ButterKnife.bind(this);
         setupSearchView();
+        setupSearchResultView();
         auto = TransitionInflater.from(this).inflateTransition(R.transition.auto);
 
 
@@ -179,6 +196,19 @@ public class KSearchActivity extends AppCompatActivity {
         onNewIntent(getIntent());
     }
 
+    /**
+     * Setup view for displaying search result
+     */
+    private void setupSearchResultView() {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        results.setLayoutManager(layoutManager);
+        results.setHasFixedSize(true);
+        results.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(this, 16), SpaceItemDecoration.VERTICAL));
+        mSearchAdapter = new KSearchRecyclerViewAdapter(this);
+        results.setAdapter(mSearchAdapter);
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         if (intent.hasExtra(SearchManager.QUERY)) {
@@ -203,8 +233,16 @@ public class KSearchActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        compositeSubscriptionForOnStop.unsubscribe();
     }
 
     @OnClick({R.id.scrim, R.id.searchback})
@@ -322,6 +360,7 @@ public class KSearchActivity extends AppCompatActivity {
 
     private void clearResults() {
         TransitionManager.beginDelayedTransition(container, auto);
+        mSearchAdapter.clearData();
         results.setVisibility(View.GONE);
         progress.setVisibility(View.GONE);
         resultsScrim.setVisibility(View.GONE);
@@ -356,11 +395,29 @@ public class KSearchActivity extends AppCompatActivity {
         }
     }
 
+    private void handleSearchResult(ResponseYoutubeSearch searchResult) {
+        Log.i("SearchResult", "Search result size = " + searchResult.getItems().size());
+
+        if (results.getVisibility() != View.VISIBLE) {
+            TransitionManager.beginDelayedTransition(container, auto);
+            progress.setVisibility(View.GONE);
+            results.setVisibility(View.VISIBLE);
+
+            mSearchAdapter.populateWithData(searchResult);
+        }
+    }
+
     private void searchFor(String query) {
         clearResults();
         progress.setVisibility(View.VISIBLE);
         ImeUtils.hideIme(searchView);
         searchView.clearFocus();
         Toast.makeText(KSearchActivity.this, "Search for: " + query, Toast.LENGTH_SHORT).show();
+
+        Observable<ResponseYoutubeSearch> searchRequest = ReactiveHelper.searchKarokeVideos(query);
+        compositeSubscriptionForOnStop.add(searchRequest
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleSearchResult));
     }
 }

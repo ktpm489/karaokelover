@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="16dp"
+    android:layout_marginStart="16dp">
+
+    <ImageView
+        android:id="@+id/item_search_video_preview"
+        android:layout_width="128dp"
+        android:layout_height="72dp"
+        android:layout_alignParentStart="true"
+        android:scaleType="centerCrop" />
+
+    <ImageButton
+        android:id="@+id/item_search_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_more" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/item_search_video_preview"
+        android:layout_alignTop="@id/item_search_video_preview"
+        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@id/item_search_video_preview"
+        android:layout_toStartOf="@id/item_search_more"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/item_search_video_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@color/text_primary_light"
+            android:textSize="15sp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/item_search_video_title">
+
+            <TextView
+                android:id="@+id/item_search_play_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerHorizontal="true"
+                android:text="1.3M plays"
+                android:textColor="@color/text_secondary_light"
+                android:textSize="13sp" />
+
+            <View
+                android:id="@+id/circle_divider"
+                android:layout_width="2dp"
+                android:layout_height="2dp"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="8dp"
+                android:layout_toEndOf="@id/item_search_play_count"
+                android:background="@drawable/drawable_circle_divider" />
+
+            <TextView
+                android:id="@+id/item_search_like_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_toEndOf="@id/circle_divider"
+                android:text="53K likes"
+                android:textColor="@color/text_secondary_light"
+                android:textSize="13sp" />
+
+        </RelativeLayout>
+    </RelativeLayout>
+</RelativeLayout>

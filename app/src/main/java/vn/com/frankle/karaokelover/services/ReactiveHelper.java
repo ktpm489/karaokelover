@@ -1,5 +1,7 @@
 package vn.com.frankle.karaokelover.services;
 
+import android.util.Log;
+
 import com.pushtorefresh.storio.sqlite.StorIOSQLite;
 import com.pushtorefresh.storio.sqlite.queries.RawQuery;
 
@@ -15,6 +17,7 @@ import vn.com.frankle.karaokelover.database.entities.DAOHotTrend;
 import vn.com.frankle.karaokelover.database.entities.KaraokeAndArtist;
 import vn.com.frankle.karaokelover.database.tables.ArtistTable;
 import vn.com.frankle.karaokelover.database.tables.KaraokeTable;
+import vn.com.frankle.karaokelover.models.ResponseYoutubeSearch;
 import vn.com.frankle.karaokelover.models.ResponseYoutubeSnippetStatistics;
 
 /**
@@ -74,5 +77,17 @@ public class ReactiveHelper {
                         .toList()
                         .map(responseYoutubeSnippetContentDetailses -> new ArtistWithKaraoke(artistWithKaraoke.getArtist(), artistWithKaraoke.getKaraokes(), responseYoutubeSnippetContentDetailses)))
                 .toList();
+    }
+
+    /**
+     * Search for karaoke videos
+     *
+     * @param query : video title to search
+     * @return
+     */
+    public static Observable<ResponseYoutubeSearch> searchKarokeVideos(String query) {
+        // Append "karaoke" at the end of query string for searching for Karaoke video
+        String karaokeQuery = new StringBuilder(query).append(" karaoke").toString();
+        return KApplication.getRxYoutubeAPIService().searchKaraokeVideos(karaokeQuery);
     }
 }
