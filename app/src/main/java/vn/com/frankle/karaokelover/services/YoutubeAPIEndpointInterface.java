@@ -19,7 +19,7 @@ public interface YoutubeAPIEndpointInterface {
     @GET("videos?part=snippet,contentDetails&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
     Observable<ResponseSnippetContentDetails> getYoutubeDetailContentById(@Query("id") String videoID);
 
-    @GET("search?part=snippet&maxResults=15&order=relevance&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
+    @GET("search?part=snippet&maxResults=15&type=video&order=relevance&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
     Observable<ResponseSearch> searchKaraokeVideos(@Query("q") String searchQuery);
 
     @GET("videos?part=statistics,contentDetails&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
