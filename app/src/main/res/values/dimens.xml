@@ -15,4 +15,6 @@
     <!-- Z axis elevation -->
     <dimen name="z_app_bar">4dp</dimen>
 
+    <dimen name="app_bar_height">256dp</dimen>
+
 </resources>

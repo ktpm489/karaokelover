@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover.presenters;
+package vn.com.frankle.karaokelover.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover.presenters;
+package vn.com.frankle.karaokelover.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -10,8 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;

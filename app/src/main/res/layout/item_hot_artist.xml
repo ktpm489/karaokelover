@@ -10,7 +10,7 @@
         android:layout_alignBaseline="@+id/tv_hot_artist_name"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="16dp"
-        android:text="MORE"
+        android:text="@string/btn_more"
         android:textColor="@color/text_secondary_light"
         android:textStyle="bold" />
 

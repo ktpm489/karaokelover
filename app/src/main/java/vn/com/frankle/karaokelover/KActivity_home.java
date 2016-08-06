@@ -47,8 +47,8 @@ import vn.com.frankle.karaokelover.database.tables.ArtistTable;
 import vn.com.frankle.karaokelover.database.tables.HotTrendTable;
 import vn.com.frankle.karaokelover.events.EventFinishLoadingHotTrendAndArtist;
 import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
-import vn.com.frankle.karaokelover.presenters.KHotArtistAdapter;
-import vn.com.frankle.karaokelover.presenters.KPagerAdapterHotKaraokeSong;
+import vn.com.frankle.karaokelover.adapters.KHotArtistAdapter;
+import vn.com.frankle.karaokelover.adapters.KPagerAdapterHotKaraokeSong;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 

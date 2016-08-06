@@ -48,7 +48,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
-import vn.com.frankle.karaokelover.presenters.KSearchRecyclerViewAdapter;
+import vn.com.frankle.karaokelover.adapters.KSearchRecyclerViewAdapter;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
 import vn.com.frankle.karaokelover.util.AnimUtils;
 import vn.com.frankle.karaokelover.util.ImeUtils;

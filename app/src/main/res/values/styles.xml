@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="KaraokeLoverTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -13,9 +13,19 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="KaraokeLoverTheme.ArtistWithSongs" parent="KaraokeLoverTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+
     <style name="KaraokeLoverTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="KaraokeLoverTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="KaraokeLoverTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+    </style>
 
 
     <style name="SearchViewTheme" parent="KaraokeLoverTheme.AppBarOverlay">
@@ -64,7 +74,9 @@
 
     <style name="Widget.KaraokeLover.SearchView" parent="android:style/Widget.Material.SearchView">
         <item name="android:searchIcon">@android:color/transparent</item>
-        <item name="android:searchHintIcon">@android:color/transparent</item>
+        <item name="android:searchHintIcon" tools:targetApi="lollipop_mr1">
+            @android:color/transparent
+        </item>
         <item name="android:queryBackground">@android:color/transparent</item>
         <item name="android:submitBackground">@android:color/transparent</item>
     </style>

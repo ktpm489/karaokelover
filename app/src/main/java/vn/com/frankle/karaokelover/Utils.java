@@ -59,6 +59,9 @@ public class Utils {
      * @return short-format viewcount string
      */
     public static String getViewCount(String viewcount) {
+        if (viewcount == null || viewcount.isEmpty()) {
+            return "0 play";
+        }
         int original_viewcount = Integer.parseInt(viewcount);
         String abbreViewCount = formatAbbreviationNumber(original_viewcount);
         return abbreViewCount + " plays";
@@ -71,6 +74,9 @@ public class Utils {
      * @return short-format likecount string
      */
     public static String getLikeCount(String likecount) {
+        if (likecount == null || likecount.isEmpty()){
+            return "0 like";
+        }
         int original_likecount = Integer.parseInt(likecount);
         String abbreLikeCount = formatAbbreviationNumber(original_likecount);
         return abbreLikeCount + " likes";

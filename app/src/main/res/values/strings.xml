@@ -10,4 +10,5 @@
     <!-- Search -->
     <string name="search_hint">Search karaoke videos…</string>
     <string name="no_search_results">No results for\n“%1$s”</string>
+    <string name="btn_more">MORE</string>
 </resources>
