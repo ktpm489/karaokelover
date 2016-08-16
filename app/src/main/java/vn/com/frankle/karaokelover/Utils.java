@@ -9,6 +9,8 @@ import org.joda.time.format.ISOPeriodFormat;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -118,4 +120,20 @@ public class Utils {
                 .toFormatter();
         return formatter.print(period);
     }
+
+    /**
+     * Break a list of strings into multiple lists of given max size partitionSize
+     *
+     * @param originalList  the original list
+     * @param partitionSize max number of elements per list
+     * @return a list of paritioned lists
+     */
+    public static List<List> partition(List originalList, int partitionSize) {
+        List<List> partitions = new LinkedList<List>();
+        for (int i = 0; i < originalList.size(); i += partitionSize) {
+            partitions.add(originalList.subList(i, i + Math.min(partitionSize, originalList.size() - i)));
+        }
+        return partitions;
+    }
+
 }

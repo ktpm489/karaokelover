@@ -25,18 +25,25 @@ import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 
 public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecyclerViewAdapter.ViewHolder> {
 
-    private Context mContext;
-    private List<VideoSearchItem> mSearchResult;
-
-
-    public KSearchRecyclerViewAdapter(Context context) {
-        mContext = context;
-        mSearchResult = new ArrayList<>();
+    public interface OnItemClickListener {
+        void onItemClick(VideoSearchItem item);
     }
 
-    public KSearchRecyclerViewAdapter(Context context, List<VideoSearchItem> searchResult) {
+    private final Context mContext;
+    private List<VideoSearchItem> mSearchResult;
+    private final OnItemClickListener mListener;
+
+
+    public KSearchRecyclerViewAdapter(Context context, OnItemClickListener listener) {
+        mContext = context;
+        mSearchResult = new ArrayList<>();
+        mListener = listener;
+    }
+
+    public KSearchRecyclerViewAdapter(Context context, List<VideoSearchItem> searchResult, OnItemClickListener listener) {
         mContext = context;
         this.mSearchResult = searchResult;
+        mListener = listener;
     }
 
     @Override
@@ -55,11 +62,7 @@ public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecy
         VideoSearchItem itemVideo = mSearchResult.get(position);
 
         // Set item views based on your views and data model
-        holder.title.setText(itemVideo.getTitle());
-        holder.playCount.setText(itemVideo.getViewCount());
-        holder.likeCount.setText(itemVideo.getLikeCount());
-        holder.duration.setText(itemVideo.getDuration());
-        Glide.with(mContext).load(itemVideo.getThumbnails()).into(holder.preview);
+        holder.bind(mContext, itemVideo, mListener);
     }
 
     @Override
@@ -113,6 +116,15 @@ public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecy
             super(itemView);
 
             ButterKnife.bind(this, itemView);
+        }
+
+        public void bind(final Context context, final VideoSearchItem item, final OnItemClickListener listener) {
+            title.setText(item.getTitle());
+            playCount.setText(item.getViewCount());
+            likeCount.setText(item.getLikeCount());
+            duration.setText(item.getDuration());
+            Glide.with(context).load(item.getThumbnails()).into(preview);
+            itemView.setOnClickListener(v -> listener.onItemClick(item));
         }
     }
 

@@ -1,5 +1,6 @@
 package vn.com.frankle.karaokelover;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -48,6 +49,8 @@ public class KActivityArtistDetails extends AppCompatActivity {
     @NonNull
     private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
 
+    private final KSearchRecyclerViewAdapter.OnItemClickListener mListener = this::handleOnVideoClickListener;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +70,7 @@ public class KActivityArtistDetails extends AppCompatActivity {
         mListSongs.setLayoutManager(layoutManager);
         mListSongs.setHasFixedSize(true);
         mListSongs.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(this, 16), SpaceItemDecoration.VERTICAL));
-        mSearchAdapter = new KSearchRecyclerViewAdapter(this);
+        mSearchAdapter = new KSearchRecyclerViewAdapter(this, mListener);
         mListSongs.setAdapter(mSearchAdapter);
     }
 
@@ -75,6 +78,13 @@ public class KActivityArtistDetails extends AppCompatActivity {
         mSearchAdapter.populateWithData(songs);
 
         switchLoadingDataState(false);
+    }
+
+    private void handleOnVideoClickListener(VideoSearchItem video) {
+        Intent playVideoItent = new Intent(this, KActivityPlayVideo.class);
+        playVideoItent.putExtra("title", video.getTitle());
+        playVideoItent.putExtra("videoid", video.getVideoId());
+        startActivity(playVideoItent);
     }
 
     private void loadArtistSongs(String artist) {

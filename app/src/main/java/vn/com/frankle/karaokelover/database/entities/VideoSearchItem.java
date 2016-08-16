@@ -13,8 +13,10 @@ public class VideoSearchItem {
     private String mViewCount;
     private String mLikeCount;
     private Thumbnails mThumbnails;
+    private String mVideoId;
 
-    public VideoSearchItem(String title, String duration, String viewcount, String likecount, Thumbnails thumbnail) {
+    public VideoSearchItem(String videoID, String title, String duration, String viewcount, String likecount, Thumbnails thumbnail) {
+        this.mVideoId = videoID;
         this.mTitle = title;
         this.mDuration = duration;
         this.mViewCount = viewcount;
@@ -60,5 +62,13 @@ public class VideoSearchItem {
 
     public void setThumbnails(Thumbnails mThumbnails) {
         this.mThumbnails = mThumbnails;
+    }
+
+    public String getVideoId() {
+        return mVideoId;
+    }
+
+    public void setVideoId(String mVideoId) {
+        this.mVideoId = mVideoId;
     }
 }

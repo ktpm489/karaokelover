@@ -47,8 +47,8 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
-import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.adapters.KSearchRecyclerViewAdapter;
+import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
 import vn.com.frankle.karaokelover.util.AnimUtils;
 import vn.com.frankle.karaokelover.util.ImeUtils;
@@ -207,7 +207,7 @@ public class KSearchActivity extends AppCompatActivity {
         results.setLayoutManager(layoutManager);
         results.setHasFixedSize(true);
         results.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(this, 16), SpaceItemDecoration.VERTICAL));
-        mSearchAdapter = new KSearchRecyclerViewAdapter(this);
+        mSearchAdapter = new KSearchRecyclerViewAdapter(this, item -> {});
         results.setAdapter(mSearchAdapter);
     }
 

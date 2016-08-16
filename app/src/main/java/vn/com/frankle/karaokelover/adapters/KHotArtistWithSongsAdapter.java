@@ -23,20 +23,27 @@ import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
  * Created by duclm on 7/17/2016.
  */
 
-public class KHostArtistWithSongsAdapter extends RecyclerView.Adapter<KHostArtistWithSongsAdapter.ViewHolder> {
+public class KHotArtistWithSongsAdapter extends RecyclerView.Adapter<KHotArtistWithSongsAdapter.ViewHolder> {
 
-    private Context mContext;
-    private List<VideoSearchItem> mSearchResult;
-
-
-    public KHostArtistWithSongsAdapter(Context context) {
-        mContext = context;
-        mSearchResult = new ArrayList<>();
+    public interface OnItemClickListener {
+        void onItemClick(VideoSearchItem item);
     }
 
-    public KHostArtistWithSongsAdapter(Context context, List<VideoSearchItem> searchResult) {
+    private final Context mContext;
+    private List<VideoSearchItem> mSearchResult;
+    private final OnItemClickListener mListener;
+
+
+    public KHotArtistWithSongsAdapter(Context context, OnItemClickListener listener) {
+        mContext = context;
+        mSearchResult = new ArrayList<>();
+        mListener = listener;
+    }
+
+    public KHotArtistWithSongsAdapter(Context context, List<VideoSearchItem> searchResult, OnItemClickListener listener) {
         mContext = context;
         this.mSearchResult = searchResult;
+        this.mListener = listener;
     }
 
     @Override

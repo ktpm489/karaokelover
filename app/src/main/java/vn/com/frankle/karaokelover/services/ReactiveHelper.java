@@ -1,5 +1,7 @@
 package vn.com.frankle.karaokelover.services;
 
+import android.util.Log;
+
 import com.pushtorefresh.storio.sqlite.StorIOSQLite;
 import com.pushtorefresh.storio.sqlite.queries.RawQuery;
 
@@ -17,7 +19,9 @@ import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.database.tables.ArtistTable;
 import vn.com.frankle.karaokelover.database.tables.KaraokeTable;
 import vn.com.frankle.karaokelover.services.responses.ItemSearch;
+import vn.com.frankle.karaokelover.services.responses.ResponseAudioMp3;
 import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
+import vn.com.frankle.karaokelover.youtube.YoutubeHelpers;
 
 /**
  * Created by duclm on 7/28/2016.
@@ -82,7 +86,7 @@ public class ReactiveHelper {
     private static Observable<VideoSearchItem> getStatisticsContentDetails(ItemSearch itemSearch) {
         return KApplication.getRxYoutubeAPIService().getStatisticContentDetailById(itemSearch.getId().getVideoId())
                 .map(responseStatisticContentDetails
-                        -> new VideoSearchItem(itemSearch.getSnippet().getTitle(),
+                        -> new VideoSearchItem(itemSearch.getId().getVideoId(), itemSearch.getSnippet().getTitle(),
                         responseStatisticContentDetails.getDurationISO8601Format(),
                         responseStatisticContentDetails.getViewCount(),
                         responseStatisticContentDetails.getLikeCount(),

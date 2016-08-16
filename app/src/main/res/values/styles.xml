@@ -24,8 +24,7 @@
 
     <style name="KaraokeLoverTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="KaraokeLoverTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
-    </style>
+    <style name="KaraokeLoverTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
 
     <style name="SearchViewTheme" parent="KaraokeLoverTheme.AppBarOverlay">
