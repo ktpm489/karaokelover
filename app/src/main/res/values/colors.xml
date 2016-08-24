@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#FF24252B</color>
     <color name="colorAccent">#FF5722</color>
     <color name="background_dark">#FF242429</color>
+    <color name="colorAccentBlur">#99FF5722</color>
 
     <!-- Common colors for Dark Theme -->
     <color name="text_primary_light">#ffffffff</color>

@@ -1,8 +1,7 @@
 package vn.com.frankle.karaokelover;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -11,7 +10,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubeInitializationResult;
@@ -28,10 +30,8 @@ import butterknife.ButterKnife;
 import rx.subscriptions.CompositeSubscription;
 import vn.com.frankle.karaokelover.events.EventDownloadAudioCompleted;
 import vn.com.frankle.karaokelover.events.EventDownloadAudioError;
-import vn.com.frankle.karaokelover.events.EventDownloadAudioPreparing;
 import vn.com.frankle.karaokelover.events.EventDownloadAudioProgress;
-import vn.com.frankle.karaokelover.events.EventDownloadAudioStart;
-import vn.com.frankle.karaokelover.services.YoutubeAudioDownloadService;
+import vn.com.frankle.karaokelover.events.EventPrepareRecordingCountdown;
 
 public class KActivityPlayVideo extends AppCompatActivity {
 
@@ -42,8 +42,12 @@ public class KActivityPlayVideo extends AppCompatActivity {
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
-    @BindView(R.id.btn_stop_recording)
-    Button btnStopRecording;
+    @BindView(R.id.btn_recording)
+    ImageButton btnRecord;
+    @BindView(R.id.layout_ready)
+    RelativeLayout mLayoutCountdown;
+    @BindView(R.id.tv_countdown)
+    TextView mTvCountdown;
 
     private String mCurrentVideoId;
     private String mCurrentVideoTitle;
@@ -130,6 +134,13 @@ public class KActivityPlayVideo extends AppCompatActivity {
         }
     };
 
+    private View.OnClickListener onRecordClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            new PrepareRecordingTask().execute();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -167,16 +178,7 @@ public class KActivityPlayVideo extends AppCompatActivity {
         mYoutubePlayerFragment = (YouTubePlayerSupportFragment) getSupportFragmentManager().findFragmentById(R.id.youtube_player);
         mYoutubePlayerFragment.initialize(Constants.YOUTUBE_API_KEY, onInitializedListener);
 
-        btnStopRecording.setOnClickListener(view -> {
-            if (mYoutubePlayer != null) {
-                if (mYoutubePlayer.isPlaying()) {
-                    mYoutubePlayer.pause();
-                } else {
-                    mYoutubePlayer.seekToMillis(0);
-                    mYoutubePlayer.play();
-                }
-            }
-        });
+        btnRecord.setOnClickListener(onRecordClickListener);
     }
 
     @Override
@@ -190,66 +192,58 @@ public class KActivityPlayVideo extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.menu_record) {
-            startRecording();
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Preparing audio file (download from youtubeinmp3.com) of current Youtube video
-     */
-    private void prepareAudioFile() {
-        Intent intentDownloadAudio = new Intent(this, YoutubeAudioDownloadService.class);
-        intentDownloadAudio.putExtra("videoId", mCurrentVideoId);
-        intentDownloadAudio.putExtra("title", mCurrentVideoTitle);
-        startService(intentDownloadAudio);
-    }
+//    /**
+//     * Preparing audio file (download from youtubeinmp3.com) of current Youtube video
+//     */
+//    private void prepareAudioFile() {
+//        Intent intentDownloadAudio = new Intent(this, YoutubeAudioDownloadService.class);
+//        intentDownloadAudio.putExtra("videoId", mCurrentVideoId);
+//        intentDownloadAudio.putExtra("title", mCurrentVideoTitle);
+//        startService(intentDownloadAudio);
+//    }
 
-    private void showPreparingDownloadDialog() {
-        mProgressPrepare = new ProgressDialog(KActivityPlayVideo.this);
-        mProgressPrepare.setMessage("Preparing beat file...");
-        mProgressPrepare.show();
-    }
+//    private void showPreparingDownloadDialog() {
+//        mProgressPrepare = new ProgressDialog(KActivityPlayVideo.this);
+//        mProgressPrepare.setMessage("Preparing beat file...");
+//        mProgressPrepare.show();
+//    }
 
-    /**
-     * Show a progress dialog when starting downloading audio file
-     */
-    private void showDownloadProgressDialog() {
-        if (mProgressPrepare.isShowing()) {
-            mProgressPrepare.dismiss();
-        }
-        mProgressDownloadDialog = new ProgressDialog(KActivityPlayVideo.this);
-        mProgressDownloadDialog.setIndeterminate(false);
-        mProgressDownloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        mProgressDownloadDialog.setCancelable(false);
-        mProgressDownloadDialog.setMax(100);
-        mProgressDownloadDialog.setTitle("Downloading beat file");
-        mProgressDownloadDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", (dialogInterface, i) -> {
-        });
-        mProgressDownloadDialog.show();
-    }
+//    /**
+//     * Show a progress dialog when starting downloading audio file
+//     */
+//    private void showDownloadProgressDialog() {
+//        if (mProgressPrepare.isShowing()) {
+//            mProgressPrepare.dismiss();
+//        }
+//        mProgressDownloadDialog = new ProgressDialog(KActivityPlayVideo.this);
+//        mProgressDownloadDialog.setIndeterminate(false);
+//        mProgressDownloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+//        mProgressDownloadDialog.setCancelable(false);
+//        mProgressDownloadDialog.setMax(100);
+//        mProgressDownloadDialog.setTitle("Downloading beat file");
+//        mProgressDownloadDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", (dialogInterface, i) -> {
+//        });
+//        mProgressDownloadDialog.show();
+//    }
 
-    /**
-     * Event : preparing to download beat file (waiting for server to convert youtube video into mp3 file)
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventPreparingDownloadAudio(EventDownloadAudioPreparing event) {
-        showPreparingDownloadDialog();
-    }
+//    /**
+//     * Event : preparing to download beat file (waiting for server to convert youtube video into mp3 file)
+//     */
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onEventPreparingDownloadAudio(EventDownloadAudioPreparing event) {
+//        showPreparingDownloadDialog();
+//    }
 
-    /**
-     * Event : conversion is completed. Beat file is ready to be downloaded.
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventStartDownloadAudio(EventDownloadAudioStart event) {
-        showDownloadProgressDialog();
-    }
+//    /**
+//     * Event : conversion is completed. Beat file is ready to be downloaded.
+//     */
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onEventStartDownloadAudio(EventDownloadAudioStart event) {
+//        showDownloadProgressDialog();
+//    }
 
     /**
      * Receive event download progress -> update progress dialog
@@ -285,6 +279,60 @@ public class KActivityPlayVideo extends AppCompatActivity {
                 .setMessage("Internal problem when preparing beat file. Please try again!")
                 .setPositiveButton("OK", (dialogInterface, i) -> dialogInterface.dismiss())
                 .show();
+    }
+
+    /**
+     * Event of running prepare recording countdown
+     *
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventPrepareCountdownRunning(EventPrepareRecordingCountdown event) {
+        int current = event.getCurrentValue();
+        Log.d(DEBUG_TAG, "Countdown: value = " + current);
+
+        if (current == 0) {
+            mTvCountdown.setText("READY!!!");
+        } else {
+            mTvCountdown.setText(String.valueOf(current));
+        }
+    }
+
+    /**
+     * Display a prepare screen before starting recording
+     */
+    private class PrepareRecordingTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (mYoutubePlayer.isPlaying()) {
+                mYoutubePlayer.pause();
+                mYoutubePlayer.seekToMillis(0);
+            }
+            mLayoutCountdown.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            for (int i = 3; i >= 0; --i) {
+                Log.d(DEBUG_TAG, "Starting countdown: current = " + i);
+                KApplication.eventBus.post(new EventPrepareRecordingCountdown(i));
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            mLayoutCountdown.setVisibility(View.INVISIBLE);
+        }
     }
 
     /**
