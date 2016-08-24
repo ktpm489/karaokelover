@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import vn.com.frankle.karaokelover.views.FragmentHotKaraoke;
  * Created by duclm on 7/16/2016.
  */
 
-public class KPagerAdapterHotKaraokeSong extends FragmentPagerAdapter {
+public class KPagerAdapterHotKaraokeSong extends FragmentStatePagerAdapter {
     private static final int MAX_HOT_KARAOKE = 5;
 
     private Context mContext;
@@ -33,6 +33,7 @@ public class KPagerAdapterHotKaraokeSong extends FragmentPagerAdapter {
         ResponseSnippetStatistics karaoke = mListHotTrendKaraokes.get(position);
         Bundle args = new Bundle();
         args.putString("title", karaoke.getItems().get(0).getSnippet().getTitle());
+        args.putString("id", karaoke.getItems().get(0).getId());
         args.putString("play_count", karaoke.getItems().get(0).getStatistics().getViewCount());
         args.putString("like_count", karaoke.getItems().get(0).getStatistics().getLikeCount());
         args.putString("thumbnail", Utils.getThumbnailURL(karaoke.getItems().get(0).getSnippet().getThumbnails()));

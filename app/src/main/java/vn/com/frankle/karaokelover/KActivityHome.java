@@ -1,12 +1,15 @@
 package vn.com.frankle.karaokelover;
 
+import android.Manifest;
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -52,10 +55,12 @@ import vn.com.frankle.karaokelover.adapters.KPagerAdapterHotKaraokeSong;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 
-public class KActivity_home extends AppCompatActivity
+public class KActivityHome extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private final String ACTIVITY_NAME = this.getClass().getSimpleName();
+
+    private static final int PERMISSION_AUDIO_RECORD = 0;
 
     private static final int RC_SEARCH = 0;
 
@@ -118,6 +123,35 @@ public class KActivity_home extends AppCompatActivity
         setUpViews();
 
         retrieveHotTrendAndArtistsKaraokes();
+
+        //Request for needed permission (INTERNET, STORAGE)
+        requestPermission();
+    }
+
+    /**
+     * Request necessary permission for the application from user
+     */
+    private void requestPermission() {
+        String[] requiredPermission = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+        ActivityCompat.requestPermissions(this, requiredPermission, PERMISSION_AUDIO_RECORD);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_AUDIO_RECORD: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Do something after user've granted permission
+                }else{
+                    // TO-DO
+                    // Properly handling the case user denies any of the required permissions
+                    this.finish();
+                }
+            }
+        }
     }
 
 

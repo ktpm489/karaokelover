@@ -1,5 +1,7 @@
 package vn.com.frankle.karaokelover.views;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,6 +16,7 @@ import com.bumptech.glide.Glide;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import vn.com.frankle.karaokelover.KActivityPlayVideo;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.Utils;
 
@@ -22,6 +25,8 @@ import vn.com.frankle.karaokelover.Utils;
  */
 
 public class FragmentHotKaraoke extends Fragment {
+
+    private Context mContext;
     private Bundle mBundle;
 
     @BindView(R.id.layout_viewpager_hot_karaoke)
@@ -44,8 +49,12 @@ public class FragmentHotKaraoke extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        mContext = container.getContext();
+
         View view = inflater.inflate(R.layout.layout_fragment_hot_karaoke, container, false);
         ButterKnife.bind(this, view);
+
+        view.setOnClickListener(view1 -> handleHotKaraokeClickEvent(mBundle));
 
         mTitle.setText(mBundle.getString("title"));
         mHotPlayCount.setText(Utils.getViewCount(mBundle.getString("play_count")));
@@ -53,6 +62,16 @@ public class FragmentHotKaraoke extends Fragment {
         Glide.with(this).load(mBundle.getString("thumbnail")).into(mThumbnail);
 
         return view;
+    }
+
+    /**
+     * Hot karaoke click event handler
+     */
+    private void handleHotKaraokeClickEvent(Bundle bundle) {
+        Intent playVideoItent = new Intent(mContext, KActivityPlayVideo.class);
+        playVideoItent.putExtra("title", mBundle.getString("title"));
+        playVideoItent.putExtra("videoid", mBundle.getString("id"));
+        mContext.startActivity(playVideoItent);
     }
 
     public void onPause() {

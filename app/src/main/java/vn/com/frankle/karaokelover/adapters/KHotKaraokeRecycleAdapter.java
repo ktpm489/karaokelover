@@ -30,19 +30,20 @@ public class KHotKaraokeRecycleAdapter extends RecyclerView.Adapter<KHotKaraokeR
 
     private Context mContext;
     private List<ResponseSnippetContentDetails> mYoutubeKaraokes;
+    private final OnItemClickListener mListener;
+
+    public interface OnItemClickListener {
+        void onItemClick(ResponseSnippetContentDetails item);
+    }
 
     @NonNull
     private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
 
-    public KHotKaraokeRecycleAdapter(Context context) {
-        mContext = context;
-        mYoutubeKaraokes = new ArrayList<>();
-    }
-
-    public KHotKaraokeRecycleAdapter(Context context, ArtistWithKaraoke artistWithKaraoke) {
+    public KHotKaraokeRecycleAdapter(Context context, ArtistWithKaraoke artistWithKaraoke, OnItemClickListener onItemClickListener) {
         mContext = context;
         mYoutubeKaraokes = new ArrayList<>();
         mYoutubeKaraokes = artistWithKaraoke.getResponseYoutubeVideos();
+        mListener = onItemClickListener;
     }
 
     @Override
@@ -61,9 +62,7 @@ public class KHotKaraokeRecycleAdapter extends RecyclerView.Adapter<KHotKaraokeR
         ResponseSnippetContentDetails youtubeKaraoke = mYoutubeKaraokes.get(position);
 
         // Set item views based on your views and data model
-        holder.title.setText(youtubeKaraoke.getItems().get(0).getSnippet().getTitle());
-        holder.duration.setText(Utils.convertYoutubeTimeformat(youtubeKaraoke.getItems().get(0).getContentDetails().getDuration()));
-        Glide.with(mContext).load(Utils.getThumbnailURL(youtubeKaraoke.getItems().get(0).getSnippet().getThumbnails())).into(holder.preview);
+        holder.bind(mContext, youtubeKaraoke, mListener);
     }
 
     @Override
@@ -91,6 +90,13 @@ public class KHotKaraokeRecycleAdapter extends RecyclerView.Adapter<KHotKaraokeR
             super(itemView);
 
             ButterKnife.bind(this, itemView);
+        }
+
+        public void bind(final Context context, final ResponseSnippetContentDetails item, final OnItemClickListener listener) {
+            title.setText(item.getItems().get(0).getSnippet().getTitle());
+            duration.setText(Utils.convertYoutubeTimeformat(item.getItems().get(0).getContentDetails().getDuration()));
+            Glide.with(context).load(Utils.getThumbnailURL(item.getItems().get(0).getSnippet().getThumbnails())).into(preview);
+            itemView.setOnClickListener(v -> listener.onItemClick(item));
         }
     }
 }

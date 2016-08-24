@@ -17,7 +17,7 @@ import vn.com.frankle.karaokelover.database.DbModule;
         }
 )
 public interface KAppComponent {
-    void inject(@NonNull KActivity_home activity_home);
+    void inject(@NonNull KActivityHome activity_home);
 
     @NonNull
     StorIOSQLite storIOSQLite();

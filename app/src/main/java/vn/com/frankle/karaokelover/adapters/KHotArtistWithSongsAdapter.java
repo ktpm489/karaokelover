@@ -121,6 +121,15 @@ public class KHotArtistWithSongsAdapter extends RecyclerView.Adapter<KHotArtistW
 
             ButterKnife.bind(this, itemView);
         }
+
+        public void bind(final Context context, final VideoSearchItem item, final KSearchRecyclerViewAdapter.OnItemClickListener listener) {
+            title.setText(item.getTitle());
+            playCount.setText(item.getViewCount());
+            likeCount.setText(item.getLikeCount());
+            duration.setText(item.getDuration());
+            Glide.with(context).load(item.getThumbnails()).into(preview);
+            itemView.setOnClickListener(v -> listener.onItemClick(item));
+        }
     }
 
 }

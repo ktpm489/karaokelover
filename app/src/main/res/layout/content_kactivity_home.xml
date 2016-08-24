@@ -5,7 +5,7 @@
     android:id="@+id/content_kactivity_home"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="vn.com.frankle.karaokelover.KActivity_home"
+    tools:context="vn.com.frankle.karaokelover.KActivityHome"
     tools:showIn="@layout/app_bar_kactivity_home">
 
 

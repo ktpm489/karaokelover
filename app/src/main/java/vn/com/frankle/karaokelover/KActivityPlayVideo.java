@@ -1,13 +1,10 @@
 package vn.com.frankle.karaokelover;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
@@ -38,7 +36,6 @@ import vn.com.frankle.karaokelover.services.YoutubeAudioDownloadService;
 public class KActivityPlayVideo extends AppCompatActivity {
 
     private static final String DEBUG_TAG = KActivityPlayVideo.class.getSimpleName();
-    private static final int AUDIO_RECORD_PERMISSION = 0;
 
     @NonNull
     private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
@@ -56,20 +53,22 @@ public class KActivityPlayVideo extends AppCompatActivity {
     private ProgressDialog mProgressDownloadDialog;
     private ProgressDialog mProgressPrepare;
 
+    private YouTubePlayer mYoutubePlayer;
+
     private YouTubePlayer.PlayerStateChangeListener playerStateChangeListener = new YouTubePlayer.PlayerStateChangeListener() {
         @Override
         public void onLoading() {
-
+            Log.i(DEBUG_TAG, "YouTubePlayer.PlayerStateChangeListener - onLoading");
         }
 
         @Override
         public void onLoaded(String s) {
-
+            Log.i(DEBUG_TAG, "YouTubePlayer.PlayerStateChangeListener - onLoaded");
         }
 
         @Override
         public void onAdStarted() {
-
+            Log.i(DEBUG_TAG, "YouTubePlayer.PlayerStateChangeListener - onAdStared");
         }
 
         @Override
@@ -84,16 +83,45 @@ public class KActivityPlayVideo extends AppCompatActivity {
 
         @Override
         public void onError(YouTubePlayer.ErrorReason errorReason) {
-            Log.i(DEBUG_TAG, "onError");
+            Log.i(DEBUG_TAG, "YouTubePlayer.PlayerStateChangeListener - OnError");
+        }
+    };
+
+    private YouTubePlayer.PlaybackEventListener mPlaybackEventListener = new YouTubePlayer.PlaybackEventListener() {
+        @Override
+        public void onPlaying() {
+
+        }
+
+        @Override
+        public void onPaused() {
+
+        }
+
+        @Override
+        public void onStopped() {
+
+        }
+
+        @Override
+        public void onBuffering(boolean b) {
+
+        }
+
+        @Override
+        public void onSeekTo(int i) {
+
         }
     };
 
     private YouTubePlayer.OnInitializedListener onInitializedListener = new YouTubePlayer.OnInitializedListener() {
         @Override
         public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
-            youTubePlayer.loadVideo(mCurrentVideoId);
-            youTubePlayer.play();
-            youTubePlayer.setPlayerStateChangeListener(playerStateChangeListener);
+            mYoutubePlayer = youTubePlayer;
+            mYoutubePlayer.setPlayerStateChangeListener(playerStateChangeListener);
+            mYoutubePlayer.setPlaybackEventListener(mPlaybackEventListener);
+            mYoutubePlayer.loadVideo(mCurrentVideoId);
+            mYoutubePlayer.play();
         }
 
         @Override
@@ -139,7 +167,16 @@ public class KActivityPlayVideo extends AppCompatActivity {
         mYoutubePlayerFragment = (YouTubePlayerSupportFragment) getSupportFragmentManager().findFragmentById(R.id.youtube_player);
         mYoutubePlayerFragment.initialize(Constants.YOUTUBE_API_KEY, onInitializedListener);
 
-        btnStopRecording.setOnClickListener(view -> mRecorder.stop());
+        btnStopRecording.setOnClickListener(view -> {
+            if (mYoutubePlayer != null) {
+                if (mYoutubePlayer.isPlaying()) {
+                    mYoutubePlayer.pause();
+                } else {
+                    mYoutubePlayer.seekToMillis(0);
+                    mYoutubePlayer.play();
+                }
+            }
+        });
     }
 
     @Override
@@ -198,11 +235,17 @@ public class KActivityPlayVideo extends AppCompatActivity {
         mProgressDownloadDialog.show();
     }
 
+    /**
+     * Event : preparing to download beat file (waiting for server to convert youtube video into mp3 file)
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventPreparingDownloadAudio(EventDownloadAudioPreparing event) {
         showPreparingDownloadDialog();
     }
 
+    /**
+     * Event : conversion is completed. Beat file is ready to be downloaded.
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventStartDownloadAudio(EventDownloadAudioStart event) {
         showDownloadProgressDialog();
@@ -221,6 +264,9 @@ public class KActivityPlayVideo extends AppCompatActivity {
         }
     }
 
+    /**
+     * Event: download beat file completed, start recording user's voice
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDownloadAudioCompleted(EventDownloadAudioCompleted event) {
         mProgressDownloadDialog.setProgress(100);
@@ -245,22 +291,7 @@ public class KActivityPlayVideo extends AppCompatActivity {
      * Start recording voice
      */
     private void startRecording() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                AUDIO_RECORD_PERMISSION);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case AUDIO_RECORD_PERMISSION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    prepareAudioFile();
-                }
-            }
-        }
+        Toast.makeText(KActivityPlayVideo.this, "Start recording...", Toast.LENGTH_SHORT).show();
     }
 
     @Override

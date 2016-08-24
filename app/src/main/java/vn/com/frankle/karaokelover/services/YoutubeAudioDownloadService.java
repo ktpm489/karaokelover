@@ -27,7 +27,6 @@ import vn.com.frankle.karaokelover.events.EventDownloadAudioError;
 import vn.com.frankle.karaokelover.events.EventDownloadAudioPreparing;
 import vn.com.frankle.karaokelover.events.EventDownloadAudioProgress;
 import vn.com.frankle.karaokelover.events.EventDownloadAudioStart;
-import vn.com.frankle.karaokelover.events.EventLoadAudioDownloadWebview;
 import vn.com.frankle.karaokelover.models.YoutubeAudioDownload;
 
 /**
@@ -68,7 +67,7 @@ public class YoutubeAudioDownloadService extends IntentService {
                     if (audioContent.contentLength() < 0) {
                         // Delay thread for 7 seconds before retrying to get audio file
                         Log.d(TAG, "Retry getting beat file form youtubeinmp3 server");
-                        Thread.sleep(7000);
+                        Thread.sleep(5000);
                         ++retry;
                     } else {
                         Log.d(TAG, "Successful retry. Start downloading...");
@@ -81,7 +80,7 @@ public class YoutubeAudioDownloadService extends IntentService {
                     e.printStackTrace();
                 }
                 Log.e(TAG, "Error get audio file from youtubeinmp3.com server");
-            }while (retry < 3);
+            }while (retry < 4);
             KApplication.eventBus.post(new EventDownloadAudioError());
         }).run();
     }
@@ -123,9 +122,9 @@ public class YoutubeAudioDownloadService extends IntentService {
         long fileSize = body.contentLength();
         Log.d(TAG, "Filesize = " + fileSize + " bytes");
         InputStream bis = new BufferedInputStream(body.byteStream(), 1024 * 8);
-        File downloadFileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Karaoke Lover/");
+        File downloadFileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Karaoke Lover/Beats/");
         if (!downloadFileDir.exists()) {
-            downloadFileDir.mkdir();
+            downloadFileDir.mkdirs();
         }
 
         File downloadFile = new File(downloadFileDir, mVideoTitle + ".mp3");

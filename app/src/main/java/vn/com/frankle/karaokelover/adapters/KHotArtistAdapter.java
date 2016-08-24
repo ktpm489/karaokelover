@@ -17,9 +17,11 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import vn.com.frankle.karaokelover.KActivityArtistDetails;
+import vn.com.frankle.karaokelover.KActivityPlayVideo;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.Utils;
 import vn.com.frankle.karaokelover.database.entities.ArtistWithKaraoke;
+import vn.com.frankle.karaokelover.services.responses.ResponseSnippetContentDetails;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 
 /**
@@ -31,6 +33,15 @@ public class KHotArtistAdapter extends RecyclerView.Adapter<KHotArtistAdapter.Vi
     private Context mContext;
     private List<ArtistWithKaraoke> mHotArtists;
     private KHotKaraokeRecycleAdapter mHotKaraokes;
+
+    private final KHotKaraokeRecycleAdapter.OnItemClickListener mListener = this::handleOnVideoClickListener;
+
+    private void handleOnVideoClickListener(ResponseSnippetContentDetails item) {
+        Intent playVideoItent = new Intent(mContext, KActivityPlayVideo.class);
+        playVideoItent.putExtra("title", item.getItems().get(0).getSnippet().getTitle());
+        playVideoItent.putExtra("videoid", item.getItems().get(0).getId());
+        mContext.startActivity(playVideoItent);
+    }
 
     public KHotArtistAdapter(Context context) {
         mContext = context;
@@ -55,7 +66,6 @@ public class KHotArtistAdapter extends RecyclerView.Adapter<KHotArtistAdapter.Vi
     }
 
 
-
     @Override
     public void onBindViewHolder(ViewHolderHotArtist holder, int position) {
         ArtistWithKaraoke artist = mHotArtists.get(position);
@@ -70,7 +80,7 @@ public class KHotArtistAdapter extends RecyclerView.Adapter<KHotArtistAdapter.Vi
             artistDetails.putExtras(args);
             mContext.startActivity(artistDetails);
         });
-        mHotKaraokes = new KHotKaraokeRecycleAdapter(mContext, artist);
+        mHotKaraokes = new KHotKaraokeRecycleAdapter(mContext, artist, mListener);
         holder.hotSongs.setAdapter(mHotKaraokes);
     }
 

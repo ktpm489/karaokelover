@@ -71,6 +71,8 @@ public class KSearchActivity extends AppCompatActivity {
     @NonNull
     private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
 
+    private final KSearchRecyclerViewAdapter.OnItemClickListener mListener = this::handleOnVideoClickListener;
+
     @BindView(R.id.searchback)
     ImageButton searchBack;
     @BindView(R.id.searchback_container)
@@ -199,6 +201,18 @@ public class KSearchActivity extends AppCompatActivity {
     }
 
     /**
+     * Video click handler
+     *
+     * @param video : video is clicked
+     */
+    private void handleOnVideoClickListener(VideoSearchItem video) {
+        Intent playVideoItent = new Intent(this, KActivityPlayVideo.class);
+        playVideoItent.putExtra("title", video.getTitle());
+        playVideoItent.putExtra("videoid", video.getVideoId());
+        startActivity(playVideoItent);
+    }
+
+    /**
      * Setup view for displaying search result
      */
     private void setupSearchResultView() {
@@ -207,7 +221,7 @@ public class KSearchActivity extends AppCompatActivity {
         results.setLayoutManager(layoutManager);
         results.setHasFixedSize(true);
         results.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(this, 16), SpaceItemDecoration.VERTICAL));
-        mSearchAdapter = new KSearchRecyclerViewAdapter(this, item -> {});
+        mSearchAdapter = new KSearchRecyclerViewAdapter(this, mListener);
         results.setAdapter(mSearchAdapter);
     }
 
