@@ -12,7 +12,8 @@
         android:name="com.google.android.youtube.player.YouTubePlayerSupportFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true" />
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="?attr/actionBarSize" />
 
     <ImageButton
         android:id="@+id/btn_recording"
@@ -23,5 +24,44 @@
         android:layout_margin="32dp"
         android:background="@android:color/transparent"
         android:scaleType="fitXY"
-        android:src="@drawable/drawable_btn_sing" />
+        android:src="@drawable/btn_recording" />
+
+    <ImageButton
+        android:id="@+id/btn_re_record"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_alignBottom="@id/btn_recording"
+        android:layout_toEndOf="@id/btn_recording"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        android:src="@drawable/btn_re_record" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/btn_recording"
+        android:layout_below="@id/youtube_player">
+
+        <TextView
+            android:id="@+id/timer_recording"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_margin="16dp"
+            android:fontFamily="sans-serif-light"
+            android:textColor="@color/text_primary_light"
+            android:textSize="64sp"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/saved_filename"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/timer_recording"
+            android:layout_centerInParent="true"
+            android:textColor="@color/text_secondary_light"
+            android:textSize="20sp"
+            android:visibility="invisible" />
+
+    </RelativeLayout>
 </RelativeLayout>

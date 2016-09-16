@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?android:colorControlHighlight">
+    <item>
+        <selector>
+            <item
+                android:drawable="@drawable/vector_btn_stop_record_pressed"
+                android:state_pressed="true" />
+            <item android:drawable="@drawable/vector_btn_stop_record_normal" />
+        </selector>
+    </item>
+</ripple>

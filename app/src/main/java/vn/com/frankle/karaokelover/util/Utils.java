@@ -1,6 +1,7 @@
-package vn.com.frankle.karaokelover;
+package vn.com.frankle.karaokelover.util;
 
 import android.content.Context;
+import android.media.MediaMetadataRetriever;
 import android.util.Log;
 import android.util.TypedValue;
 
@@ -9,11 +10,14 @@ import org.joda.time.format.ISOPeriodFormat;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import vn.com.frankle.karaokelover.models.Thumbnails;
 
@@ -25,7 +29,7 @@ public class Utils {
     private static final String TAG = "KaraokeLover";
 
     public static void printLog(String tag, String msg) {
-        Log.i(TAG +  "-" + tag, msg);
+        Log.i(TAG + "-" + tag, msg);
     }
 
     public static int convertDpToPixel(Context context, int dpValue) {
@@ -76,7 +80,7 @@ public class Utils {
      * @return short-format likecount string
      */
     public static String getLikeCount(String likecount) {
-        if (likecount == null || likecount.isEmpty()){
+        if (likecount == null || likecount.isEmpty()) {
             return "0 like";
         }
         int original_likecount = Integer.parseInt(likecount);
@@ -136,4 +140,36 @@ public class Utils {
         return partitions;
     }
 
+    private static String getTwoDecimalsValue(int value) {
+        if (value >= 0 && value <= 9) {
+            return "0" + value;
+        } else {
+            return value + "";
+        }
+    }
+
+    public static String formatSeconds(int seconds) {
+        return getTwoDecimalsValue(seconds / 60) + ":"
+                + getTwoDecimalsValue(seconds % 60);
+    }
+
+    public static final String getAutoFilename() {
+        return new SimpleDateFormat("yyyyMMdd'_'HHmmss'.wav'").format(new Date());
+    }
+
+    public static final String getFilenameExcludeExtension(String fullFilename) {
+        return fullFilename.replaceFirst("[.][^.]+$", "");
+    }
+
+    public static String formatDuration(long milliseconds) {
+        return String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes(milliseconds) % TimeUnit.HOURS.toMinutes(1),
+                TimeUnit.MILLISECONDS.toSeconds(milliseconds) % TimeUnit.MINUTES.toSeconds(1));
+    }
+
+    public static final String getDuration(String pathFile) {
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        mmr.setDataSource(pathFile);
+        String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        return formatDuration(Long.parseLong(durationStr));
+    }
 }

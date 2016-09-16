@@ -3,12 +3,10 @@ package vn.com.frankle.karaokelover;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,7 +31,11 @@ public class KAudioRecord {
         void onError();
     }
 
-    private static int SAMPLE_RATE = 44100;
+    private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    private static final int BUFFER_BYTES_ELEMENTS = 1024;
+    private static final int BUFFER_BYTES_PER_ELEMENT = RECORDER_AUDIO_ENCODING;
+    private static final int RECORDER_CHANNELS_IN = AudioFormat.CHANNEL_IN_MONO;
+    private static final int RECORDER_SAMPLE_RATE = 44100;
 
     private AudioRecordListener mDataListener;
 
@@ -48,10 +50,9 @@ public class KAudioRecord {
 
 
     public KAudioRecord(@NonNull AudioRecordListener dataListener) {
-        mByteBufferSize = AudioRecord.getMinBufferSize(
-                SAMPLE_RATE,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT);
+        mByteBufferSize = Math.max(BUFFER_BYTES_ELEMENTS * BUFFER_BYTES_PER_ELEMENT,
+                AudioRecord.getMinBufferSize(RECORDER_SAMPLE_RATE, RECORDER_CHANNELS_IN, RECORDER_AUDIO_ENCODING));
+
         mShortBufferSize = mByteBufferSize / 2;
         mDataListener = dataListener;
         mIsRecording = new AtomicBoolean(false);
@@ -60,14 +61,20 @@ public class KAudioRecord {
 
         mAudioRecord = new AudioRecord(
                 MediaRecorder.AudioSource.MIC,
-                SAMPLE_RATE,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
+                RECORDER_SAMPLE_RATE,
+                RECORDER_CHANNELS_IN,
+                RECORDER_AUDIO_ENCODING,
                 mByteBufferSize
         );
     }
 
     private class AudioRecordRunnable implements Runnable {
+
+        private String mFilename;
+
+        public AudioRecordRunnable(String filename) {
+            this.mFilename = filename;
+        }
 
         @Override
         public void run() {
@@ -79,17 +86,17 @@ public class KAudioRecord {
                     return;
                 }
 
-                File recordFileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Karaoke Lover/");
+                File recordFileDir = new File(KApplication.RECORDING_DIRECTORY_URI);
                 if (!recordFileDir.exists()) {
                     recordFileDir.mkdir();
                 }
-                File recordFile = new File(recordFileDir, "record.wav");
+                File recordFile = new File(recordFileDir, mFilename);
                 FileOutputStream os = null;
                 try {
                     os = new FileOutputStream(recordFile);
 
                     // Write out the wav file header
-                    writeWavHeader(os, AudioFormat.CHANNEL_IN_MONO, SAMPLE_RATE, AudioFormat.ENCODING_PCM_16BIT);
+                    writeWavHeader(os, RECORDER_CHANNELS_IN, RECORDER_SAMPLE_RATE, RECORDER_AUDIO_ENCODING);
 
                     while (mIsRecording.get()) {
                         int retVal = mAudioRecord.read(mByteBuffer, 0, mByteBufferSize);
@@ -101,16 +108,15 @@ public class KAudioRecord {
                             mDataListener.onError();
                         }
                     }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
                 try {
-                    os.close();
+                    if (os != null) {
+                        os.close();
+                    }
                     updateWavHeader(recordFile);
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -119,13 +125,19 @@ public class KAudioRecord {
         }
     }
 
-    public synchronized boolean start() {
+    /**
+     * Start recording voice
+     *
+     * @param recordFilename : the name of the file to be saved
+     * @return
+     */
+    public synchronized boolean start(String recordFilename) {
         stop();
 
         mExecutorService = Executors.newSingleThreadExecutor();
 
         if (mIsRecording.compareAndSet(false, true)) {
-            mExecutorService.execute(new AudioRecordRunnable());
+            mExecutorService.execute(new AudioRecordRunnable(recordFilename));
             return true;
         }
         return false;

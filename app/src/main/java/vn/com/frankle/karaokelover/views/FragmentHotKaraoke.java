@@ -18,7 +18,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import vn.com.frankle.karaokelover.KActivityPlayVideo;
 import vn.com.frankle.karaokelover.R;
-import vn.com.frankle.karaokelover.Utils;
+import vn.com.frankle.karaokelover.util.Utils;
 
 /**
  * Created by duclm on 7/16/2016.

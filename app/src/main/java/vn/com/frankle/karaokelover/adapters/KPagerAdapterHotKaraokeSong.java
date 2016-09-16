@@ -8,7 +8,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import java.util.List;
 
-import vn.com.frankle.karaokelover.Utils;
+import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
 import vn.com.frankle.karaokelover.views.FragmentHotKaraoke;
 

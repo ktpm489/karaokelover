@@ -7,9 +7,9 @@
             android:icon="@drawable/ic_nav_home"
             android:title="Home" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_my_recording"
             android:icon="@drawable/ic_nav_mykaraokes"
-            android:title="My Karaokes" />
+            android:title="My Recordings" />
         <item
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_nav_myartists"

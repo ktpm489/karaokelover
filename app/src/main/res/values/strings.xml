@@ -13,4 +13,8 @@
     <string name="no_search_results">No results for\n“%1$s”</string>
     <string name="btn_more">MORE</string>
     <string name="title_activity_kplay_video">KActivityPlayVideo</string>
+    <string name="title_activity_kmy_recording">My Recordings</string>
+    <string name="title_activity_kkedit_recording">Edit</string>
+    <string name="action_save">Save</string>
+    <string name="activity_editrecording_title">Title</string>
 </resources>

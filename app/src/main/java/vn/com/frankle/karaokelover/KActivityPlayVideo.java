@@ -1,21 +1,26 @@
 package vn.com.frankle.karaokelover;
 
-import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.cleveroad.audiovisualization.GLAudioVisualizationView;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
@@ -23,15 +28,11 @@ import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.Locale;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.subscriptions.CompositeSubscription;
-import vn.com.frankle.karaokelover.events.EventDownloadAudioCompleted;
-import vn.com.frankle.karaokelover.events.EventDownloadAudioError;
-import vn.com.frankle.karaokelover.events.EventDownloadAudioProgress;
 import vn.com.frankle.karaokelover.events.EventPrepareRecordingCountdown;
+import vn.com.frankle.karaokelover.util.Utils;
 
 public class KActivityPlayVideo extends AppCompatActivity {
 
@@ -40,6 +41,8 @@ public class KActivityPlayVideo extends AppCompatActivity {
     @NonNull
     private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
 
+    @BindView(R.id.content_kactivity_play_video)
+    RelativeLayout mContentLayout;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
     @BindView(R.id.btn_recording)
@@ -48,14 +51,24 @@ public class KActivityPlayVideo extends AppCompatActivity {
     RelativeLayout mLayoutCountdown;
     @BindView(R.id.tv_countdown)
     TextView mTvCountdown;
+    @BindView(R.id.btn_re_record)
+    ImageButton btnReRecord;
+    @BindView(R.id.timer_recording)
+    TextView mTvTimerRecord;
+    @BindView(R.id.saved_filename)
+    TextView mTvSavedFilename;
 
+    private GLAudioVisualizationView mAudioRecordVisualization;
     private String mCurrentVideoId;
     private String mCurrentVideoTitle;
+    private String mCurrentSavedFilename;
 
     private YouTubePlayerSupportFragment mYoutubePlayerFragment;
     private KAudioRecord mRecorder;
-    private ProgressDialog mProgressDownloadDialog;
-    private ProgressDialog mProgressPrepare;
+    private KAudioRecordDbmHandler mAudioDbmHandler = new KAudioRecordDbmHandler();
+    // Handling record timer
+    private int recorderSecondsElapsed = 0;
+    private Handler handler = new Handler();
 
     private YouTubePlayer mYoutubePlayer;
 
@@ -134,12 +147,33 @@ public class KActivityPlayVideo extends AppCompatActivity {
         }
     };
 
-    private View.OnClickListener onRecordClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            new PrepareRecordingTask().execute();
+    private View.OnClickListener onRecordClickListener = view -> onRecordButtonClick();
+
+    private void switchRecordButton(boolean recording) {
+        if (recording) {
+            btnRecord.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.btn_stop_record));
+        } else {
+            btnRecord.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.btn_recording));
         }
-    };
+    }
+
+    /**
+     * Handle record button click event
+     */
+    private void onRecordButtonClick() {
+        if (!mRecorder.mIsRecording.get()) {
+            Log.d(DEBUG_TAG, "Start recording....");
+            new PrepareRecordingTask().execute();
+        } else {
+            Log.d(DEBUG_TAG, "Stop recording...");
+            switchRecordButton(false);
+            mRecorder.stop();
+            mYoutubePlayer.pause();
+            mAudioDbmHandler.stopVisualizer();
+            stopRecordingTimer();
+            buildPostRecordDialog();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,19 +182,10 @@ public class KActivityPlayVideo extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        setupViews();
-
         // Initialzie recorder
-        mRecorder = new KAudioRecord(new KAudioRecord.AudioRecordListener() {
-            @Override
-            public void onAudioRecordDataReceived(byte[] data) {
-            }
+        mRecorder = new KAudioRecord(mAudioDbmHandler);
 
-            @Override
-            public void onError() {
-
-            }
-        });
+        setupViews();
     }
 
     /**
@@ -179,6 +204,44 @@ public class KActivityPlayVideo extends AppCompatActivity {
         mYoutubePlayerFragment.initialize(Constants.YOUTUBE_API_KEY, onInitializedListener);
 
         btnRecord.setOnClickListener(onRecordClickListener);
+
+        mAudioRecordVisualization = new GLAudioVisualizationView.Builder(this)
+                .setLayersCount(1)
+                .setWavesCount(6)
+                .setWavesHeight(R.dimen.wave_height)
+                .setWavesFooterHeight(R.dimen.footer_height)
+                .setBubblesPerLayer(20)
+                .setBubblesSize(R.dimen.bubble_size)
+                .setBubblesRandomizeSize(true)
+                .setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary))
+                .setLayerColors(new int[]{ContextCompat.getColor(this, R.color.colorAccentBlur)})
+                .build();
+        mAudioRecordVisualization.linkTo(mAudioDbmHandler);
+
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        layoutParams.addRule(RelativeLayout.BELOW, R.id.youtube_player);
+        layoutParams.addRule(RelativeLayout.SYSTEM_UI_FLAG_VISIBLE, View.INVISIBLE);
+        mContentLayout.addView(mAudioRecordVisualization, 1, layoutParams);
+    }
+
+    /**
+     * Build a dialog that appear when Stop recording button is clicked
+     */
+    private void buildPostRecordDialog() {
+        AlertDialog.Builder postRecDialgBuilder = new AlertDialog.Builder(this);
+
+        LayoutInflater inflater = this.getLayoutInflater();
+        View actionDialog = inflater.inflate(R.layout.dialog_post_recording, null);
+        postRecDialgBuilder.setView(actionDialog);
+        LinearLayout actionEditRecord = (LinearLayout) actionDialog.findViewById(R.id.action_edit_recording);
+        actionEditRecord.setOnClickListener(view -> {
+            Intent editRecordingIntent = new Intent(KActivityPlayVideo.this, KActivityEditRecording.class);
+            editRecordingIntent.putExtra("TITLE", mCurrentSavedFilename);
+            startActivity(editRecordingIntent);
+
+            KActivityPlayVideo.this.finish();
+        });
+        postRecDialgBuilder.create().show();
     }
 
     @Override
@@ -245,41 +308,41 @@ public class KActivityPlayVideo extends AppCompatActivity {
 //        showDownloadProgressDialog();
 //    }
 
-    /**
-     * Receive event download progress -> update progress dialog
-     *
-     * @param event : event object contains information about progress
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventDownloadProgress(EventDownloadAudioProgress event) {
-        mProgressDownloadDialog.setProgress(event.getProgress());
-        if (event.getProgress() < 100) {
-            mProgressDownloadDialog.setTitle(String.format(Locale.ENGLISH, "Downloaded (%d/%d) MB", event.getDownloadedSize(), event.getTotalFileSize()));
-        }
-    }
-
-    /**
-     * Event: download beat file completed, start recording user's voice
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventDownloadAudioCompleted(EventDownloadAudioCompleted event) {
-        mProgressDownloadDialog.setProgress(100);
-        mProgressDownloadDialog.setTitle("Finished preparing beat file successfully.");
-        mProgressDownloadDialog.dismiss();
-    }
-
-    /**
-     * Event indicate that has to load a webview to download beat file
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventDownloadAudioError(EventDownloadAudioError event) {
-        mProgressDownloadDialog.dismiss();
-        new AlertDialog.Builder(this)
-                .setTitle("Error")
-                .setMessage("Internal problem when preparing beat file. Please try again!")
-                .setPositiveButton("OK", (dialogInterface, i) -> dialogInterface.dismiss())
-                .show();
-    }
+//    /**
+//     * Receive event download progress -> update progress dialog
+//     *
+//     * @param event : event object contains information about progress
+//     */
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onEventDownloadProgress(EventDownloadAudioProgress event) {
+//        mProgressDownloadDialog.setProgress(event.getProgress());
+//        if (event.getProgress() < 100) {
+//            mProgressDownloadDialog.setTitle(String.format(Locale.ENGLISH, "Downloaded (%d/%d) MB", event.getDownloadedSize(), event.getTotalFileSize()));
+//        }
+//    }
+//
+//    /**
+//     * Event: download beat file completed, start recording user's voice
+//     */
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onEventDownloadAudioCompleted(EventDownloadAudioCompleted event) {
+//        mProgressDownloadDialog.setProgress(100);
+//        mProgressDownloadDialog.setTitle("Finished preparing beat file successfully.");
+//        mProgressDownloadDialog.dismiss();
+//    }
+//
+//    /**
+//     * Event indicate that has to load a webview to download beat file
+//     */
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onEventDownloadAudioError(EventDownloadAudioError event) {
+//        mProgressDownloadDialog.dismiss();
+//        new AlertDialog.Builder(this)
+//                .setTitle("Error")
+//                .setMessage("Internal problem when preparing beat file. Please try again!")
+//                .setPositiveButton("OK", (dialogInterface, i) -> dialogInterface.dismiss())
+//                .show();
+//    }
 
     /**
      * Event of running prepare recording countdown
@@ -299,6 +362,32 @@ public class KActivityPlayVideo extends AppCompatActivity {
     }
 
     /**
+     * Task to update timer
+     */
+    private Runnable updateTimer = new Runnable() {
+        @Override
+        public void run() {
+            runOnUiThread(() -> mTvTimerRecord.setText(Utils.formatSeconds(recorderSecondsElapsed)));
+            recorderSecondsElapsed++;
+            handler.postDelayed(this, 1000);
+        }
+    };
+
+    /**
+     * Start updating recording timer
+     */
+    private void startRecordingTimer() {
+        handler.post(updateTimer);
+    }
+
+    /**
+     * Stop updating recording timer
+     */
+    private void stopRecordingTimer() {
+        handler.removeCallbacks(updateTimer);
+    }
+
+    /**
      * Display a prepare screen before starting recording
      */
     private class PrepareRecordingTask extends AsyncTask<Void, Void, Void> {
@@ -311,6 +400,7 @@ public class KActivityPlayVideo extends AppCompatActivity {
                 mYoutubePlayer.seekToMillis(0);
             }
             mLayoutCountdown.setVisibility(View.VISIBLE);
+
         }
 
         @Override
@@ -319,7 +409,7 @@ public class KActivityPlayVideo extends AppCompatActivity {
                 Log.d(DEBUG_TAG, "Starting countdown: current = " + i);
                 KApplication.eventBus.post(new EventPrepareRecordingCountdown(i));
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(1200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -332,6 +422,8 @@ public class KActivityPlayVideo extends AppCompatActivity {
             super.onPostExecute(aVoid);
 
             mLayoutCountdown.setVisibility(View.INVISIBLE);
+            // Start recording voice
+            startRecording();
         }
     }
 
@@ -339,7 +431,30 @@ public class KActivityPlayVideo extends AppCompatActivity {
      * Start recording voice
      */
     private void startRecording() {
-        Toast.makeText(KActivityPlayVideo.this, "Start recording...", Toast.LENGTH_SHORT).show();
+        if (mYoutubePlayer != null && !mYoutubePlayer.isPlaying()) {
+            mCurrentSavedFilename = Utils.getAutoFilename();
+            switchRecordButton(true);
+            mYoutubePlayer.play();
+            mTvTimerRecord.setVisibility(View.VISIBLE);
+            mTvSavedFilename.setText(mCurrentSavedFilename);
+            mTvSavedFilename.setVisibility(View.VISIBLE);
+            mAudioRecordVisualization.setVisibility(View.VISIBLE);
+
+            mRecorder.start(mCurrentSavedFilename);
+            startRecordingTimer();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mAudioRecordVisualization.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mAudioRecordVisualization.onResume();
     }
 
     @Override
@@ -360,5 +475,6 @@ public class KActivityPlayVideo extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         compositeSubscriptionForOnStop.unsubscribe();
+        mAudioRecordVisualization.release();
     }
 }

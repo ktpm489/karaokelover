@@ -24,6 +24,7 @@ import rx.subscriptions.CompositeSubscription;
 import vn.com.frankle.karaokelover.adapters.KSearchRecyclerViewAdapter;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
+import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 
 /**

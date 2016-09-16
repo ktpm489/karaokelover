@@ -1,6 +1,6 @@
 package vn.com.frankle.karaokelover.database.entities;
 
-import vn.com.frankle.karaokelover.Utils;
+import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.models.Thumbnails;
 
 /**

@@ -19,7 +19,7 @@ import butterknife.ButterKnife;
 import vn.com.frankle.karaokelover.KActivityArtistDetails;
 import vn.com.frankle.karaokelover.KActivityPlayVideo;
 import vn.com.frankle.karaokelover.R;
-import vn.com.frankle.karaokelover.Utils;
+import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.database.entities.ArtistWithKaraoke;
 import vn.com.frankle.karaokelover.services.responses.ResponseSnippetContentDetails;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;

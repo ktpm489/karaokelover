@@ -4,7 +4,12 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <application
         android:name=".KApplication"
@@ -25,7 +30,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".KSearchActivity"
+            android:name=".KActivitySearch"
             android:launchMode="singleTop"
             android:theme="@style/KaraokeLoverTheme.Translucent.Search">
             <intent-filter>
@@ -51,6 +56,25 @@
             android:theme="@style/KaraokeLoverTheme.NoActionBar" />
 
         <service android:name=".services.YoutubeAudioDownloadService" />
+
+        <activity
+            android:name=".KActivityMyRecording"
+            android:label="@string/title_activity_kmy_recording"
+            android:parentActivityName=".KActivityHome"
+            android:theme="@style/KaraokeLoverTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="vn.com.frankle.karaokelover.KActivityHome" />
+        </activity>
+        <activity
+            android:name=".KActivityEditRecording"
+            android:label="@string/title_activity_kkedit_recording"
+            android:parentActivityName=".KActivityPlayVideo"
+            android:theme="@style/KaraokeLoverTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="vn.com.frankle.karaokelover.KActivityHome" />
+        </activity>
     </application>
 
 </manifest>

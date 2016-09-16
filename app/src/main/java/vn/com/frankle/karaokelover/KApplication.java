@@ -2,11 +2,9 @@ package vn.com.frankle.karaokelover;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -31,6 +29,7 @@ public class KApplication extends Application {
     public static final String BASE_URL = "http://192.168.0.2:8080/";
     public static final String YOUTUBE_BASE_URL = "https://www.googleapis.com/youtube/v3/";
     public static final String YOUTUBE_MP3_AUDIO_URL = "http://www.youtubeinmp3.com/";
+    public static final String RECORDING_DIRECTORY_URI = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Karaoke Lover/";
 
     private static Context context;
 

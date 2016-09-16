@@ -52,6 +52,7 @@ import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
 import vn.com.frankle.karaokelover.util.AnimUtils;
 import vn.com.frankle.karaokelover.util.ImeUtils;
+import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.util.ViewUtils;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 import vn.com.frankle.karaokelover.views.widgets.BaselineGridTextView;
@@ -60,7 +61,7 @@ import vn.com.frankle.karaokelover.views.widgets.BaselineGridTextView;
  * Created by duclm on 7/31/2016.
  */
 
-public class KSearchActivity extends AppCompatActivity {
+public class KActivitySearch extends AppCompatActivity {
     public static final String EXTRA_MENU_LEFT = "EXTRA_MENU_LEFT";
     public static final String EXTRA_MENU_CENTER_X = "EXTRA_MENU_CENTER_X";
     public static final String EXTRA_QUERY = "EXTRA_QUERY";
@@ -108,7 +109,7 @@ public class KSearchActivity extends AppCompatActivity {
     private KSearchRecyclerViewAdapter mSearchAdapter;
 
     public static Intent createStartIntent(Context context, int menuIconLeft, int menuIconCenterX) {
-        Intent starter = new Intent(context, KSearchActivity.class);
+        Intent starter = new Intent(context, KActivitySearch.class);
         starter.putExtra(EXTRA_MENU_LEFT, menuIconLeft);
         starter.putExtra(EXTRA_MENU_CENTER_X, menuIconCenterX);
         return starter;
@@ -148,7 +149,7 @@ public class KSearchActivity extends AppCompatActivity {
         searchBack.postDelayed(new Runnable() {
             @Override
             public void run() {
-                searchBack.setImageDrawable(ContextCompat.getDrawable(KSearchActivity.this,
+                searchBack.setImageDrawable(ContextCompat.getDrawable(KActivitySearch.this,
                         R.drawable.ic_arrow_back_padded));
             }
         }, 600L);
@@ -189,9 +190,9 @@ public class KSearchActivity extends AppCompatActivity {
                                 scrim,
                                 ViewUtils.BACKGROUND_COLOR,
                                 Color.TRANSPARENT,
-                                ContextCompat.getColor(KSearchActivity.this, R.color.scrim)));
+                                ContextCompat.getColor(KActivitySearch.this, R.color.scrim)));
                 showScrim.setDuration(400L);
-                showScrim.setInterpolator(AnimUtils.getLinearOutSlowInInterpolator(KSearchActivity
+                showScrim.setInterpolator(AnimUtils.getLinearOutSlowInInterpolator(KActivitySearch
                         .this));
                 showScrim.start();
                 return false;
@@ -323,7 +324,7 @@ public class KSearchActivity extends AppCompatActivity {
                     (float) Math.hypot(searchIconCenterX, resultsContainer.getHeight()),
                     0f);
             closeResults.setDuration(500L);
-            closeResults.setInterpolator(AnimUtils.getFastOutSlowInInterpolator(KSearchActivity
+            closeResults.setInterpolator(AnimUtils.getFastOutSlowInInterpolator(KActivitySearch
                     .this));
             closeResults.addListener(new AnimatorListenerAdapter() {
                 @Override
@@ -429,7 +430,7 @@ public class KSearchActivity extends AppCompatActivity {
         progress.setVisibility(View.VISIBLE);
         ImeUtils.hideIme(searchView);
         searchView.clearFocus();
-        Toast.makeText(KSearchActivity.this, "Search for: " + query, Toast.LENGTH_SHORT).show();
+        Toast.makeText(KActivitySearch.this, "Search for: " + query, Toast.LENGTH_SHORT).show();
 
         Observable<List<VideoSearchItem>> searchRequest = ReactiveHelper.searchKarokeVideos(query);
         compositeSubscriptionForOnStop.add(searchRequest

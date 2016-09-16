@@ -43,16 +43,17 @@ import cn.yangbingqiang.android.parallaxviewpager.ParallaxViewPager;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
+import vn.com.frankle.karaokelover.adapters.KHotArtistAdapter;
+import vn.com.frankle.karaokelover.adapters.KPagerAdapterHotKaraokeSong;
 import vn.com.frankle.karaokelover.database.entities.ArtistWithKaraoke;
 import vn.com.frankle.karaokelover.database.entities.DAOArtist;
 import vn.com.frankle.karaokelover.database.entities.DAOHotTrend;
 import vn.com.frankle.karaokelover.database.tables.ArtistTable;
 import vn.com.frankle.karaokelover.database.tables.HotTrendTable;
 import vn.com.frankle.karaokelover.events.EventFinishLoadingHotTrendAndArtist;
-import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
-import vn.com.frankle.karaokelover.adapters.KHotArtistAdapter;
-import vn.com.frankle.karaokelover.adapters.KPagerAdapterHotKaraokeSong;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
+import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
+import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 
 public class KActivityHome extends AppCompatActivity
@@ -132,7 +133,7 @@ public class KActivityHome extends AppCompatActivity
      * Request necessary permission for the application from user
      */
     private void requestPermission() {
-        String[] requiredPermission = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] requiredPermission = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.MODIFY_AUDIO_SETTINGS};
 
         ActivityCompat.requestPermissions(this, requiredPermission, PERMISSION_AUDIO_RECORD);
     }
@@ -145,7 +146,7 @@ public class KActivityHome extends AppCompatActivity
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Do something after user've granted permission
-                }else{
+                } else {
                     // TO-DO
                     // Properly handling the case user denies any of the required permissions
                     this.finish();
@@ -294,7 +295,7 @@ public class KActivityHome extends AppCompatActivity
             View searchMenuView = mToolbar.findViewById(R.id.menu_search);
             int[] loc = new int[2];
             searchMenuView.getLocationOnScreen(loc);
-            startActivityForResult(KSearchActivity.createStartIntent(this, loc[0], loc[0] +
+            startActivityForResult(KActivitySearch.createStartIntent(this, loc[0], loc[0] +
                     (searchMenuView.getWidth() / 2)), RC_SEARCH, ActivityOptions
                     .makeSceneTransitionAnimation(this).toBundle());
             searchMenuView.setAlpha(0f);
@@ -312,7 +313,10 @@ public class KActivityHome extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_my_recording) {
+
+            Intent intent = new Intent(KActivityHome.this, KActivityMyRecording.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -338,8 +342,8 @@ public class KActivityHome extends AppCompatActivity
                 if (searchMenuView != null) {
                     searchMenuView.setAlpha(1f);
                 }
-                if (resultCode == KSearchActivity.RESULT_CODE_SAVE) {
-                    String query = data.getStringExtra(KSearchActivity.EXTRA_QUERY);
+                if (resultCode == KActivitySearch.RESULT_CODE_SAVE) {
+                    String query = data.getStringExtra(KActivitySearch.EXTRA_QUERY);
                     if (TextUtils.isEmpty(query)) return;
                 }
                 break;

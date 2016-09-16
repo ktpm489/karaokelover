@@ -84,6 +84,7 @@ dependencies {
     compile 'org.jsoup:jsoup:1.7.3'
     compile 'com.squareup.okhttp3:logging-interceptor:3.3.0'
     compile 'com.writingminds:FFmpegAndroid:0.3.2'
+    compile 'com.cleveroad:audiovisualization:0.9.4'
 
     testCompile 'junit:junit:4.12'
     apt 'com.jakewharton:butterknife-compiler:8.2.1'
