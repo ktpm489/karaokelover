@@ -123,7 +123,8 @@ public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecy
             playCount.setText(item.getViewCount());
             likeCount.setText(item.getLikeCount());
             duration.setText(item.getDuration());
-            Glide.with(context).load(item.getThumbnails()).into(preview);
+            Glide.with(context).load(item.getThumbnails())
+                    .placeholder(R.drawable.drawable_default_preview).into(preview);
             itemView.setOnClickListener(v -> listener.onItemClick(item));
         }
     }

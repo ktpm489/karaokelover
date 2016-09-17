@@ -95,7 +95,8 @@ public class KHotKaraokeRecycleAdapter extends RecyclerView.Adapter<KHotKaraokeR
         public void bind(final Context context, final ResponseSnippetContentDetails item, final OnItemClickListener listener) {
             title.setText(item.getItems().get(0).getSnippet().getTitle());
             duration.setText(Utils.convertYoutubeTimeformat(item.getItems().get(0).getContentDetails().getDuration()));
-            Glide.with(context).load(Utils.getThumbnailURL(item.getItems().get(0).getSnippet().getThumbnails())).into(preview);
+            Glide.with(context).load(Utils.getThumbnailURL(item.getItems().get(0).getSnippet().getThumbnails()))
+                    .placeholder(R.drawable.drawable_default_preview).into(preview);
             itemView.setOnClickListener(v -> listener.onItemClick(item));
         }
     }

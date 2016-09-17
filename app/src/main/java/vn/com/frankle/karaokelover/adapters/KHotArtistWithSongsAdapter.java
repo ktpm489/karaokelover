@@ -66,7 +66,8 @@ public class KHotArtistWithSongsAdapter extends RecyclerView.Adapter<KHotArtistW
         holder.playCount.setText(itemVideo.getViewCount());
         holder.likeCount.setText(itemVideo.getLikeCount());
         holder.duration.setText(itemVideo.getDuration());
-        Glide.with(mContext).load(itemVideo.getThumbnails()).into(holder.preview);
+        Glide.with(mContext).load(itemVideo.getThumbnails())
+                .placeholder(R.drawable.drawable_default_preview).into(holder.preview);
     }
 
     @Override
