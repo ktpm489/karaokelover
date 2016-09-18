@@ -65,6 +65,8 @@ public class KActivityHome extends AppCompatActivity
 
     private static final int RC_SEARCH = 0;
 
+    private boolean mFlagNavMyRecording = false;
+
     // In this sample app we use dependency injection (DI) to keep the code clean
     // Just remember that it's already configured instance of StorIOSQLite from DbModule
     @Inject
@@ -103,21 +105,7 @@ public class KActivityHome extends AppCompatActivity
 
         setSupportActionBar(mToolbar);
 
-        // Get screen width in dp
-        Configuration configuration = this.getResources().getConfiguration();
-        mPhysicScreenWidthInDp = configuration.screenWidthDp; //The current width of the available screen space, in dp units, corresponding to screen width resource qualifier.
-        // Get screen width in pixel
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        mPhyScreenWidthInPixel = size.x;
-
-
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        mDrawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-
+        // Set up Navigation View
         setUpNavigationView();
 
 
@@ -255,6 +243,31 @@ public class KActivityHome extends AppCompatActivity
     }
 
     private void setUpNavigationView() {
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                if (mFlagNavMyRecording){
+                    // Reset flag
+                    mFlagNavMyRecording = false;
+
+                    Intent intent = new Intent(KActivityHome.this, KActivityMyRecording.class);
+                    startActivity(intent);
+                }
+            }
+        };
+        mDrawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        // Get screen width in dp
+        Configuration configuration = this.getResources().getConfiguration();
+        mPhysicScreenWidthInDp = configuration.screenWidthDp; //The current width of the available screen space, in dp units, corresponding to screen width resource qualifier.
+        // Get screen width in pixel
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        mPhyScreenWidthInPixel = size.x;
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         /**
          * Navigation Drawer width is the minimum (NavDrawerMaxWidth , (ScreenSize — ActionBarSize))
@@ -314,9 +327,8 @@ public class KActivityHome extends AppCompatActivity
         if (id == R.id.nav_camera) {
             // Handle the camera action
         } else if (id == R.id.nav_my_recording) {
-
-            Intent intent = new Intent(KActivityHome.this, KActivityMyRecording.class);
-            startActivity(intent);
+            // Set flag to indicate that this item has been clicked
+            mFlagNavMyRecording = true;
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -328,8 +340,8 @@ public class KActivityHome extends AppCompatActivity
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        mDrawerLayout.closeDrawer(GravityCompat.START);
+
         return true;
     }
 

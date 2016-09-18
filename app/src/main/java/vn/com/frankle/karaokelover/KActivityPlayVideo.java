@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
@@ -28,10 +29,13 @@ import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.subscriptions.CompositeSubscription;
 import vn.com.frankle.karaokelover.events.EventPrepareRecordingCountdown;
+import vn.com.frankle.karaokelover.util.KSharedPreference;
 import vn.com.frankle.karaokelover.util.Utils;
 
 public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecord.AudioRecordListener {
@@ -57,6 +61,9 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
     TextView mTvTimerRecord;
     @BindView(R.id.saved_filename)
     TextView mTvSavedFilename;
+
+    // App SharePreference
+    KSharedPreference mAppSharePrefs = new KSharedPreference();
 
     //    private GLAudioVisualizationView mAudioRecordVisualization;
     private String mCurrentVideoId;
@@ -248,6 +255,15 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.kactivity_play_video, menu);
+        // Setup for favorite icon
+        MenuItem favoriteMenu = menu.findItem(R.id.menu_favourite);
+
+        boolean isInFavoriteList = isInFavoriteList(mCurrentVideoId);
+        if (!isInFavoriteList) {
+            favoriteMenu.setIcon(R.drawable.drawable_menu_favourite);
+        } else {
+            favoriteMenu.setIcon(R.drawable.drawable_menu_favourite_added);
+        }
         return true;
     }
 
@@ -256,7 +272,51 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        return super.onOptionsItemSelected(item);
+        int menuId = item.getItemId();
+        switch (menuId) {
+            case R.id.menu_favourite:
+                handleFavoriteClick(item);
+                break;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if a video is in favorite list or not
+     *
+     * @param videoId : the video to be checked
+     * @return true if the video is in favorite list
+     */
+    private boolean isInFavoriteList(String videoId) {
+        // Setup for favorite icon
+        ArrayList<String> listFavorite = mAppSharePrefs.getFavoritesVideo(this);
+        if (!listFavorite.contains(videoId)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Handle favorite click event
+     * If this video is already in the favorite list, remove it.
+     * Otherwise, add it to the current favorite video list and change the icon of Favorite button
+     *
+     * @param favoriteMenuItem : menu item
+     */
+    private void handleFavoriteClick(MenuItem favoriteMenuItem) {
+        boolean isInFavoriteList = isInFavoriteList(mCurrentVideoId);
+        if (!isInFavoriteList) {// Not in the favorite list -> add it
+            mAppSharePrefs.addFavorites(this, mCurrentVideoId);
+
+            favoriteMenuItem.setIcon(R.drawable.drawable_menu_favourite_added);
+            Toast.makeText(this, "Added to the favorite list", Toast.LENGTH_SHORT).show();
+        } else {// Currently in favorite list -> remove it
+            mAppSharePrefs.removeFavorite(this, mCurrentVideoId);
+
+            favoriteMenuItem.setIcon(R.drawable.drawable_menu_favourite);
+            Toast.makeText(this, "Removed to the favorite list", Toast.LENGTH_SHORT).show();
+        }
     }
 
 //    /**
@@ -477,7 +537,7 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
     private void configAudioVolume() {
         // This value's result maybe vary between devices
         // Just a start number, user may change volume if it's too loud or too small
-        float percent = 0.4f;
+        float percent = 0.3f;
 
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
