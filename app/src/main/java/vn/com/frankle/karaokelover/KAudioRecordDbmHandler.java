@@ -18,7 +18,7 @@ public class KAudioRecordDbmHandler extends DbmHandler<Float> implements KAudioR
     }
 
     @Override
-    public void onError() {
+    public void onAudioRecordError() {
 
     }
 

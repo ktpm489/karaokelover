@@ -1,6 +1,8 @@
 package vn.com.frankle.karaokelover;
 
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,13 +16,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.cleveroad.audiovisualization.GLAudioVisualizationView;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
@@ -34,7 +34,7 @@ import rx.subscriptions.CompositeSubscription;
 import vn.com.frankle.karaokelover.events.EventPrepareRecordingCountdown;
 import vn.com.frankle.karaokelover.util.Utils;
 
-public class KActivityPlayVideo extends AppCompatActivity {
+public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecord.AudioRecordListener {
 
     private static final String DEBUG_TAG = KActivityPlayVideo.class.getSimpleName();
 
@@ -58,14 +58,15 @@ public class KActivityPlayVideo extends AppCompatActivity {
     @BindView(R.id.saved_filename)
     TextView mTvSavedFilename;
 
-    private GLAudioVisualizationView mAudioRecordVisualization;
+    //    private GLAudioVisualizationView mAudioRecordVisualization;
     private String mCurrentVideoId;
     private String mCurrentVideoTitle;
     private String mCurrentSavedFilename;
 
     private YouTubePlayerSupportFragment mYoutubePlayerFragment;
     private KAudioRecord mRecorder;
-    private KAudioRecordDbmHandler mAudioDbmHandler = new KAudioRecordDbmHandler();
+//    private KAudioRecordDbmHandler mAudioDbmHandler = new KAudioRecordDbmHandler();
+
     // Handling record timer
     private int recorderSecondsElapsed = 0;
     private Handler handler = new Handler();
@@ -169,7 +170,7 @@ public class KActivityPlayVideo extends AppCompatActivity {
             switchRecordButton(false);
             mRecorder.stop();
             mYoutubePlayer.pause();
-            mAudioDbmHandler.stopVisualizer();
+//            mAudioDbmHandler.stopVisualizer();
             stopRecordingTimer();
             buildPostRecordDialog();
         }
@@ -183,7 +184,7 @@ public class KActivityPlayVideo extends AppCompatActivity {
         ButterKnife.bind(this);
 
         // Initialzie recorder
-        mRecorder = new KAudioRecord(mAudioDbmHandler);
+        mRecorder = new KAudioRecord(this);
 
         setupViews();
     }
@@ -205,23 +206,23 @@ public class KActivityPlayVideo extends AppCompatActivity {
 
         btnRecord.setOnClickListener(onRecordClickListener);
 
-        mAudioRecordVisualization = new GLAudioVisualizationView.Builder(this)
-                .setLayersCount(1)
-                .setWavesCount(6)
-                .setWavesHeight(R.dimen.wave_height)
-                .setWavesFooterHeight(R.dimen.footer_height)
-                .setBubblesPerLayer(20)
-                .setBubblesSize(R.dimen.bubble_size)
-                .setBubblesRandomizeSize(true)
-                .setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary))
-                .setLayerColors(new int[]{ContextCompat.getColor(this, R.color.colorAccentBlur)})
-                .build();
-        mAudioRecordVisualization.linkTo(mAudioDbmHandler);
-
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        layoutParams.addRule(RelativeLayout.BELOW, R.id.youtube_player);
-        layoutParams.addRule(RelativeLayout.SYSTEM_UI_FLAG_VISIBLE, View.INVISIBLE);
-        mContentLayout.addView(mAudioRecordVisualization, 1, layoutParams);
+//        mAudioRecordVisualization = new GLAudioVisualizationView.Builder(this)
+//                .setLayersCount(1)
+//                .setWavesCount(6)
+//                .setWavesHeight(R.dimen.wave_height)
+//                .setWavesFooterHeight(R.dimen.footer_height)
+//                .setBubblesPerLayer(20)
+//                .setBubblesSize(R.dimen.bubble_size)
+//                .setBubblesRandomizeSize(true)
+//                .setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary))
+//                .setLayerColors(new int[]{ContextCompat.getColor(this, R.color.colorAccentBlur)})
+//                .build();
+//        mAudioRecordVisualization.linkTo(mAudioDbmHandler);
+//
+//        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+//        layoutParams.addRule(RelativeLayout.BELOW, R.id.youtube_player);
+//        layoutParams.addRule(RelativeLayout.SYSTEM_UI_FLAG_VISIBLE, View.INVISIBLE);
+//        mContentLayout.addView(mAudioRecordVisualization, 1, layoutParams);
     }
 
     /**
@@ -388,6 +389,25 @@ public class KActivityPlayVideo extends AppCompatActivity {
     }
 
     /**
+     * Callback to get sample when recording
+     *
+     * @param data : sample data
+     */
+    @Override
+    public void onAudioRecordDataReceived(byte[] data) {
+        /* TO-DO: handle recording sample data */
+    }
+
+    /**
+     * Callback when recording get errors
+     */
+    @Override
+    public void onAudioRecordError() {
+
+    }
+
+
+    /**
      * Display a prepare screen before starting recording
      */
     private class PrepareRecordingTask extends AsyncTask<Void, Void, Void> {
@@ -409,7 +429,7 @@ public class KActivityPlayVideo extends AppCompatActivity {
                 Log.d(DEBUG_TAG, "Starting countdown: current = " + i);
                 KApplication.eventBus.post(new EventPrepareRecordingCountdown(i));
                 try {
-                    Thread.sleep(1200);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -434,27 +454,47 @@ public class KActivityPlayVideo extends AppCompatActivity {
         if (mYoutubePlayer != null && !mYoutubePlayer.isPlaying()) {
             mCurrentSavedFilename = Utils.getAutoFilename();
             switchRecordButton(true);
+
+            /*Auto configure audio output volume (try to prevent too loud beat)*/
+            configAudioVolume();
+
             mYoutubePlayer.play();
             mTvTimerRecord.setVisibility(View.VISIBLE);
             mTvSavedFilename.setText(mCurrentSavedFilename);
             mTvSavedFilename.setVisibility(View.VISIBLE);
-            mAudioRecordVisualization.setVisibility(View.VISIBLE);
+//            mAudioRecordVisualization.setVisibility(View.VISIBLE);
 
             mRecorder.start(mCurrentSavedFilename);
             startRecordingTimer();
         }
     }
 
+    /**
+     * If user record directly, this lead to a problem that the beat volume is too loud and user's
+     * voice volume is too low -> pre-configure audio volume, user may change later if they find it's
+     * not suitable
+     */
+    private void configAudioVolume() {
+        // This value's result maybe vary between devices
+        // Just a start number, user may change volume if it's too loud or too small
+        float percent = 0.4f;
+
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        int maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        int autoVol = (int) (maxVol * percent);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, autoVol, 0);
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
-        mAudioRecordVisualization.onPause();
+//        mAudioRecordVisualization.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mAudioRecordVisualization.onResume();
+//        mAudioRecordVisualization.onResume();
     }
 
     @Override
@@ -475,6 +515,6 @@ public class KActivityPlayVideo extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         compositeSubscriptionForOnStop.unsubscribe();
-        mAudioRecordVisualization.release();
+//        mAudioRecordVisualization.release();
     }
 }

@@ -28,7 +28,7 @@ public class KAudioRecord {
         @WorkerThread
         void onAudioRecordDataReceived(byte[] data);
 
-        void onError();
+        void onAudioRecordError();
     }
 
     private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
@@ -82,7 +82,7 @@ public class KAudioRecord {
                 try {
                     mAudioRecord.startRecording();
                 } catch (IllegalStateException e) {
-                    mDataListener.onError();
+                    mDataListener.onAudioRecordError();
                     return;
                 }
 
@@ -105,7 +105,7 @@ public class KAudioRecord {
                             os.write(mByteBuffer, 0, mByteBufferSize);
                             mDataListener.onAudioRecordDataReceived(mByteBuffer);
                         } else {
-                            mDataListener.onError();
+                            mDataListener.onAudioRecordError();
                         }
                     }
                 } catch (IOException e) {
