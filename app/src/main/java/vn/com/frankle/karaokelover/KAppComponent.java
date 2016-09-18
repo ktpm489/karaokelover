@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 import vn.com.frankle.karaokelover.database.DbModule;
+import vn.com.frankle.karaokelover.fragments.KFragmentHome;
 
 @Singleton
 @Component(
@@ -17,7 +18,7 @@ import vn.com.frankle.karaokelover.database.DbModule;
         }
 )
 public interface KAppComponent {
-    void inject(@NonNull KActivityHome activity_home);
+    void inject(@NonNull KFragmentHome fragmentHome);
 
     @NonNull
     StorIOSQLite storIOSQLite();
