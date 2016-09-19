@@ -18,6 +18,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -203,8 +204,8 @@ public class KActivityHome extends AppCompatActivity
     private void showHomeFragment(boolean show) {
         if (show) {
             if (mHomeFragment != null) {
-                Fragment fragmentFavorite = fm.findFragmentByTag("TAG_FAVORITE");
-                if (fragmentFavorite != null){
+                Fragment fragmentFavorite = fm.findFragmentByTag(KFragmentFavorite.TAG);
+                if (fragmentFavorite != null) {
                     fm.beginTransaction().remove(fragmentFavorite).commit();
                 }
                 fm.beginTransaction().show(mHomeFragment).commit();
@@ -242,7 +243,7 @@ public class KActivityHome extends AppCompatActivity
             showHomeFragment(false);
             try {
                 Fragment fragment = KFragmentFavorite.class.newInstance();
-                fm.beginTransaction().add(R.id.main_content, fragment, "TAG_FAVORITE").commit();
+                fm.beginTransaction().add(R.id.main_content, fragment, KFragmentFavorite.TAG).commit();
             } catch (InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
             }
@@ -258,6 +259,8 @@ public class KActivityHome extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
         switch (requestCode) {
             case RC_SEARCH:
                 // reset the search icon which we hid
