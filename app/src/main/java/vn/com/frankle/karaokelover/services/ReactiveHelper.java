@@ -1,10 +1,9 @@
 package vn.com.frankle.karaokelover.services;
 
-import android.util.Log;
-
 import com.pushtorefresh.storio.sqlite.StorIOSQLite;
 import com.pushtorefresh.storio.sqlite.queries.RawQuery;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
@@ -18,10 +17,9 @@ import vn.com.frankle.karaokelover.database.entities.KaraokeAndArtist;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.database.tables.ArtistTable;
 import vn.com.frankle.karaokelover.database.tables.KaraokeTable;
+import vn.com.frankle.karaokelover.models.Snippet;
 import vn.com.frankle.karaokelover.services.responses.ItemSearch;
-import vn.com.frankle.karaokelover.services.responses.ResponseAudioMp3;
 import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
-import vn.com.frankle.karaokelover.youtube.YoutubeHelpers;
 
 /**
  * Created by duclm on 7/28/2016.
@@ -93,6 +91,20 @@ public class ReactiveHelper {
                         itemSearch.getSnippet().getThumbnails()));
     }
 
+    public static Observable<VideoSearchItem> getStatisticsContentDetails(ResponseSnippetStatistics response) {
+        String id = response.getItems().get(0).getId();
+        Snippet snippet = response.getItems().get(0).getSnippet();
+        return KApplication.getRxYoutubeAPIService().getStatisticContentDetailById(id)
+                .map(responseStatisticContentDetails
+                                -> new VideoSearchItem(id, snippet.getTitle(),
+                                responseStatisticContentDetails.getDurationISO8601Format(),
+                                responseStatisticContentDetails.getViewCount(),
+                                responseStatisticContentDetails.getLikeCount(),
+                                snippet.getThumbnails()
+                        )
+                );
+    }
+
     /**
      * Search for karaoke videos
      *
@@ -108,6 +120,16 @@ public class ReactiveHelper {
                         responseSearch -> Observable.from(responseSearch.getItems())
                                 .subscribeOn(Schedulers.newThread())
                                 .concatMap(ReactiveHelper::getStatisticsContentDetails))
+                .toList();
+    }
+
+    public static Observable<List<VideoSearchItem>> getFavoritesVideos(ArrayList<String> listFavoriteId) {
+        return Observable.from(listFavoriteId)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .concatMap(s -> KApplication.getRxYoutubeAPIService().getYoutubeVideoById(s)
+                        .concatMap(ReactiveHelper::getStatisticsContentDetails)
+                )
                 .toList();
     }
 }

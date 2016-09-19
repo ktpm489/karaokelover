@@ -10,8 +10,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -22,11 +22,11 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import vn.com.frankle.karaokelover.fragments.KFragmentFavorite;
 import vn.com.frankle.karaokelover.fragments.KFragmentHome;
 import vn.com.frankle.karaokelover.util.Utils;
 
@@ -39,11 +39,6 @@ public class KActivityHome extends AppCompatActivity
 
     private static final int RC_SEARCH = 0;
 
-    private boolean mFlagNavMyRecording = false;
-
-    private int mPhysicScreenWidthInDp;
-    private int mPhyScreenWidthInPixel;
-
     @BindView(R.id.layout_main_activity_content)
     LinearLayout mLayoutMainContent;
 
@@ -52,6 +47,29 @@ public class KActivityHome extends AppCompatActivity
     Toolbar mToolbar;
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
+
+    private boolean mFlagNavMyRecording = false;
+
+    private int mPhysicScreenWidthInDp;
+    private int mPhyScreenWidthInPixel;
+
+    private FragmentManager fm = getSupportFragmentManager();
+    private KFragmentHome mHomeFragment;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +82,7 @@ public class KActivityHome extends AppCompatActivity
         // Set up Navigation View
         setUpNavigationView();
 
-        setUpViews();
+        showHomeFragment(true);
 
         //Request for needed permission (INTERNET, STORAGE)
         requestPermission();
@@ -96,31 +114,15 @@ public class KActivityHome extends AppCompatActivity
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    private void setUpViews() {
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        Bundle extraData = new Bundle();
-        extraData.putInt(KFragmentHome.KEY_PHYSIC_SCREEN_SIZE, mPhyScreenWidthInPixel);
-        KFragmentHome fragmentHome = new KFragmentHome();
-        fragmentHome.setArguments(extraData);
-        ft.add(R.id.main_content, fragmentHome);
-        ft.commit();
-    }
+//    private void setUpViews() {
+//        FragmentTransaction ft = fm.beginTransaction();
+//        Bundle extraData = new Bundle();
+//        extraData.putInt(KFragmentHome.KEY_PHYSIC_SCREEN_SIZE, mPhyScreenWidthInPixel);
+//        mHomeFragment = new KFragmentHome();
+//        mHomeFragment.setArguments(extraData);
+//        ft.add(R.id.main_content, mHomeFragment);
+//        ft.commit();
+//    }
 
     private void setUpNavigationView() {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -198,28 +200,57 @@ public class KActivityHome extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private void showHomeFragment(boolean show) {
+        if (show) {
+            if (mHomeFragment != null) {
+                Fragment fragmentFavorite = fm.findFragmentByTag("TAG_FAVORITE");
+                if (fragmentFavorite != null){
+                    fm.beginTransaction().remove(fragmentFavorite).commit();
+                }
+                fm.beginTransaction().show(mHomeFragment).commit();
+            } else {
+                Bundle extraData = new Bundle();
+                extraData.putInt(KFragmentHome.KEY_PHYSIC_SCREEN_SIZE, mPhyScreenWidthInPixel);
+                mHomeFragment = new KFragmentHome();
+                mHomeFragment.setArguments(extraData);
+                fm.beginTransaction().replace(R.id.main_content, mHomeFragment).commit();
+            }
+        } else {
+            if (mHomeFragment != null) {
+                fm.beginTransaction().hide(mHomeFragment).commit();
+            }
+        }
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+        FragmentManager fm = getSupportFragmentManager();
+
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
+        if (id == R.id.nav_home) {
+            showHomeFragment(true);
         } else if (id == R.id.nav_my_recording) {
             // Set flag to indicate that this item has been clicked
             mFlagNavMyRecording = true;
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_artists) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_favorite) {
+            showHomeFragment(false);
+            try {
+                Fragment fragment = KFragmentFavorite.class.newInstance();
+                fm.beginTransaction().add(R.id.main_content, fragment, "TAG_FAVORITE").commit();
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        } else if (id == R.id.nav_setting) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_exit) {
 
         }
-
         mDrawerLayout.closeDrawer(GravityCompat.START);
 
         return true;

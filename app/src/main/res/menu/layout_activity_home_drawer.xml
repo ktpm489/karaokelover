@@ -3,21 +3,21 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/nav_home"
             android:icon="@drawable/ic_nav_home"
-            android:title="Home" />
+            android:title="@string/nav_home" />
         <item
             android:id="@+id/nav_my_recording"
             android:icon="@drawable/ic_nav_mykaraokes"
-            android:title="My Recordings" />
+            android:title="@string/nav_my_recordings" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_artists"
             android:icon="@drawable/ic_nav_myartists"
-            android:title="My Artists" />
+            android:title="@string/nav_my_artists" />
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/nav_favorite"
             android:icon="@drawable/ic_nav_favorite"
-            android:title="My Favourites" />
+            android:title="@string/nav_my_favourites" />
     </group>
 
     <group
@@ -25,13 +25,13 @@
         android:checkableBehavior="none">
 
         <item
-            android:id="@+id/nav_share"
+            android:id="@+id/nav_setting"
             android:icon="@drawable/ic_nav_setting"
-            android:title="Setting" />
+            android:title="@string/nav_setting" />
         <item
-            android:id="@+id/nav_send"
+            android:id="@+id/nav_exit"
             android:icon="@drawable/ic_nav_exit"
-            android:title="Exit" />
+            android:title="@string/nav_exit" />
     </group>
 
     <!--<item android:title="Communicate">-->
