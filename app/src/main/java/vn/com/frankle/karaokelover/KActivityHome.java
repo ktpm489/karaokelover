@@ -18,7 +18,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +26,7 @@ import android.widget.LinearLayout;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import vn.com.frankle.karaokelover.fragments.KFragmentArtists;
 import vn.com.frankle.karaokelover.fragments.KFragmentFavorite;
 import vn.com.frankle.karaokelover.fragments.KFragmentHome;
 import vn.com.frankle.karaokelover.util.Utils;
@@ -39,6 +39,10 @@ public class KActivityHome extends AppCompatActivity
     private static final int PERMISSION_AUDIO_RECORD = 0;
 
     private static final int RC_SEARCH = 0;
+
+    private static final int FRAGMENT_HOME = 0;
+    private static final int FRAGMENT_ARTIST = 1;
+    private static final int FRAGMENT_FAVORITE = 2;
 
     @BindView(R.id.layout_main_activity_content)
     LinearLayout mLayoutMainContent;
@@ -56,6 +60,7 @@ public class KActivityHome extends AppCompatActivity
 
     private FragmentManager fm = getSupportFragmentManager();
     private KFragmentHome mHomeFragment;
+    private KFragmentArtists mArtistFragment;
 
     @Override
     protected void onStart() {
@@ -83,7 +88,7 @@ public class KActivityHome extends AppCompatActivity
         // Set up Navigation View
         setUpNavigationView();
 
-        showHomeFragment(true);
+        showFragment(FRAGMENT_HOME);
 
         //Request for needed permission (INTERNET, STORAGE)
         requestPermission();
@@ -114,16 +119,6 @@ public class KActivityHome extends AppCompatActivity
             }
         }
     }
-
-//    private void setUpViews() {
-//        FragmentTransaction ft = fm.beginTransaction();
-//        Bundle extraData = new Bundle();
-//        extraData.putInt(KFragmentHome.KEY_PHYSIC_SCREEN_SIZE, mPhyScreenWidthInPixel);
-//        mHomeFragment = new KFragmentHome();
-//        mHomeFragment.setArguments(extraData);
-//        ft.add(R.id.main_content, mHomeFragment);
-//        ft.commit();
-//    }
 
     private void setUpNavigationView() {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -201,25 +196,58 @@ public class KActivityHome extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void showHomeFragment(boolean show) {
-        if (show) {
-            if (mHomeFragment != null) {
-                Fragment fragmentFavorite = fm.findFragmentByTag(KFragmentFavorite.TAG);
+    private void showFragment(int fragmentToShow) {
+        Fragment fragmentFavorite = fm.findFragmentByTag(KFragmentFavorite.TAG);
+        switch (fragmentToShow) {
+            case FRAGMENT_HOME:
                 if (fragmentFavorite != null) {
                     fm.beginTransaction().remove(fragmentFavorite).commit();
                 }
-                fm.beginTransaction().show(mHomeFragment).commit();
-            } else {
-                Bundle extraData = new Bundle();
-                extraData.putInt(KFragmentHome.KEY_PHYSIC_SCREEN_SIZE, mPhyScreenWidthInPixel);
-                mHomeFragment = new KFragmentHome();
-                mHomeFragment.setArguments(extraData);
-                fm.beginTransaction().replace(R.id.main_content, mHomeFragment).commit();
-            }
-        } else {
-            if (mHomeFragment != null) {
-                fm.beginTransaction().hide(mHomeFragment).commit();
-            }
+                if (mArtistFragment != null && mArtistFragment.isVisible()) {
+                    fm.beginTransaction().hide(mArtistFragment).commit();
+                }
+                if (mHomeFragment != null) {
+                    fm.beginTransaction().show(mHomeFragment).commit();
+                } else {
+                    Bundle extraData = new Bundle();
+                    extraData.putInt(KFragmentHome.KEY_PHYSIC_SCREEN_SIZE, mPhyScreenWidthInPixel);
+                    mHomeFragment = new KFragmentHome();
+                    mHomeFragment.setArguments(extraData);
+                    fm.beginTransaction().add(R.id.main_content, mHomeFragment).commit();
+                }
+                break;
+            case FRAGMENT_ARTIST:
+                if (fragmentFavorite != null) {
+                    fm.beginTransaction().remove(fragmentFavorite).commit();
+                }
+                if (mHomeFragment != null && mHomeFragment.isVisible()) {
+                    fm.beginTransaction().hide(mHomeFragment).commit();
+                }
+                if (mArtistFragment != null) {
+                    fm.beginTransaction().show(mArtistFragment).commit();
+                } else {
+                    try {
+                        mArtistFragment = KFragmentArtists.class.newInstance();
+                    } catch (InstantiationException | IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                    fm.beginTransaction().add(R.id.main_content, mArtistFragment, KFragmentArtists.TAG).commit();
+                }
+                break;
+            case FRAGMENT_FAVORITE:
+                if (mHomeFragment != null && mHomeFragment.isVisible()) {
+                    fm.beginTransaction().hide(mHomeFragment).commit();
+                }
+                if (mArtistFragment != null && mArtistFragment.isVisible()) {
+                    fm.beginTransaction().hide(mArtistFragment).commit();
+                }
+                try {
+                    Fragment fragment = KFragmentFavorite.class.newInstance();
+                    fm.beginTransaction().add(R.id.main_content, fragment, KFragmentFavorite.TAG).commit();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                break;
         }
     }
 
@@ -232,21 +260,14 @@ public class KActivityHome extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            showHomeFragment(true);
+            showFragment(FRAGMENT_HOME);
         } else if (id == R.id.nav_my_recording) {
             // Set flag to indicate that this item has been clicked
             mFlagNavMyRecording = true;
-
         } else if (id == R.id.nav_artists) {
-
+            showFragment(FRAGMENT_ARTIST);
         } else if (id == R.id.nav_favorite) {
-            showHomeFragment(false);
-            try {
-                Fragment fragment = KFragmentFavorite.class.newInstance();
-                fm.beginTransaction().add(R.id.main_content, fragment, KFragmentFavorite.TAG).commit();
-            } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            showFragment(FRAGMENT_FAVORITE);
         } else if (id == R.id.nav_setting) {
 
         } else if (id == R.id.nav_exit) {

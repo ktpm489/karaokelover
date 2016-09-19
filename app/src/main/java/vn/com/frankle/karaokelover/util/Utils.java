@@ -10,6 +10,9 @@ import org.joda.time.format.ISOPeriodFormat;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -18,6 +21,9 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 import vn.com.frankle.karaokelover.models.Thumbnails;
 
@@ -171,5 +177,38 @@ public class Utils {
         mmr.setDataSource(pathFile);
         String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
         return formatDuration(Long.parseLong(durationStr));
+    }
+
+    /**
+     * String to HMAC - MD5
+     *
+     * @param s         : encoded Json data
+     * @param keyString : private key from Zing
+     * @return signature for building URL
+     */
+    public static String strToHMACMD5(String s, String keyString) {
+        String sEncodedString = null;
+        try {
+            SecretKeySpec key = new SecretKeySpec(
+                    (keyString).getBytes("UTF-8"), "HmacMD5");
+            Mac mac = Mac.getInstance("HmacMD5");
+            mac.init(key);
+
+            byte[] bytes = mac.doFinal(s.getBytes("ASCII"));
+
+            StringBuilder hash = new StringBuilder();
+
+            for (byte aByte : bytes) {
+                String hex = Integer.toHexString(0xFF & aByte);
+                if (hex.length() == 1) {
+                    hash.append('0');
+                }
+                hash.append(hex);
+            }
+            sEncodedString = hash.toString();
+        } catch (UnsupportedEncodingException | InvalidKeyException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return sEncodedString;
     }
 }

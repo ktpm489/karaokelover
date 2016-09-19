@@ -19,6 +19,7 @@ import rx.schedulers.Schedulers;
 import vn.com.frankle.karaokelover.database.DbModule;
 import vn.com.frankle.karaokelover.services.YoutubeAPIEndpointInterface;
 import vn.com.frankle.karaokelover.services.YoutubeAudioMp3APIInterface;
+import vn.com.frankle.karaokelover.services.ZingMp3APIEndpointInterface;
 
 /**
  * Created by duclm on 7/18/2016.
@@ -29,6 +30,7 @@ public class KApplication extends Application {
     public static final String BASE_URL = "http://192.168.0.2:8080/";
     public static final String YOUTUBE_BASE_URL = "https://www.googleapis.com/youtube/v3/";
     public static final String YOUTUBE_MP3_AUDIO_URL = "http://www.youtubeinmp3.com/";
+    public static final String BASE_URL_ZING_MP3 = "http://api.mp3.zing.vn/api/";
     public static final String RECORDING_DIRECTORY_URI = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Karaoke Lover/";
 
     private static Context context;
@@ -37,10 +39,12 @@ public class KApplication extends Application {
 
     private Retrofit rxYoutubeAPI;
     private Retrofit rxAudioMP3API;
+    private Retrofit rxZingMp3API;
     private Retrofit youtubeInMp3;
 
     public static YoutubeAPIEndpointInterface rxYoutubeAPIService;
     public static YoutubeAudioMp3APIInterface youtubeInMp3APIService;
+    public static ZingMp3APIEndpointInterface rxZingMp3APIService;
 
     @Nullable
     private volatile KAppComponent appComponent;
@@ -69,6 +73,14 @@ public class KApplication extends Application {
                 .build();
         rxYoutubeAPIService = rxYoutubeAPI.create(YoutubeAPIEndpointInterface.class);
 
+        rxZingMp3API = new Retrofit.Builder()
+                .client(client)
+                .baseUrl(BASE_URL_ZING_MP3)
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
+                .build();
+        rxZingMp3APIService = rxZingMp3API.create(ZingMp3APIEndpointInterface.class);
+
         rxAudioMP3API = new Retrofit.Builder()
                 .client(client)
                 .baseUrl(YOUTUBE_MP3_AUDIO_URL)
@@ -87,6 +99,10 @@ public class KApplication extends Application {
 
     public static YoutubeAudioMp3APIInterface getYoutubeInMp3APIService() {
         return youtubeInMp3APIService;
+    }
+
+    public static ZingMp3APIEndpointInterface getRxZingMp3APIService() {
+        return rxZingMp3APIService;
     }
 
     @NonNull
