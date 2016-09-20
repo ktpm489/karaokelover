@@ -75,9 +75,24 @@ public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecy
      *
      * @param searchData : new data set
      */
-    public void populateWithData(List<VideoSearchItem> searchData) {
-        this.mSearchResult = searchData;
+    public void appendVideosToList(List<VideoSearchItem> searchData) {
+        this.mSearchResult.addAll(searchData);
         notifyDataSetChanged();
+    }
+
+    /**
+     * Remove a video from current list
+     *
+     * @param videoId : id of video to be removed
+     */
+    public void removeVideoFromList(String videoId) {
+        for (int i = 0; i < mSearchResult.size(); i++) {
+            if (mSearchResult.get(i).getVideoId().equals(videoId)) {
+                mSearchResult.remove(mSearchResult.get(i));
+                notifyDataSetChanged();
+                return;
+            }
+        }
     }
 
     /**

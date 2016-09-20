@@ -43,7 +43,7 @@ public class KFragmentFavorite extends Fragment {
     private static final String DEBUG_TAG = KFragmentFavorite.class.getSimpleName();
     public static final String TAG = "FRAGMENT_FAVORITE";
 
-    private static final int REQUEST_CODE_RELOAD_FAVORITE_LIST = 111;
+    public static final int REQUEST_CODE_RELOAD_FAVORITE_LIST = 111;
 
     private Context mContext;
 
@@ -52,6 +52,7 @@ public class KFragmentFavorite extends Fragment {
     @BindView(R.id.recyclerview_my_favorite)
     RecyclerView mRecyclerView;
 
+    private KSharedPreference mAppPrefs = new KSharedPreference();
     private int mCurSizeList = 0;
 
     @NonNull
@@ -76,6 +77,18 @@ public class KFragmentFavorite extends Fragment {
     public void onDetach() {
         super.onDetach();
         mContext = null;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(DEBUG_TAG, "onPause");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(DEBUG_TAG, "onResume");
     }
 
     @Override
@@ -138,10 +151,11 @@ public class KFragmentFavorite extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         Log.d(DEBUG_TAG, "onActivityResult");
         switch (requestCode) {
             case KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST:
-                reloadIfNecessary();
+                reloadIfNecessary(data);
                 break;
         }
     }
@@ -175,7 +189,7 @@ public class KFragmentFavorite extends Fragment {
         if (favoriteVideos.size() > 0) {
             setLoadingState(false);
 
-            mFavoriteAdapter.populateWithData(favoriteVideos);
+            mFavoriteAdapter.appendVideosToList(favoriteVideos);
         } else {
             Toast.makeText(mContext, "Empty favorite videos list", Toast.LENGTH_SHORT).show();
         }
@@ -185,16 +199,27 @@ public class KFragmentFavorite extends Fragment {
         Intent playVideoItent = new Intent(mContext, KActivityPlayVideo.class);
         playVideoItent.putExtra("title", video.getTitle());
         playVideoItent.putExtra("videoid", video.getVideoId());
+        playVideoItent.putExtra("from_favorite", true);
         startActivityForResult(playVideoItent, REQUEST_CODE_RELOAD_FAVORITE_LIST);
     }
 
     /**
      * Reload the favorite video list if necessary (change from other activity)
+     *
+     * @param resultData : intent data sent by called activity
      */
-    private void reloadIfNecessary() {
-        ArrayList<String> listFavoriteId = sharePrefs.getFavoritesVideo(mContext);
-        if (mCurSizeList != listFavoriteId.size()) {
-            loadFavoriteVideos(listFavoriteId);
+    public void reloadIfNecessary(Intent resultData) {
+        if (resultData != null) {
+            String videoId = resultData.getStringExtra("video_id");
+            if (mAppPrefs.isInFavoriteList(mContext, videoId)) {
+                // User has add this video to the favorite list
+                ArrayList<String> newVideo = new ArrayList<>();
+                newVideo.add(videoId);
+                loadFavoriteVideos(newVideo);
+            } else {
+                // User remove this video from the favorite list
+                mFavoriteAdapter.removeVideoFromList(videoId);
+            }
         }
     }
 

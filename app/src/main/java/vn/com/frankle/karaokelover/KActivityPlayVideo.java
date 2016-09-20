@@ -1,5 +1,6 @@
 package vn.com.frankle.karaokelover;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -28,8 +29,6 @@ import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -69,6 +68,8 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
     private String mCurrentVideoId;
     private String mCurrentVideoTitle;
     private String mCurrentSavedFilename;
+
+    private boolean mFavoriteState;
 
     private YouTubePlayerSupportFragment mYoutubePlayerFragment;
     private KAudioRecord mRecorder;
@@ -258,8 +259,8 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
         // Setup for favorite icon
         MenuItem favoriteMenu = menu.findItem(R.id.menu_favourite);
 
-        boolean isInFavoriteList = isInFavoriteList(mCurrentVideoId);
-        if (!isInFavoriteList) {
+        mFavoriteState = mAppSharePrefs.isInFavoriteList(this, mCurrentVideoId);
+        if (!mFavoriteState) {
             favoriteMenu.setIcon(R.drawable.drawable_menu_favourite);
         } else {
             favoriteMenu.setIcon(R.drawable.drawable_menu_favourite_added);
@@ -283,21 +284,6 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
     }
 
     /**
-     * Check if a video is in favorite list or not
-     *
-     * @param videoId : the video to be checked
-     * @return true if the video is in favorite list
-     */
-    private boolean isInFavoriteList(String videoId) {
-        // Setup for favorite icon
-        ArrayList<String> listFavorite = mAppSharePrefs.getFavoritesVideo(this);
-        if (!listFavorite.contains(videoId)) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Handle favorite click event
      * If this video is already in the favorite list, remove it.
      * Otherwise, add it to the current favorite video list and change the icon of Favorite button
@@ -305,7 +291,7 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
      * @param favoriteMenuItem : menu item
      */
     private void handleFavoriteClick(MenuItem favoriteMenuItem) {
-        boolean isInFavoriteList = isInFavoriteList(mCurrentVideoId);
+        boolean isInFavoriteList = mAppSharePrefs.isInFavoriteList(this, mCurrentVideoId);
         if (!isInFavoriteList) {// Not in the favorite list -> add it
             mAppSharePrefs.addFavorites(this, mCurrentVideoId);
 
@@ -576,5 +562,19 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
         super.onDestroy();
         compositeSubscriptionForOnStop.unsubscribe();
 //        mAudioRecordVisualization.release();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(DEBUG_TAG, "onBackPressed");
+
+        boolean mCurrentState = mAppSharePrefs.isInFavoriteList(this, mCurrentVideoId);
+        if (mCurrentState != mFavoriteState) {
+            // User change state of favorite
+            Intent updateFavoriteList = new Intent();
+            updateFavoriteList.putExtra("video_id", mCurrentVideoId);
+            setResult(Activity.RESULT_OK, updateFavoriteList);
+        }
+        super.onBackPressed();
     }
 }

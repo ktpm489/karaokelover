@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -61,6 +60,7 @@ public class KActivityHome extends AppCompatActivity
     private FragmentManager fm = getSupportFragmentManager();
     private KFragmentHome mHomeFragment;
     private KFragmentArtists mArtistFragment;
+    private KFragmentFavorite mFavoriteFragment;
 
     @Override
     protected void onStart() {
@@ -197,55 +197,64 @@ public class KActivityHome extends AppCompatActivity
     }
 
     private void showFragment(int fragmentToShow) {
-        Fragment fragmentFavorite = fm.findFragmentByTag(KFragmentFavorite.TAG);
         switch (fragmentToShow) {
             case FRAGMENT_HOME:
-                if (fragmentFavorite != null) {
-                    fm.beginTransaction().remove(fragmentFavorite).commit();
-                }
-                if (mArtistFragment != null && mArtistFragment.isVisible()) {
-                    fm.beginTransaction().hide(mArtistFragment).commit();
-                }
-                if (mHomeFragment != null) {
-                    fm.beginTransaction().show(mHomeFragment).commit();
-                } else {
-                    Bundle extraData = new Bundle();
-                    extraData.putInt(KFragmentHome.KEY_PHYSIC_SCREEN_SIZE, mPhyScreenWidthInPixel);
-                    mHomeFragment = new KFragmentHome();
-                    mHomeFragment.setArguments(extraData);
-                    fm.beginTransaction().add(R.id.main_content, mHomeFragment).commit();
+                if (mHomeFragment == null || !mHomeFragment.isVisible()) {
+                    if (mFavoriteFragment != null && mFavoriteFragment.isVisible()) {
+                        fm.beginTransaction().hide(mFavoriteFragment).commit();
+                    }
+                    if (mArtistFragment != null && mArtistFragment.isVisible()) {
+                        fm.beginTransaction().hide(mArtistFragment).commit();
+                    }
+                    if (mHomeFragment != null) {
+                        fm.beginTransaction().show(mHomeFragment).commit();
+                    } else {
+                        Bundle extraData = new Bundle();
+                        extraData.putInt(KFragmentHome.KEY_PHYSIC_SCREEN_SIZE, mPhyScreenWidthInPixel);
+                        mHomeFragment = new KFragmentHome();
+                        mHomeFragment.setArguments(extraData);
+                        fm.beginTransaction().add(R.id.main_content, mHomeFragment).commit();
+                    }
                 }
                 break;
             case FRAGMENT_ARTIST:
-                if (fragmentFavorite != null) {
-                    fm.beginTransaction().remove(fragmentFavorite).commit();
-                }
-                if (mHomeFragment != null && mHomeFragment.isVisible()) {
-                    fm.beginTransaction().hide(mHomeFragment).commit();
-                }
-                if (mArtistFragment != null) {
-                    fm.beginTransaction().show(mArtistFragment).commit();
-                } else {
-                    try {
-                        mArtistFragment = KFragmentArtists.class.newInstance();
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        e.printStackTrace();
+                if (mArtistFragment == null || !mArtistFragment.isVisible()) {
+                    if (mFavoriteFragment != null && mFavoriteFragment.isVisible()) {
+                        fm.beginTransaction().hide(mFavoriteFragment).commit();
                     }
-                    fm.beginTransaction().add(R.id.main_content, mArtistFragment, KFragmentArtists.TAG).commit();
+                    if (mHomeFragment != null && mHomeFragment.isVisible()) {
+                        fm.beginTransaction().hide(mHomeFragment).commit();
+                    }
+                    if (mArtistFragment != null) {
+                        fm.beginTransaction().show(mArtistFragment).commit();
+                    } else {
+                        try {
+                            mArtistFragment = KFragmentArtists.class.newInstance();
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                        fm.beginTransaction().add(R.id.main_content, mArtistFragment, KFragmentArtists.TAG).commit();
+                    }
                 }
                 break;
             case FRAGMENT_FAVORITE:
-                if (mHomeFragment != null && mHomeFragment.isVisible()) {
-                    fm.beginTransaction().hide(mHomeFragment).commit();
-                }
-                if (mArtistFragment != null && mArtistFragment.isVisible()) {
-                    fm.beginTransaction().hide(mArtistFragment).commit();
-                }
-                try {
-                    Fragment fragment = KFragmentFavorite.class.newInstance();
-                    fm.beginTransaction().add(R.id.main_content, fragment, KFragmentFavorite.TAG).commit();
-                } catch (InstantiationException | IllegalAccessException e) {
-                    e.printStackTrace();
+                if (mFavoriteFragment == null || !mFavoriteFragment.isVisible()) {
+                    if (mArtistFragment != null && mArtistFragment.isVisible()) {
+                        fm.beginTransaction().hide(mArtistFragment).commit();
+                    }
+                    if (mHomeFragment != null && mHomeFragment.isVisible()) {
+                        fm.beginTransaction().hide(mHomeFragment).commit();
+                    }
+                    if (mFavoriteFragment != null) {
+                        fm.beginTransaction().show(mFavoriteFragment).commit();
+                    } else {
+                        try {
+                            mFavoriteFragment = KFragmentFavorite.class.newInstance();
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                        fm.beginTransaction().add(R.id.main_content, mFavoriteFragment, KFragmentFavorite.TAG).commit();
+                    }
                 }
                 break;
         }
@@ -292,6 +301,11 @@ public class KActivityHome extends AppCompatActivity
                 if (resultCode == KActivitySearch.RESULT_CODE_SAVE) {
                     String query = data.getStringExtra(KActivitySearch.EXTRA_QUERY);
                     if (TextUtils.isEmpty(query)) return;
+                }
+                break;
+            case KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST:
+                if (mFavoriteFragment != null){
+                    mFavoriteFragment.reloadIfNecessary(data);
                 }
                 break;
         }

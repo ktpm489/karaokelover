@@ -415,7 +415,7 @@ public class KActivitySearch extends AppCompatActivity {
                 progress.setVisibility(View.GONE);
                 results.setVisibility(View.VISIBLE);
 
-                mSearchAdapter.populateWithData(searchResults);
+                mSearchAdapter.appendVideosToList(searchResults);
             }
         } else {
             // No result to display

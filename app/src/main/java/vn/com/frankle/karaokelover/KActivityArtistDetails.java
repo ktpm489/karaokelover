@@ -76,7 +76,7 @@ public class KActivityArtistDetails extends AppCompatActivity {
     }
 
     private void handleYoutubeResponses(List<VideoSearchItem> songs) {
-        mSearchAdapter.populateWithData(songs);
+        mSearchAdapter.appendVideosToList(songs);
 
         switchLoadingDataState(false);
     }

@@ -16,8 +16,10 @@ import com.bumptech.glide.Glide;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import vn.com.frankle.karaokelover.KActivityHome;
 import vn.com.frankle.karaokelover.KActivityPlayVideo;
 import vn.com.frankle.karaokelover.R;
+import vn.com.frankle.karaokelover.fragments.KFragmentFavorite;
 import vn.com.frankle.karaokelover.util.Utils;
 
 /**
@@ -54,7 +56,7 @@ public class FragmentHotKaraoke extends Fragment {
         View view = inflater.inflate(R.layout.layout_fragment_hot_karaoke, container, false);
         ButterKnife.bind(this, view);
 
-        view.setOnClickListener(view1 -> handleHotKaraokeClickEvent(mBundle));
+        view.setOnClickListener(view1 -> handleHotKaraokeClickEvent());
 
         mTitle.setText(mBundle.getString("title"));
         mHotPlayCount.setText(Utils.getViewCount(mBundle.getString("play_count")));
@@ -67,11 +69,11 @@ public class FragmentHotKaraoke extends Fragment {
     /**
      * Hot karaoke click event handler
      */
-    private void handleHotKaraokeClickEvent(Bundle bundle) {
+    private void handleHotKaraokeClickEvent() {
         Intent playVideoItent = new Intent(mContext, KActivityPlayVideo.class);
         playVideoItent.putExtra("title", mBundle.getString("title"));
         playVideoItent.putExtra("videoid", mBundle.getString("id"));
-        mContext.startActivity(playVideoItent);
+        ((KActivityHome) mContext).startActivityForResult(playVideoItent, KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST);
     }
 
     public void onPause() {
@@ -86,5 +88,17 @@ public class FragmentHotKaraoke extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mContext = null;
     }
 }

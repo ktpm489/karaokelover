@@ -86,4 +86,15 @@ public class KSharedPreference {
 
         return favorites;
     }
+
+    /**
+     * Check if a video is in the favorite list or not
+     *
+     * @param videoId : id of video to be checked
+     * @return true if this video is in favorite list
+     */
+    public boolean isInFavoriteList(Context context, String videoId) {
+        ArrayList<String> listFavorite = getFavoritesVideo(context);
+        return listFavorite.contains(videoId);
+    }
 }
