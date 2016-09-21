@@ -16,6 +16,7 @@ public class ZingMp3API {
     private static final String PRIVATE_KEY = "2a52c25134a13473e1d86c53676ca4e2";
 
     private static final String URL_LIST_ARTIST = "http://api.mp3.zing.vn/api/mobile/artist/getartistbygenre";
+    private static final String URL_LIST_ARTIST_2 = "http://api.mp3.zing.vn/api/list-artist";
     private static final String URL_DETAIL = "http://api.mp3.zing.vn/api/detail";
     private static final String URL_ARTIST_INFO = "http://api.mp3.zing.vn/api/singer-info";
 
@@ -47,9 +48,14 @@ public class ZingMp3API {
         return url.toString();
     }
 
-    public static String getListArtistURL()
+    public static String getListArtistURL(int type, int page)
             throws UnsupportedEncodingException {
-        return getZingMp3RequestURL(URL_LIST_ARTIST, JSONHelper.writeJsonDataArtists(0));
+        JSONObject data = JSONHelper.writeJsonDataArtists(type, page);
+        StringBuilder urlBuilder = new StringBuilder("http://api.mp3.zing.vn/api/mobile/artist/getartistbygenre?requestdata=");
+        urlBuilder.append(data.toString());
+        urlBuilder.append("&keycode=b319bd16be6d049fdb66c0752298ca30");
+
+        return urlBuilder.toString();
     }
 
     public static String getDetailContentURL(String typeContent, String id)

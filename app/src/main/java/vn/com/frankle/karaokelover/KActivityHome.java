@@ -9,6 +9,7 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -49,12 +50,13 @@ public class KActivityHome extends AppCompatActivity
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
+    @BindView(R.id.sliding_tabs)
+    TabLayout mTabLayout;
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
 
     private boolean mFlagNavMyRecording = false;
 
-    private int mPhysicScreenWidthInDp;
     private int mPhyScreenWidthInPixel;
 
     private FragmentManager fm = getSupportFragmentManager();
@@ -139,7 +141,7 @@ public class KActivityHome extends AppCompatActivity
 
         // Get screen width in dp
         Configuration configuration = this.getResources().getConfiguration();
-        mPhysicScreenWidthInDp = configuration.screenWidthDp; //The current width of the available screen space, in dp units, corresponding to screen width resource qualifier.
+        int mPhysicScreenWidthInDp = configuration.screenWidthDp;
         // Get screen width in pixel
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -199,6 +201,7 @@ public class KActivityHome extends AppCompatActivity
     private void showFragment(int fragmentToShow) {
         switch (fragmentToShow) {
             case FRAGMENT_HOME:
+                mTabLayout.setVisibility(View.GONE);
                 if (mHomeFragment == null || !mHomeFragment.isVisible()) {
                     if (mFavoriteFragment != null && mFavoriteFragment.isVisible()) {
                         fm.beginTransaction().hide(mFavoriteFragment).commit();
@@ -218,6 +221,7 @@ public class KActivityHome extends AppCompatActivity
                 }
                 break;
             case FRAGMENT_ARTIST:
+                mTabLayout.setVisibility(View.VISIBLE);
                 if (mArtistFragment == null || !mArtistFragment.isVisible()) {
                     if (mFavoriteFragment != null && mFavoriteFragment.isVisible()) {
                         fm.beginTransaction().hide(mFavoriteFragment).commit();
@@ -233,11 +237,12 @@ public class KActivityHome extends AppCompatActivity
                         } catch (InstantiationException | IllegalAccessException e) {
                             e.printStackTrace();
                         }
-                        fm.beginTransaction().add(R.id.main_content, mArtistFragment, KFragmentArtists.TAG).commit();
+                        fm.beginTransaction().add(R.id.main_content, mArtistFragment).commit();
                     }
                 }
                 break;
             case FRAGMENT_FAVORITE:
+                mTabLayout.setVisibility(View.GONE);
                 if (mFavoriteFragment == null || !mFavoriteFragment.isVisible()) {
                     if (mArtistFragment != null && mArtistFragment.isVisible()) {
                         fm.beginTransaction().hide(mArtistFragment).commit();
@@ -304,10 +309,18 @@ public class KActivityHome extends AppCompatActivity
                 }
                 break;
             case KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST:
-                if (mFavoriteFragment != null){
+                if (mFavoriteFragment != null) {
                     mFavoriteFragment.reloadIfNecessary(data);
                 }
                 break;
         }
+    }
+
+    /**
+     * Get tab layout for Artist fragment
+     * @return tablayout
+     */
+    public TabLayout getTabLayout(){
+        return mTabLayout;
     }
 }
