@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -17,7 +16,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import vn.com.frankle.karaokelover.R;
-import vn.com.frankle.karaokelover.services.responses.zingmp3.Doc;
+import vn.com.frankle.karaokelover.services.responses.zingmp3.ZingArtist;
 import vn.com.frankle.karaokelover.zingmp3.ZingMp3API;
 
 /**
@@ -28,24 +27,21 @@ public class KAdapterArtists extends RecyclerView.Adapter<KAdapterArtists.ViewHo
     private static final String DEBUG_TAG = KAdapterArtists.class.getSimpleName();
 
     public interface OnItemClickListener {
-        void onArtistClick(Doc artist);
+        void onArtistClick(ZingArtist artist);
     }
 
     private Context mContext;
-    private List<Doc> mArtistsList;
+    private List<ZingArtist> mArtistsList;
 
-    private final KAdapterArtists.OnItemClickListener mListener = this::onArtistItemClick;
+    private KAdapterArtists.OnItemClickListener mListener;
 
-    private void onArtistItemClick(Doc artist) {
-        Toast.makeText(mContext, "click: " + artist.getName(), Toast.LENGTH_SHORT).show();
-    }
-
-    public KAdapterArtists(Context context) {
+    public KAdapterArtists(Context context, OnItemClickListener listener) {
         mContext = context;
         this.mArtistsList = null;
+        this.mListener = listener;
     }
 
-    public KAdapterArtists(Context context, @NonNull List<Doc> artistList) {
+    public KAdapterArtists(Context context, @NonNull List<ZingArtist> artistList) {
         mContext = context;
         this.mArtistsList = artistList;
     }
@@ -56,7 +52,7 @@ public class KAdapterArtists extends RecyclerView.Adapter<KAdapterArtists.ViewHo
         LayoutInflater inflater = LayoutInflater.from(context);
 
         // Inflate the custom layout
-        View artistItem = inflater.inflate(R.layout.item_artists, parent, false);
+        View artistItem = inflater.inflate(R.layout.recyclerview_item_artist_zing, parent, false);
 
         // Return a new holder instance
         return new KAdapterArtists.ViewHolderArtist(mContext, artistItem);
@@ -65,7 +61,7 @@ public class KAdapterArtists extends RecyclerView.Adapter<KAdapterArtists.ViewHo
 
     @Override
     public void onBindViewHolder(KAdapterArtists.ViewHolderArtist holder, int position) {
-        Doc itemArtist = mArtistsList.get(position);
+        ZingArtist itemArtist = mArtistsList.get(position);
 
         // Set item views based on your views and data model
         holder.bind(mContext, itemArtist, mListener);
@@ -79,7 +75,7 @@ public class KAdapterArtists extends RecyclerView.Adapter<KAdapterArtists.ViewHo
         return 0;
     }
 
-    public void populateWithData(List<Doc> mArtistsList) {
+    public void populateWithData(List<ZingArtist> mArtistsList) {
         this.mArtistsList = mArtistsList;
         notifyDataSetChanged();
     }
@@ -101,7 +97,7 @@ public class KAdapterArtists extends RecyclerView.Adapter<KAdapterArtists.ViewHo
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(final Context context, final Doc artist, final OnItemClickListener listener) {
+        public void bind(final Context context, final ZingArtist artist, final OnItemClickListener listener) {
 
             mArtistName.setText(artist.getName());
 

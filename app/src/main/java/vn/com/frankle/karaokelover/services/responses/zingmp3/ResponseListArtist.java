@@ -15,19 +15,19 @@ import javax.annotation.Generated;
 public class ResponseListArtist {
     @SerializedName("docs")
     @Expose
-    private List<Doc> docs = new ArrayList<Doc>();
+    private List<ZingArtist> zingArtists = new ArrayList<ZingArtist>();
 
     /**
-     * @return The docs
+     * @return The zingArtists
      */
-    public List<Doc> getDocs() {
-        return docs;
+    public List<ZingArtist> getZingArtists() {
+        return zingArtists;
     }
 
     /**
-     * @param docs The docs
+     * @param zingArtists The zingArtists
      */
-    public void setDocs(List<Doc> docs) {
-        this.docs = docs;
+    public void setZingArtists(List<ZingArtist> zingArtists) {
+        this.zingArtists = zingArtists;
     }
 }

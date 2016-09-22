@@ -9,7 +9,7 @@ import javax.annotation.Generated;
  * Created by duclm on 9/19/2016.
  */
 @Generated("org.jsonschema2pojo")
-public class Doc {
+public class ZingArtist implements Comparable<ZingArtist> {
     @SerializedName("artist_id")
     @Expose
     private int artistId;
@@ -94,5 +94,13 @@ public class Doc {
      */
     public void setLink(String link) {
         this.link = link;
+    }
+
+    @Override
+    public int compareTo(ZingArtist zingArtist) {
+        if (this.artistId == zingArtist.getArtistId()) {
+            return 0;
+        }
+        return -1;
     }
 }

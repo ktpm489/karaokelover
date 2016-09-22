@@ -47,7 +47,8 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
-import vn.com.frankle.karaokelover.adapters.KSearchRecyclerViewAdapter;
+import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener;
+import vn.com.frankle.karaokelover.adapters.KAdapterYoutubeVideoSearch;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
 import vn.com.frankle.karaokelover.util.AnimUtils;
@@ -65,14 +66,10 @@ public class KActivitySearch extends AppCompatActivity {
     public static final String EXTRA_MENU_LEFT = "EXTRA_MENU_LEFT";
     public static final String EXTRA_MENU_CENTER_X = "EXTRA_MENU_CENTER_X";
     public static final String EXTRA_QUERY = "EXTRA_QUERY";
-    public static final String EXTRA_SAVE_DRIBBBLE = "EXTRA_SAVE_DRIBBBLE";
-    public static final String EXTRA_SAVE_DESIGNER_NEWS = "EXTRA_SAVE_DESIGNER_NEWS";
     public static final int RESULT_CODE_SAVE = 7;
 
     @NonNull
     private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
-
-    private final KSearchRecyclerViewAdapter.OnItemClickListener mListener = this::handleOnVideoClickListener;
 
     @BindView(R.id.searchback)
     ImageButton searchBack;
@@ -96,17 +93,18 @@ public class KActivitySearch extends AppCompatActivity {
     View scrim;
     @BindView(R.id.results_scrim)
     View resultsScrim;
-    private BaselineGridTextView noResults;
-
     @BindDimen(R.dimen.z_app_bar)
     float appBarElevation;
+    private BaselineGridTextView noResults;
     private Transition auto;
 
     private int searchBackDistanceX;
     private int searchIconCenterX;
     private boolean dismissing;
+    private String mCurrentSearchQuery;
+    private String mNextPageToken;
 
-    private KSearchRecyclerViewAdapter mSearchAdapter;
+    private KAdapterYoutubeVideoSearch mSearchAdapter;
 
     public static Intent createStartIntent(Context context, int menuIconLeft, int menuIconCenterX) {
         Intent starter = new Intent(context, KActivitySearch.class);
@@ -214,6 +212,16 @@ public class KActivitySearch extends AppCompatActivity {
     }
 
     /**
+     * Loading more video handler
+     *
+     * @param page           : current page
+     * @param totalItemCount : current totalItemCount
+     */
+    private void handleLoadMoreRequest(int page, int totalItemCount) {
+        searchMoreVideo();
+    }
+
+    /**
      * Setup view for displaying search result
      */
     private void setupSearchResultView() {
@@ -222,17 +230,25 @@ public class KActivitySearch extends AppCompatActivity {
         results.setLayoutManager(layoutManager);
         results.setHasFixedSize(true);
         results.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(this, 16), SpaceItemDecoration.VERTICAL));
-        mSearchAdapter = new KSearchRecyclerViewAdapter(this, mListener);
+        mSearchAdapter = new KAdapterYoutubeVideoSearch(this);
+        Observable<VideoSearchItem> observable = mSearchAdapter.onItemClickListener();
+        compositeSubscriptionForOnStop.add(observable.subscribe(this::handleOnVideoClickListener));
         results.setAdapter(mSearchAdapter);
+        results.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemCount) {
+                handleLoadMoreRequest(page, totalItemCount);
+            }
+        });
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         if (intent.hasExtra(SearchManager.QUERY)) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            if (!TextUtils.isEmpty(query)) {
-                searchView.setQuery(query, false);
-                searchFor(query);
+            mCurrentSearchQuery = intent.getStringExtra(SearchManager.QUERY);
+            if (!TextUtils.isEmpty(mCurrentSearchQuery)) {
+                searchView.setQuery(mCurrentSearchQuery, false);
+                searchYoutubeVideo();
             }
         }
     }
@@ -356,7 +372,8 @@ public class KActivitySearch extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchFor(query);
+                mCurrentSearchQuery = query;
+                searchYoutubeVideo();
                 return true;
             }
 
@@ -374,7 +391,7 @@ public class KActivitySearch extends AppCompatActivity {
 
     private void clearResults() {
         TransitionManager.beginDelayedTransition(container, auto);
-        mSearchAdapter.clearData();
+        mSearchAdapter.removeAllDataItem();
         results.setVisibility(View.GONE);
         progress.setVisibility(View.GONE);
         resultsScrim.setVisibility(View.GONE);
@@ -415,7 +432,7 @@ public class KActivitySearch extends AppCompatActivity {
                 progress.setVisibility(View.GONE);
                 results.setVisibility(View.VISIBLE);
 
-                mSearchAdapter.appendVideosToList(searchResults);
+                mSearchAdapter.addDataItems(searchResults);
             }
         } else {
             // No result to display
@@ -425,17 +442,62 @@ public class KActivitySearch extends AppCompatActivity {
         }
     }
 
-    private void searchFor(String query) {
+    /**
+     * Handle result of loading more videos
+     *
+     * @param loadMoreResult : the loaded more result
+     */
+    private void handleResultLoadMore(List<VideoSearchItem> loadMoreResult) {
+        if (loadMoreResult.size() > 0) {
+            mSearchAdapter.addDataItems(loadMoreResult);
+        } else {
+            Toast.makeText(this, "There is no more video.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void searchYoutubeVideo() {
         clearResults();
         progress.setVisibility(View.VISIBLE);
         ImeUtils.hideIme(searchView);
         searchView.clearFocus();
-        Toast.makeText(KActivitySearch.this, "Search for: " + query, Toast.LENGTH_SHORT).show();
 
-        Observable<List<VideoSearchItem>> searchRequest = ReactiveHelper.searchKarokeVideos(query);
+        String karaokeQuery = mCurrentSearchQuery + " karaoke";
+
+        Observable<List<VideoSearchItem>> searchRequest = KApplication.getRxYoutubeAPIService()
+                .searchKaraokeVideos(karaokeQuery)
+                .concatMap(
+                        responseSearch -> {
+                            mNextPageToken = responseSearch.getNextPageToken();
+                            return Observable.from(responseSearch.getItems())
+                                    .subscribeOn(Schedulers.newThread())
+                                    .concatMap(ReactiveHelper::getStatisticsContentDetails);
+                        })
+                .toList();
         compositeSubscriptionForOnStop.add(searchRequest
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleSearchResult));
+    }
+
+    /**
+     * Load more search result
+     */
+    private void searchMoreVideo() {
+        String karaokeQuery = mCurrentSearchQuery + " karaoke";
+
+        Observable<List<VideoSearchItem>> loadMoreRequest = KApplication.getRxYoutubeAPIService()
+                .searchYoutubeVideoNext(karaokeQuery, mNextPageToken)
+                .concatMap(
+                        responseSearch -> {
+                            mNextPageToken = responseSearch.getNextPageToken();
+                            return Observable.from(responseSearch.getItems())
+                                    .subscribeOn(Schedulers.newThread())
+                                    .concatMap(ReactiveHelper::getStatisticsContentDetails);
+                        })
+                .toList();
+        compositeSubscriptionForOnStop.add(loadMoreRequest
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleResultLoadMore));
     }
 }

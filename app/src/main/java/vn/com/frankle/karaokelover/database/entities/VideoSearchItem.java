@@ -1,13 +1,15 @@
 package vn.com.frankle.karaokelover.database.entities;
 
-import vn.com.frankle.karaokelover.util.Utils;
+import android.support.annotation.NonNull;
+
 import vn.com.frankle.karaokelover.models.Thumbnails;
+import vn.com.frankle.karaokelover.util.Utils;
 
 /**
  * Created by duclm on 8/2/2016.
  */
 
-public class VideoSearchItem {
+public class VideoSearchItem implements Comparable<VideoSearchItem> {
     private String mTitle;
     private String mDuration;
     private String mViewCount;
@@ -70,5 +72,14 @@ public class VideoSearchItem {
 
     public void setVideoId(String mVideoId) {
         this.mVideoId = mVideoId;
+    }
+
+
+    @Override
+    public int compareTo(@NonNull VideoSearchItem videoSearchItem) {
+        if (this.mVideoId == videoSearchItem.getVideoId()) {
+            return 0;
+        }
+        return -1;
     }
 }

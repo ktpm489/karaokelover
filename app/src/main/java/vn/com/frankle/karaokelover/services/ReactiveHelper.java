@@ -81,7 +81,7 @@ public class ReactiveHelper {
     }
 
 
-    private static Observable<VideoSearchItem> getStatisticsContentDetails(ItemSearch itemSearch) {
+    public static Observable<VideoSearchItem> getStatisticsContentDetails(ItemSearch itemSearch) {
         return KApplication.getRxYoutubeAPIService().getStatisticContentDetailById(itemSearch.getId().getVideoId())
                 .map(responseStatisticContentDetails
                         -> new VideoSearchItem(itemSearch.getId().getVideoId(), itemSearch.getSnippet().getTitle(),

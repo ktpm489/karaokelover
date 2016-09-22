@@ -1,6 +1,7 @@
 package vn.com.frankle.karaokelover.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,10 +23,13 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
+import vn.com.frankle.karaokelover.KActivityArtistDetails;
 import vn.com.frankle.karaokelover.KApplication;
 import vn.com.frankle.karaokelover.R;
-import vn.com.frankle.karaokelover.adapters.KAdapterArtists;
+import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener;
+import vn.com.frankle.karaokelover.adapters.KAdapterZingArtist;
 import vn.com.frankle.karaokelover.services.responses.zingmp3.ResponseListArtist;
+import vn.com.frankle.karaokelover.services.responses.zingmp3.ZingArtist;
 import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 import vn.com.frankle.karaokelover.zingmp3.ZingMp3API;
@@ -36,28 +40,17 @@ import vn.com.frankle.karaokelover.zingmp3.ZingMp3API;
 
 public class KFragmentArtistsListDetail extends Fragment {
 
-    private static final String DEBUG_TAG = KFragmentArtistsListDetail.class.getSimpleName();
     public static final String TAG = "FRAGMENT_ARTISTS";
-
-    public interface ARTIST_TYPE {
-        int VPOP = 1;
-        int US_UK = 3;
-        int K_POP = 2;
-    }
-
-    private Context mContext;
-
+    private static final String DEBUG_TAG = KFragmentArtistsListDetail.class.getSimpleName();
+    @NonNull
+    private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
     @BindView(R.id.progressbar_artists)
     ProgressBar mProgressBar;
     @BindView(R.id.recyclerview_artists)
     RecyclerView mRecyclerView;
-
+    private Context mContext;
     private int mArtistType;
-
-    @NonNull
-    private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
-
-    private KAdapterArtists mAdapter;
+    private KAdapterZingArtist mAdapter;
 
     public static KFragmentArtistsListDetail newInstance(int artistType) {
         Log.d(DEBUG_TAG, "Create fragment for artistype = " + artistType);
@@ -103,39 +96,72 @@ public class KFragmentArtistsListDetail extends Fragment {
 
         setupFavoriteView();
 
-        loadArtistList(mArtistType, 0);
+        loadArtistList();
 
         return layout;
     }
 
+    private void handleArtistItemClick(ZingArtist clickedArtist) {
+        Intent artistDetails = new Intent(mContext, KActivityArtistDetails.class);
+        Bundle args = new Bundle();
+        args.putString("artist", clickedArtist.getName());
+        artistDetails.putExtras(args);
+        mContext.startActivity(artistDetails);
+    }
+
     /**
      * Load artist list from Zing Mp3's server
-     *
-     * @param type : type of artist (V-POP, US-UK, K-POP)
-     * @param page : page number of results (search result has pagination)
      */
-    private void loadArtistList(int type, int page) {
+    private void loadArtistList() {
         setLoadingState(true);
 
         try {
-            String url = ZingMp3API.getListArtistURL(type, page);
+            String url = ZingMp3API.getListArtistURL(mArtistType, 0);
 
             Observable<ResponseListArtist> getArtistRequest = KApplication.getRxZingMp3APIService().getArtist(url);
             compositeSubscriptionForOnStop.add(getArtistRequest
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(this::handleArtistListReuslt));
+                    .subscribe(this::handleArtistListResult));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
 
-    private void handleArtistListReuslt(ResponseListArtist result) {
-        if (result.getDocs().size() > 0) {
+    /**
+     * Handle load more artists request
+     *
+     * @param totalItemCount : current total items in the list
+     */
+    private void loadMoreArtists(int totalItemCount) {
+        try {
+            String url = ZingMp3API.getListArtistURL(mArtistType, totalItemCount);
+
+            Observable<ResponseListArtist> getArtistRequest = KApplication.getRxZingMp3APIService().getArtist(url);
+            compositeSubscriptionForOnStop.add(getArtistRequest
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::handleArtistLoadMoreResult));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleArtistListResult(ResponseListArtist result) {
+        if (result.getZingArtists().size() > 0) {
             setLoadingState(false);
 
-            mAdapter.populateWithData(result.getDocs());
+            mAdapter.addDataItems(result.getZingArtists());
         } else {
+            Toast.makeText(mContext, "No artist.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void handleArtistLoadMoreResult(ResponseListArtist result) {
+        if (result.getZingArtists().size() > 0) {
+            mAdapter.addDataItems(result.getZingArtists());
+        } else {
+            // TO-DO: implement proper handler later
             Toast.makeText(mContext, "No artist.", Toast.LENGTH_SHORT).show();
         }
     }
@@ -149,8 +175,16 @@ public class KFragmentArtistsListDetail extends Fragment {
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(mContext, 16), SpaceItemDecoration.VERTICAL));
-        mAdapter = new KAdapterArtists(mContext);
+        mAdapter = new KAdapterZingArtist(mContext);
+        Observable<ZingArtist> obsItemClickListener = mAdapter.onItemClickListener();
+        compositeSubscriptionForOnStop.add(obsItemClickListener.subscribe(this::handleArtistItemClick));
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemCount) {
+                loadMoreArtists(totalItemCount);
+            }
+        });
     }
 
     /**
@@ -166,5 +200,11 @@ public class KFragmentArtistsListDetail extends Fragment {
             mProgressBar.setVisibility(View.GONE);
             mRecyclerView.setVisibility(View.VISIBLE);
         }
+    }
+
+    public interface ARTIST_TYPE {
+        int VPOP = 1;
+        int US_UK = 3;
+        int K_POP = 2;
     }
 }

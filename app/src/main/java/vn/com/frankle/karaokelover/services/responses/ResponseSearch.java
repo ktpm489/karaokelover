@@ -1,4 +1,3 @@
-
 package vn.com.frankle.karaokelover.services.responses;
 
 import com.google.gson.annotations.Expose;
@@ -11,11 +10,14 @@ import javax.annotation.Generated;
 
 @Generated("org.jsonschema2pojo")
 public class ResponseSearch {
+    @SerializedName("nextPageToken")
+    @Expose
+    private String nextPageToken;
     @SerializedName("items")
     @Expose
     private List<ItemSearch> items = new ArrayList<ItemSearch>();
 
-    public ResponseSearch(){
+    public ResponseSearch() {
         this.items = new ArrayList<>();
     }
 
@@ -31,5 +33,13 @@ public class ResponseSearch {
      */
     public void setItems(List<ItemSearch> items) {
         this.items = items;
+    }
+
+    public String getNextPageToken() {
+        return nextPageToken;
+    }
+
+    public void setNextPageToken(String nextPageToken) {
+        this.nextPageToken = nextPageToken;
     }
 }

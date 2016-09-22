@@ -27,7 +27,7 @@ import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 import vn.com.frankle.karaokelover.KActivityPlayVideo;
 import vn.com.frankle.karaokelover.R;
-import vn.com.frankle.karaokelover.adapters.KSearchRecyclerViewAdapter;
+import vn.com.frankle.karaokelover.adapters.KAdapterYoutbeVideoSearchLimit;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
 import vn.com.frankle.karaokelover.util.KSharedPreference;
@@ -40,28 +40,20 @@ import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 
 public class KFragmentFavorite extends Fragment {
 
-    private static final String DEBUG_TAG = KFragmentFavorite.class.getSimpleName();
     public static final String TAG = "FRAGMENT_FAVORITE";
-
     public static final int REQUEST_CODE_RELOAD_FAVORITE_LIST = 111;
-
-    private Context mContext;
-
+    private static final String DEBUG_TAG = KFragmentFavorite.class.getSimpleName();
+    @NonNull
+    private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
     @BindView(R.id.progressbar_favorite)
     ProgressBar mProgressBar;
     @BindView(R.id.recyclerview_my_favorite)
     RecyclerView mRecyclerView;
-
+    private Context mContext;
     private KSharedPreference mAppPrefs = new KSharedPreference();
     private int mCurSizeList = 0;
-
-    @NonNull
-    private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
-
     private KSharedPreference sharePrefs = new KSharedPreference();
-    private KSearchRecyclerViewAdapter mFavoriteAdapter;
-
-    private final KSearchRecyclerViewAdapter.OnItemClickListener mListener = this::handleOnVideoClickListener;
+    private KAdapterYoutbeVideoSearchLimit mFavoriteAdapter;
 
     public KFragmentFavorite() {
         super();
@@ -169,7 +161,9 @@ public class KFragmentFavorite extends Fragment {
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(mContext, 16), SpaceItemDecoration.VERTICAL));
-        mFavoriteAdapter = new KSearchRecyclerViewAdapter(mContext, mListener);
+        mFavoriteAdapter = new KAdapterYoutbeVideoSearchLimit(mContext);
+        Observable<VideoSearchItem> clickListenerObservable = mFavoriteAdapter.getItemClickListener();
+        compositeSubscriptionForOnStop.add(clickListenerObservable.subscribe(this::handleOnVideoClickListener));
         mRecyclerView.setAdapter(mFavoriteAdapter);
     }
 
@@ -189,7 +183,7 @@ public class KFragmentFavorite extends Fragment {
         if (favoriteVideos.size() > 0) {
             setLoadingState(false);
 
-            mFavoriteAdapter.appendVideosToList(favoriteVideos);
+            mFavoriteAdapter.addDataItemList(favoriteVideos);
         } else {
             Toast.makeText(mContext, "Empty favorite videos list", Toast.LENGTH_SHORT).show();
         }

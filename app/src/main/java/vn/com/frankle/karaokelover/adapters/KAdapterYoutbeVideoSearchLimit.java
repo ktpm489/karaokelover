@@ -1,5 +1,9 @@
 package vn.com.frankle.karaokelover.adapters;
 
+/**
+ * Created by duclm on 9/22/2016.
+ */
+
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +20,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import rx.Observable;
+import rx.subjects.PublishSubject;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 
@@ -23,27 +29,21 @@ import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
  * Created by duclm on 7/17/2016.
  */
 
-public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecyclerViewAdapter.ViewHolder> {
-
-    public interface OnItemClickListener {
-        void onItemClick(VideoSearchItem item);
-    }
+public class KAdapterYoutbeVideoSearchLimit extends RecyclerView.Adapter<KAdapterYoutbeVideoSearchLimit.ViewHolder> {
 
     private final Context mContext;
+    private final PublishSubject<VideoSearchItem> rxOnClickSubject = PublishSubject.create();
     private List<VideoSearchItem> mSearchResult;
-    private final OnItemClickListener mListener;
 
-
-    public KSearchRecyclerViewAdapter(Context context, OnItemClickListener listener) {
+    public KAdapterYoutbeVideoSearchLimit(Context context) {
         mContext = context;
         mSearchResult = new ArrayList<>();
-        mListener = listener;
     }
 
-    public KSearchRecyclerViewAdapter(Context context, List<VideoSearchItem> searchResult, OnItemClickListener listener) {
+
+    public KAdapterYoutbeVideoSearchLimit(Context context, List<VideoSearchItem> searchResult) {
         mContext = context;
         this.mSearchResult = searchResult;
-        mListener = listener;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecy
         LayoutInflater inflater = LayoutInflater.from(mContext);
 
         // Inflate the custom layout
-        View hotKaraokeView = inflater.inflate(R.layout.item_search, parent, false);
+        View hotKaraokeView = inflater.inflate(R.layout.recyclerview_item_video_search, parent, false);
 
         // Return a new holder instance
         return new ViewHolder(hotKaraokeView);
@@ -62,7 +62,25 @@ public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecy
         VideoSearchItem itemVideo = mSearchResult.get(position);
 
         // Set item views based on your views and data model
-        holder.bind(mContext, itemVideo, mListener);
+        holder.title.setText(itemVideo.getTitle());
+        holder.playCount.setText(itemVideo.getViewCount());
+        holder.likeCount.setText(itemVideo.getLikeCount());
+        holder.duration.setText(itemVideo.getDuration());
+        Glide.with(mContext).load(itemVideo.getThumbnails())
+                .placeholder(R.drawable.drawable_default_preview).into(holder.preview);
+
+        holder.itemView.setOnClickListener(view -> {
+            rxOnClickSubject.onNext(itemVideo);
+        });
+    }
+
+    /**
+     * Get on item click listener observable
+     *
+     * @return OnItemClick event observable
+     */
+    public Observable<VideoSearchItem> getItemClickListener() {
+        return rxOnClickSubject.asObservable();
     }
 
     @Override
@@ -75,22 +93,22 @@ public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecy
      *
      * @param searchData : new data set
      */
-    public void appendVideosToList(List<VideoSearchItem> searchData) {
+    public void addDataItemList(List<VideoSearchItem> searchData) {
         this.mSearchResult.addAll(searchData);
         notifyDataSetChanged();
     }
 
     /**
-     * Remove a video from current list
+     * Remove a video from list
      *
      * @param videoId : id of video to be removed
      */
     public void removeVideoFromList(String videoId) {
-        for (int i = 0; i < mSearchResult.size(); i++) {
-            if (mSearchResult.get(i).getVideoId().equals(videoId)) {
-                mSearchResult.remove(mSearchResult.get(i));
+        for (VideoSearchItem video : mSearchResult) {
+            if (video.getVideoId().equals(videoId)) {
+                mSearchResult.remove(video);
                 notifyDataSetChanged();
-                return;
+                break;
             }
         }
     }
@@ -103,6 +121,10 @@ public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecy
             this.mSearchResult.clear();
             notifyDataSetChanged();
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(VideoSearchItem item);
     }
 
     // Provide a direct reference to each of the views within a data item
@@ -133,14 +155,12 @@ public class KSearchRecyclerViewAdapter extends RecyclerView.Adapter<KSearchRecy
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(final Context context, final VideoSearchItem item, final OnItemClickListener listener) {
+        public void bind(final Context context, final VideoSearchItem item) {
             title.setText(item.getTitle());
             playCount.setText(item.getViewCount());
             likeCount.setText(item.getLikeCount());
             duration.setText(item.getDuration());
-            Glide.with(context).load(item.getThumbnails())
-                    .placeholder(R.drawable.drawable_default_preview).into(preview);
-            itemView.setOnClickListener(v -> listener.onItemClick(item));
+            Glide.with(context).load(item.getThumbnails()).into(preview);
         }
     }
 

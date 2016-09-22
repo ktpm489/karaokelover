@@ -21,7 +21,8 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
-import vn.com.frankle.karaokelover.adapters.KSearchRecyclerViewAdapter;
+import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener;
+import vn.com.frankle.karaokelover.adapters.KAdapterYoutubeVideoSearch;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
 import vn.com.frankle.karaokelover.util.Utils;
@@ -34,6 +35,8 @@ import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 public class KActivityArtistDetails extends AppCompatActivity {
 
 
+    @NonNull
+    private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
     @BindView(R.id.list_artist_songs)
     RecyclerView mListSongs;
     @BindView(R.id.imgv_backdrop)
@@ -44,14 +47,12 @@ public class KActivityArtistDetails extends AppCompatActivity {
     CollapsingToolbarLayout mCollapsingToolbar;
     @BindView(R.id.progressbar)
     ProgressBar mProgressBar;
+    private KAdapterYoutubeVideoSearch mVideoSearchAdapter;
 
-    private KSearchRecyclerViewAdapter mSearchAdapter;
+    private String mArtistName;
+    private String mNextPageToken;
 
-    @NonNull
-    private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
-
-    private final KSearchRecyclerViewAdapter.OnItemClickListener mListener = this::handleOnVideoClickListener;
-
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,9 +61,9 @@ public class KActivityArtistDetails extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setupViews();
-        String artist = getIntent().getExtras().getString("artist");
-        mCollapsingToolbar.setTitle(artist);
-        loadArtistSongs(artist);
+        mArtistName = getIntent().getExtras().getString("artist");
+        mCollapsingToolbar.setTitle(mArtistName);
+        loadArtistSongs();
     }
 
     private void setupViews() {
@@ -71,32 +72,73 @@ public class KActivityArtistDetails extends AppCompatActivity {
         mListSongs.setLayoutManager(layoutManager);
         mListSongs.setHasFixedSize(true);
         mListSongs.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(this, 16), SpaceItemDecoration.VERTICAL));
-        mSearchAdapter = new KSearchRecyclerViewAdapter(this, mListener);
-        mListSongs.setAdapter(mSearchAdapter);
+        mVideoSearchAdapter = new KAdapterYoutubeVideoSearch(this);
+        Observable<VideoSearchItem> itemClickObservable = mVideoSearchAdapter.onItemClickListener();
+        compositeSubscriptionForOnStop.add(itemClickObservable.subscribe(this::handleVideoItemClick));
+        mListSongs.setAdapter(mVideoSearchAdapter);
+        mListSongs.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemCount) {
+                loadMoreArtistSongs();
+            }
+        });
     }
 
-    private void handleYoutubeResponses(List<VideoSearchItem> songs) {
-        mSearchAdapter.appendVideosToList(songs);
-
-        switchLoadingDataState(false);
-    }
-
-    private void handleOnVideoClickListener(VideoSearchItem video) {
+    private void handleVideoItemClick(VideoSearchItem clickedVideoItem) {
         Intent playVideoItent = new Intent(this, KActivityPlayVideo.class);
-        playVideoItent.putExtra("title", video.getTitle());
-        playVideoItent.putExtra("videoid", video.getVideoId());
+        playVideoItent.putExtra("title", clickedVideoItem.getTitle());
+        playVideoItent.putExtra("videoid", clickedVideoItem.getVideoId());
         startActivity(playVideoItent);
     }
 
-    private void loadArtistSongs(String artist) {
+    private void handleYoutubeResponses(List<VideoSearchItem> songs) {
+        mVideoSearchAdapter.addDataItems(songs);
+        switchLoadingDataState(false);
+    }
 
-        Observable<List<VideoSearchItem>> obsGetArtistSong =
-                ReactiveHelper.searchKarokeVideos(artist);
+    private void handleLoadMoreResultResponses(List<VideoSearchItem> songs) {
+        mVideoSearchAdapter.addDataItems(songs);
+        switchLoadingDataState(false);
+    }
+
+    private void loadArtistSongs() {
+
+        String karaokeQuery = mArtistName + " karaoke";
+
+        Observable<List<VideoSearchItem>> obsGetArtistSong = KApplication.getRxYoutubeAPIService()
+                .searchKaraokeVideos(karaokeQuery)
+                .concatMap(
+                        responseSearch -> {
+                            mNextPageToken = responseSearch.getNextPageToken();
+                            return Observable.from(responseSearch.getItems())
+                                    .subscribeOn(Schedulers.newThread())
+                                    .concatMap(ReactiveHelper::getStatisticsContentDetails);
+                        })
+                .toList();
         compositeSubscriptionForOnStop.add(
                 obsGetArtistSong.subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(this::handleYoutubeResponses));
 
+    }
+
+    private void loadMoreArtistSongs() {
+        String karaokeQuery = mArtistName + " karaoke";
+
+        Observable<List<VideoSearchItem>> obsLoadMoreRequest = KApplication.getRxYoutubeAPIService()
+                .searchYoutubeVideoNext(karaokeQuery, mNextPageToken)
+                .concatMap(
+                        responseSearch -> {
+                            mNextPageToken = responseSearch.getNextPageToken();
+                            return Observable.from(responseSearch.getItems())
+                                    .subscribeOn(Schedulers.newThread())
+                                    .concatMap(ReactiveHelper::getStatisticsContentDetails);
+                        })
+                .toList();
+        compositeSubscriptionForOnStop.add(obsLoadMoreRequest
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleLoadMoreResultResponses));
     }
 
     @Override
