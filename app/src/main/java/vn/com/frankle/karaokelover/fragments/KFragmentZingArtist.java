@@ -38,10 +38,10 @@ import vn.com.frankle.karaokelover.zingmp3.ZingMp3API;
  * Created by duclm on 9/19/2016.
  */
 
-public class KFragmentArtistsListDetail extends Fragment {
+public class KFragmentZingArtist extends Fragment {
 
     public static final String TAG = "FRAGMENT_ARTISTS";
-    private static final String DEBUG_TAG = KFragmentArtistsListDetail.class.getSimpleName();
+    private static final String DEBUG_TAG = KFragmentZingArtist.class.getSimpleName();
     @NonNull
     private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
     @BindView(R.id.progressbar_artists)
@@ -52,11 +52,11 @@ public class KFragmentArtistsListDetail extends Fragment {
     private int mArtistType;
     private KAdapterZingArtist mAdapter;
 
-    public static KFragmentArtistsListDetail newInstance(int artistType) {
+    public static KFragmentZingArtist newInstance(int artistType) {
         Log.d(DEBUG_TAG, "Create fragment for artistype = " + artistType);
         Bundle args = new Bundle();
         args.putInt("ARTIST_TYPE", artistType);
-        KFragmentArtistsListDetail fragment = new KFragmentArtistsListDetail();
+        KFragmentZingArtist fragment = new KFragmentZingArtist();
         fragment.setArguments(args);
         return fragment;
     }
@@ -104,7 +104,9 @@ public class KFragmentArtistsListDetail extends Fragment {
     private void handleArtistItemClick(ZingArtist clickedArtist) {
         Intent artistDetails = new Intent(mContext, KActivityArtistDetails.class);
         Bundle args = new Bundle();
-        args.putString("artist", clickedArtist.getName());
+        args.putString(KActivityArtistDetails.EXTRA_ARTIST_NAME, clickedArtist.getName());
+        args.putString(KActivityArtistDetails.EXTRA_ARTIST_ID, String.valueOf(clickedArtist.getArtistId()));
+        args.putString(KActivityArtistDetails.EXTRA_AVATAR_URL, ZingMp3API.getArtistAvatarURL(clickedArtist.getAvatar()));
         artistDetails.putExtras(args);
         mContext.startActivity(artistDetails);
     }

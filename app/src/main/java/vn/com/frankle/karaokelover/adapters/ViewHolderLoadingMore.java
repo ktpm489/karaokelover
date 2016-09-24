@@ -28,6 +28,11 @@ public class ViewHolderLoadingMore extends ViewHolderBase<Object> {
         // Do nothing
     }
 
+    @Override
+    public int getViewType() {
+        return VIEW_TYPE.LOADING_INDICATOR;
+    }
+
 
     public void setIndeterminate(boolean indeterminate) {
         mProgressBar.setIndeterminate(true);

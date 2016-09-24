@@ -30,7 +30,7 @@ public class KApplication extends Application {
     public static final String BASE_URL = "http://192.168.0.2:8080/";
     public static final String YOUTUBE_BASE_URL = "https://www.googleapis.com/youtube/v3/";
     public static final String YOUTUBE_MP3_AUDIO_URL = "http://www.youtubeinmp3.com/";
-    public static final String BASE_URL_ZING_MP3 = "http://api.mp3.zing.vn/api/";
+    public static final String ZING_MP3_BASE_URL = "http://api.mp3.zing.vn/api/";
     public static final String RECORDING_DIRECTORY_URI = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Karaoke Lover/";
 
     private static Context context;
@@ -75,7 +75,7 @@ public class KApplication extends Application {
 
         rxZingMp3API = new Retrofit.Builder()
                 .client(client)
-                .baseUrl(BASE_URL_ZING_MP3)
+                .baseUrl(ZING_MP3_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .build();

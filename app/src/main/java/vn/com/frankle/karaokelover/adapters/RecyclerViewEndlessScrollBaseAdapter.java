@@ -20,11 +20,9 @@ import vn.com.frankle.karaokelover.R;
 
 public abstract class RecyclerViewEndlessScrollBaseAdapter<T extends Comparable<? super T>> extends RecyclerView.Adapter<ViewHolderBase> {
 
-    private final int VIEWTYPE_DATA_ITEM = 0;
-    private final int VIEWTYPE_DATA_LOADING = 1;
     private final PublishSubject<T> rxOnClickSubject = PublishSubject.create();
     protected Context mContext;
-    private ArrayList<T> mDataList;
+    protected ArrayList<T> mDataList;
 
     RecyclerViewEndlessScrollBaseAdapter(Context context) {
         this.mContext = context;
@@ -50,11 +48,11 @@ public abstract class RecyclerViewEndlessScrollBaseAdapter<T extends Comparable<
     }
 
     @Override
-    public final ViewHolderBase onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolderBase onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
-            case VIEWTYPE_DATA_ITEM:
+            case ViewHolderBase.VIEW_TYPE.DATA_ITEM:
                 return createView(parent);
-            case VIEWTYPE_DATA_LOADING:
+            case ViewHolderBase.VIEW_TYPE.LOADING_INDICATOR:
                 LayoutInflater inflater = LayoutInflater.from(mContext);
                 View loadingMoreView = inflater.inflate(R.layout.recyclerview_item_loading_more, parent, false);
                 return new ViewHolderLoadingMore(loadingMoreView);
@@ -62,15 +60,13 @@ public abstract class RecyclerViewEndlessScrollBaseAdapter<T extends Comparable<
         return null;
     }
 
+    // TO-DO : improve OOP structure here (remove concrete class compare)
     @SuppressWarnings("unchecked")
     @Override
-    public final void onBindViewHolder(ViewHolderBase holder, int position) {
-        if (holder == null) {
-            return;
-        }
-        if (holder instanceof ViewHolderLoadingMore) {
+    public void onBindViewHolder(ViewHolderBase holder, int position) {
+        if (ViewHolderBase.VIEW_TYPE.LOADING_INDICATOR == holder.getViewType()) {
             ((ViewHolderLoadingMore) holder).setIndeterminate(true);
-        } else {
+        } else if (ViewHolderBase.VIEW_TYPE.DATA_ITEM == holder.getViewType()) {
             bindView(mDataList.get(position), holder);
             holder.itemView.setOnClickListener(view -> rxOnClickSubject.onNext(mDataList.get(position)));
         }
@@ -86,7 +82,7 @@ public abstract class RecyclerViewEndlessScrollBaseAdapter<T extends Comparable<
 
     @Override
     public int getItemViewType(int position) {
-        return position >= mDataList.size() ? VIEWTYPE_DATA_LOADING : VIEWTYPE_DATA_ITEM;
+        return position >= mDataList.size() ? ViewHolderBase.VIEW_TYPE.LOADING_INDICATOR : ViewHolderBase.VIEW_TYPE.DATA_ITEM;
     }
 
     /**

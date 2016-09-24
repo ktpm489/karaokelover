@@ -36,4 +36,9 @@ public class ViewHolderArtistItem extends ViewHolderBase<ZingArtist> {
 
         Glide.with(context).load(ZingMp3API.getArtistAvatarURL(dataItem.getAvatar())).into(mAvatar);
     }
+
+    @Override
+    public int getViewType() {
+        return VIEW_TYPE.DATA_ITEM;
+    }
 }

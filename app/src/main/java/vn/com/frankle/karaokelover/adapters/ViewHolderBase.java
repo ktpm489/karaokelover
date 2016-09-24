@@ -15,4 +15,12 @@ public abstract class ViewHolderBase<T> extends RecyclerView.ViewHolder {
     }
 
     public abstract void bindData(final Context context, T dataItem);
+
+    public abstract int getViewType();
+
+    public interface VIEW_TYPE {
+        int HEADER = 0;
+        int DATA_ITEM = 1;
+        int LOADING_INDICATOR = 2;
+    }
 }

@@ -24,4 +24,6 @@
     <string name="nav_my_favourites">My Favourites</string>
     <string name="nav_setting">Setting</string>
     <string name="nav_exit">Exit</string>
+    <string name="title_bio">Tiểu sử</string>
+    <string name="btn_bio_readmore">READ MORE</string>
 </resources>

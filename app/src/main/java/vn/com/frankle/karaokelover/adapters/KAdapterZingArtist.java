@@ -19,6 +19,7 @@ public class KAdapterZingArtist extends RecyclerViewEndlessScrollBaseAdapter<Zin
         super(context);
     }
 
+
     @Override
     protected ViewHolderBase<ZingArtist> createView(ViewGroup parent) {
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);

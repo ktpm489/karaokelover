@@ -5,7 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import vn.com.frankle.karaokelover.fragments.KFragmentArtistsListDetail;
+import vn.com.frankle.karaokelover.fragments.KFragmentZingArtist;
 
 /**
  * Created by duclm on 9/21/2016.
@@ -28,20 +28,20 @@ public class KFragmentAdapterArtists extends FragmentPagerAdapter {
         int artistType;
         switch (position) {
             case 0:
-                artistType = KFragmentArtistsListDetail.ARTIST_TYPE.VPOP;
+                artistType = KFragmentZingArtist.ARTIST_TYPE.VPOP;
                 break;
             case 1:
-                artistType = KFragmentArtistsListDetail.ARTIST_TYPE.US_UK;
+                artistType = KFragmentZingArtist.ARTIST_TYPE.US_UK;
                 break;
             case 2:
-                artistType = KFragmentArtistsListDetail.ARTIST_TYPE.K_POP;
+                artistType = KFragmentZingArtist.ARTIST_TYPE.K_POP;
                 break;
             default:
-                artistType = KFragmentArtistsListDetail.ARTIST_TYPE.VPOP;
+                artistType = KFragmentZingArtist.ARTIST_TYPE.VPOP;
                 break;
         }
 
-        return KFragmentArtistsListDetail.newInstance(artistType);
+        return KFragmentZingArtist.newInstance(artistType);
     }
 
     @Override

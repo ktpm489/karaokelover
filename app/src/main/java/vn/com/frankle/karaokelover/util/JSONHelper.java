@@ -46,4 +46,19 @@ public class JSONHelper {
         Log.d("JSON", jsonData.toString());
         return jsonData;
     }
+
+    /**
+     * JSON data to get detailed information of artist
+     *
+     * @param artistId : artist id
+     */
+    public static JSONObject writeJsonDataArtistDetail(String artistId) {
+        JSONObject jsonData = new JSONObject();
+        try {
+            jsonData.put("id", artistId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return jsonData;
+    }
 }

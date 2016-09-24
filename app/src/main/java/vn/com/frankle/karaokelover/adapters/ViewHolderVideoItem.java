@@ -48,4 +48,9 @@ public class ViewHolderVideoItem extends ViewHolderBase<VideoSearchItem> {
         Glide.with(context).load(dataItem.getThumbnails())
                 .placeholder(R.drawable.drawable_default_preview).into(preview);
     }
+
+    @Override
+    public int getViewType() {
+        return VIEW_TYPE.DATA_ITEM;
+    }
 }

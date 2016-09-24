@@ -20,7 +20,8 @@ public class ZingMp3API {
     private static final String URL_DETAIL = "http://api.mp3.zing.vn/api/detail";
     private static final String URL_ARTIST_INFO = "http://api.mp3.zing.vn/api/singer-info";
 
-    private static final String URL_AVATAR_IMG = "http://image.mp3.zdn.vn/thumb/240_240/";
+    private static final String URL_AVATAR_IMG = "http://image.mp3.zdn.vn/thumb/165_165/";
+    private static final String URL_ZING_ARTIST_COVER = "http://image.mp3.zdn.vn/";
 
     /**
      * Get the full URL to send to Zing MP3 server
@@ -72,5 +73,9 @@ public class ZingMp3API {
 
     public static String getArtistAvatarURL(String artistUrl) {
         return URL_AVATAR_IMG + artistUrl;
+    }
+
+    public static String getZingArtistCoverURL(String coverUrl) {
+        return URL_ZING_ARTIST_COVER + coverUrl;
     }
 }
