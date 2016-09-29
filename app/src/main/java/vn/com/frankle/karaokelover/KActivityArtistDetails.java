@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -29,6 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rx.Observable;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -75,10 +77,12 @@ public class KActivityArtistDetails extends AppCompatActivity {
 
     private KAdapterVideoArtistDetail mArtistDetailAdapter;
 
+
     private String mArtistName;
     private String mArtistId;
     private String mArtistAvatarUrl;
     private String mNextPageToken;
+
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -192,6 +196,10 @@ public class KActivityArtistDetails extends AppCompatActivity {
 
         // Update biography text
         mArtistDetailAdapter.setArtistInfo(infoData);
+
+        mArtistDetailAdapter.setOnReadMoreListener(() -> {
+            KActivityArtistBiography.start(KActivityArtistDetails.this, infoData);
+        });
     }
 
     private void handleYoutubeResponses(List<VideoSearchItem> songs) {
@@ -215,7 +223,21 @@ public class KActivityArtistDetails extends AppCompatActivity {
         compositeSubscriptionForOnStop.add(obsArtistDetail
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleDetailInfoResponse));
+                .subscribe(new Subscriber<ZingArtistDetail>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Toast.makeText(KActivityArtistDetails.this, "Error while getting artist's detailed information", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNext(ZingArtistDetail zingArtistDetail) {
+                        handleDetailInfoResponse(zingArtistDetail);
+                    }
+                }));
     }
 
     private void loadArtistSongs() {

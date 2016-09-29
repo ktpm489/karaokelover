@@ -2,10 +2,12 @@ package vn.com.frankle.karaokelover.adapters;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import vn.com.frankle.karaokelover.KApplication;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.services.responses.zingmp3.ZingArtistDetail;
 

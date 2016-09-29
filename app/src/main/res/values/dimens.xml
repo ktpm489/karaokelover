@@ -15,6 +15,7 @@
 
     <!-- Z axis elevation -->
     <dimen name="z_app_bar">4dp</dimen>
+    <dimen name="z_fab">6dp</dimen>
 
     <dimen name="app_bar_height">256dp</dimen>
 
@@ -24,4 +25,9 @@
 
     <dimen name="font_size_action_dialog">16sp</dimen>
     <dimen name="text_margin_huge">16dp</dimen>
+
+    <!-- bottom sheet -->
+    <dimen name="bottom_sheet_width">@dimen/match_parent</dimen>
+    <!-- per https://developer.android.com/reference/android/view/ViewGroup.LayoutParams.html#MATCH_PARENT -->
+    <item name="match_parent" format="integer" type="dimen">-1</item>
 </resources>

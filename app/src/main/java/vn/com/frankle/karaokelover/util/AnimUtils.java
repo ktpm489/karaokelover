@@ -1,4 +1,4 @@
-/*
+package vn.com.frankle.karaokelover.util;/*
  * Copyright 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package vn.com.frankle.karaokelover.util;
-
 import android.animation.Animator;
 import android.animation.TimeInterpolator;
 import android.content.Context;
-import android.transition.Transition;
 import android.util.ArrayMap;
 import android.util.Property;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
 import java.util.ArrayList;
 
@@ -32,11 +30,13 @@ import java.util.ArrayList;
  */
 public class AnimUtils {
 
-    private AnimUtils() { }
-
     private static Interpolator fastOutSlowIn;
     private static Interpolator fastOutLinearIn;
     private static Interpolator linearOutSlowIn;
+    private static Interpolator linear;
+
+    private AnimUtils() {
+    }
 
     public static Interpolator getFastOutSlowInInterpolator(Context context) {
         if (fastOutSlowIn == null) {
@@ -62,6 +62,13 @@ public class AnimUtils {
         return linearOutSlowIn;
     }
 
+    public static Interpolator getLinearInterpolator() {
+        if (linear == null) {
+            linear = new LinearInterpolator();
+        }
+        return linear;
+    }
+
     /**
      * Linear interpolate between a and b with parameter t.
      */
@@ -71,7 +78,7 @@ public class AnimUtils {
 
 
     /**
-     * An implementation of {@link Property} to be used specifically with fields of
+     * An implementation of {@link android.util.Property} to be used specifically with fields of
      * type
      * <code>float</code>. This type-specific subclass enables performance benefit by allowing
      * calls to a {@link #set(Object, Float) set()} function that takes the primitive
@@ -98,7 +105,7 @@ public class AnimUtils {
     }
 
     /**
-     * An implementation of {@link Property} to be used specifically with fields of
+     * An implementation of {@link android.util.Property} to be used specifically with fields of
      * type
      * <code>int</code>. This type-specific subclass enables performance benefit by allowing
      * calls to a {@link #set(Object, Integer) set()} function that takes the primitive
@@ -285,34 +292,6 @@ public class AnimUtils {
         @Override
         public void onAnimationRepeat(Animator animator) {
             mListener.onAnimationRepeat(mAnimator);
-        }
-    }
-
-    public static class TransitionListenerAdapter implements Transition.TransitionListener {
-
-        @Override
-        public void onTransitionStart(Transition transition) {
-
-        }
-
-        @Override
-        public void onTransitionEnd(Transition transition) {
-
-        }
-
-        @Override
-        public void onTransitionCancel(Transition transition) {
-
-        }
-
-        @Override
-        public void onTransitionPause(Transition transition) {
-
-        }
-
-        @Override
-        public void onTransitionResume(Transition transition) {
-
         }
     }
 

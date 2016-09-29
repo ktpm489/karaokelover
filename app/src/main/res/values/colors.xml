@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#FF24252B</color>
     <color name="colorAccent">#FF5722</color>
     <color name="background_dark">#FF242429</color>
+    <color name="background_light">#FAFAFA</color>
     <color name="colorAccentBlur">#CCFF5722</color>
 
     <!-- Common colors for Dark Theme -->
@@ -15,6 +16,7 @@
     <color name="text_primary_dark">#de000000</color> <!-- 87% -->
     <color name="text_secondary_dark">#8a000000</color> <!-- 54% -->
     <color name="text_tertiary_dark">#61000000</color> <!-- 38% -->
+    <color name="dark_icon">#99000000</color> <!-- 60% black-->
 
     <!-- NavigationDrawer -->
     <color name="color_nav_item_selected_bg">#33FFFFFF</color>

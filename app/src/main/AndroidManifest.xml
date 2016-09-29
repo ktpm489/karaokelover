@@ -75,6 +75,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.com.frankle.karaokelover.KActivityHome" />
         </activity>
+        <activity
+            android:name=".KActivityArtistBiography"
+            android:theme="@style/KaraokeLoverTheme.Translucent.Zing.BottomSheet" />
     </application>
 
 </manifest>

@@ -1,5 +1,8 @@
 package vn.com.frankle.karaokelover.services.responses.zingmp3;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -10,8 +13,20 @@ import javax.annotation.Generated;
  */
 
 @Generated("org.jsonschema2pojo")
-public class ZingArtistDetail {
-    
+public class ZingArtistDetail implements Parcelable {
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+
+        @Override
+        public ZingArtistDetail createFromParcel(Parcel source) {
+            return new ZingArtistDetail(source);
+        }
+
+        @Override
+        public ZingArtistDetail[] newArray(int size) {
+            return new ZingArtistDetail[size];
+        }
+    };
     @SerializedName("artist_id")
     @Expose
     private int artistId;
@@ -78,6 +93,17 @@ public class ZingArtistDetail {
     @SerializedName("genre_name")
     @Expose
     private String genreName;
+
+    public ZingArtistDetail(Parcel in) {
+        String[] data = new String[5];
+
+        in.readStringArray(data);
+        this.name = data[0];
+        this.birthname = data[1];
+        this.birthday = data[2];
+        this.nationalName = data[3];
+        this.biography = data[4];
+    }
 
     /**
      * @return The artistId
@@ -387,4 +413,17 @@ public class ZingArtistDetail {
         this.genreName = genreName;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeStringArray(new String[]{this.name,
+                this.birthname,
+                this.birthday,
+                this.nationalName,
+                this.biography});
+    }
 }

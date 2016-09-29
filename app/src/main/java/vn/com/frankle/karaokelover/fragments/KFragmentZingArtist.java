@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Observable;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -124,7 +125,23 @@ public class KFragmentZingArtist extends Fragment {
             compositeSubscriptionForOnStop.add(getArtistRequest
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(this::handleArtistListResult));
+                    .doOnError(throwable -> Toast.makeText(mContext, "Error while getting artist list", Toast.LENGTH_SHORT).show())
+                    .subscribe(new Subscriber<ResponseListArtist>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Toast.makeText(mContext, "Subcriber error", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onNext(ResponseListArtist responseListArtist) {
+                            handleArtistListResult(responseListArtist);
+                        }
+                    }));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

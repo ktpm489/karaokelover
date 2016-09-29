@@ -18,6 +18,7 @@ import vn.com.frankle.karaokelover.services.responses.zingmp3.ZingArtistDetail;
 public class KAdapterVideoArtistDetail extends RecyclerViewEndlessScrollBaseAdapter<VideoSearchItem> {
 
     private ZingArtistDetail mArtistInfo;
+    private OnReadMoreClickListener onReadMoreListener;
 
     public KAdapterVideoArtistDetail(Context context) {
         super(context);
@@ -45,6 +46,9 @@ public class KAdapterVideoArtistDetail extends RecyclerViewEndlessScrollBaseAdap
         if (ViewHolderBase.VIEW_TYPE.HEADER == holder.getViewType()) {
             if (mArtistInfo != null) {
                 ((ViewHolderArtistBio) holder).bindData(mContext, mArtistInfo);
+                if (onReadMoreListener != null) {
+                    ((ViewHolderArtistBio) holder).itemView.setOnClickListener(view -> onReadMoreListener.onReadMoreClick());
+                }
             }
         } else {
             super.onBindViewHolder(holder, position - 1);
@@ -90,5 +94,13 @@ public class KAdapterVideoArtistDetail extends RecyclerViewEndlessScrollBaseAdap
     public void setArtistInfo(ZingArtistDetail artistInfo) {
         this.mArtistInfo = artistInfo;
         notifyDataSetChanged();
+    }
+    
+    public void setOnReadMoreListener(OnReadMoreClickListener listener) {
+        this.onReadMoreListener = listener;
+    }
+
+    public interface OnReadMoreClickListener {
+        void onReadMoreClick();
     }
 }
