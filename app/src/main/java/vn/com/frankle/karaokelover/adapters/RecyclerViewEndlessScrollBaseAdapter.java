@@ -12,6 +12,8 @@ import java.util.List;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 import vn.com.frankle.karaokelover.R;
+import vn.com.frankle.karaokelover.adapters.viewholders.ViewHolderBase;
+import vn.com.frankle.karaokelover.adapters.viewholders.ViewHolderLoadingMore;
 
 
 /**
@@ -24,14 +26,18 @@ public abstract class RecyclerViewEndlessScrollBaseAdapter<T extends Comparable<
     protected Context mContext;
     protected ArrayList<T> mDataList;
 
+    private boolean isEndlessScroll;
+
     RecyclerViewEndlessScrollBaseAdapter(Context context) {
         this.mContext = context;
         this.mDataList = new ArrayList<>();
+        this.isEndlessScroll = true;
     }
 
     RecyclerViewEndlessScrollBaseAdapter(Context context, final ArrayList<T> data) {
         this.mContext = context;
         this.mDataList = data;
+        this.isEndlessScroll = true;
     }
 
     protected abstract ViewHolderBase<T> createView(ViewGroup parent);
@@ -77,12 +83,27 @@ public abstract class RecyclerViewEndlessScrollBaseAdapter<T extends Comparable<
         if (mDataList.size() == 0) {
             return 0;
         }
-        return mDataList.size() + 1;
+        if (isEndlessScroll) {
+            return mDataList.size() + 1;
+        }
+        return mDataList.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        return position >= mDataList.size() ? ViewHolderBase.VIEW_TYPE.LOADING_INDICATOR : ViewHolderBase.VIEW_TYPE.DATA_ITEM;
+        if (isEndlessScroll) {
+            return position >= mDataList.size() ? ViewHolderBase.VIEW_TYPE.LOADING_INDICATOR : ViewHolderBase.VIEW_TYPE.DATA_ITEM;
+        }
+        return ViewHolderBase.VIEW_TYPE.DATA_ITEM;
+    }
+
+    /**
+     * Set flag to indicate recyclerview is endless scroll or not
+     *
+     * @param isEndlessScroll : flag
+     */
+    public void setEndlessScroll(boolean isEndlessScroll) {
+        this.isEndlessScroll = isEndlessScroll;
     }
 
     /**

@@ -3,6 +3,7 @@ package vn.com.frankle.karaokelover.services;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import rx.Observable;
+import vn.com.frankle.karaokelover.services.responses.ResponseCommentThreads;
 import vn.com.frankle.karaokelover.services.responses.ResponseSearch;
 import vn.com.frankle.karaokelover.services.responses.ResponseSnippetContentDetails;
 import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
@@ -27,4 +28,10 @@ public interface YoutubeAPIEndpointInterface {
 
     @GET("videos?part=statistics,contentDetails&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
     Observable<ResponseStatisticContentDetails> getStatisticContentDetailById(@Query("id") String videoID);
+
+    @GET("commentThreads?part=snippet&maxResults=20&order=relevance&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
+    Observable<ResponseCommentThreads> getVideoComments(@Query("videoId") String videoId);
+
+    @GET("commentThreads?part=snippet&maxResults=20&order=relevance&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
+    Observable<ResponseCommentThreads> getVideoCommentsNext(@Query("videoId") String videoId, @Query("pageToken") String nextPageToken);
 }

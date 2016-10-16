@@ -10,6 +10,7 @@ import org.joda.time.format.ISOPeriodFormat;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import vn.com.frankle.karaokelover.KApplication;
 import vn.com.frankle.karaokelover.models.Thumbnails;
 
 /**
@@ -33,6 +35,13 @@ import vn.com.frankle.karaokelover.models.Thumbnails;
 
 public class Utils {
     private static final String TAG = "KaraokeLover";
+    private static final NavigableMap<Integer, String> suffixes = new TreeMap<>();
+
+    static {
+        suffixes.put(1000, "K");
+        suffixes.put(1000000, "M");
+        suffixes.put(1000000000, "B");
+    }
 
     public static void printLog(String tag, String msg) {
         Log.i(TAG + "-" + tag, msg);
@@ -40,14 +49,6 @@ public class Utils {
 
     public static int convertDpToPixel(Context context, int dpValue) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, dpValue, context.getResources().getDisplayMetrics());
-    }
-
-    private static final NavigableMap<Integer, String> suffixes = new TreeMap<>();
-
-    static {
-        suffixes.put(1000, "K");
-        suffixes.put(1000000, "M");
-        suffixes.put(1000000000, "B");
     }
 
     private static String formatAbbreviationNumber(int value) {
@@ -210,5 +211,20 @@ public class Utils {
             e.printStackTrace();
         }
         return sEncodedString;
+    }
+
+    /**
+     * Check if a filename in Recording File directory is available or not
+     *
+     * @param filename : filename to be checked
+     * @return true : if this filename is avai
+     */
+    public static boolean isAvailableFilename(String filename) {
+        File recordFileDir = new File(KApplication.RECORDING_DIRECTORY_URI);
+        if (!recordFileDir.exists()) {
+            return true;
+        }
+        File recordFile = new File(recordFileDir, filename);
+        return !recordFile.exists();
     }
 }

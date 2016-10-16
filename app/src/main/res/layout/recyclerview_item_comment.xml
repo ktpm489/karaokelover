@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="16dp"
+    android:paddingTop="16dp">
+
+    <vn.com.frankle.karaokelover.views.widgets.CircularImageView
+        android:id="@+id/item_comment_author_avatar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginEnd="12dp"
+        android:layout_marginStart="12dp"
+        android:foreground="@drawable/drawable_avatar_ripple"
+        android:padding="4dp"
+        android:src="@drawable/drawable_avatar_placeholder" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/item_comment_author_avatar"
+        android:layout_marginEnd="8dp"
+        android:layout_toEndOf="@id/item_comment_author_avatar">
+
+        <TextView
+            android:id="@+id/item_comment_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:textColor="@color/colorAccent"
+            android:textSize="14sp" />
+
+        <at.blogc.android.views.ExpandableTextView
+            android:id="@+id/item_comment_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/item_comment_author"
+            android:layout_marginBottom="4dp"
+            android:ellipsize="end"
+            android:maxLines="5"
+            android:textColor="@color/text_primary_light"
+            android:textSize="14sp"
+            app:animation_duration="500" />
+
+        <TextView
+            android:id="@+id/item_comment_btn_readmore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/item_comment_text"
+            android:layout_marginBottom="12dp"
+            android:text="read more..."
+            android:textColor="@color/colorAccent"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/item_comment_published_at"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/item_comment_btn_readmore"
+            android:textColor="@color/text_secondary_light"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:id="@+id/item_comment_layout_like"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/item_comment_btn_readmore"
+            android:layout_toEndOf="@id/item_comment_published_at"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/item_comment_divider"
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/drawable_circle_divider" />
+
+            <ImageView
+                android:id="@+id/item_comment_ic_like"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_comment_like" />
+
+            <TextView
+                android:id="@+id/item_comment_like"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_marginStart="4dp"
+                android:textColor="@color/text_secondary_light"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+</RelativeLayout>

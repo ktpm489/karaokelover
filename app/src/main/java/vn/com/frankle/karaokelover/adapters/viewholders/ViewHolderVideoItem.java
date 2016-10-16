@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover.adapters;
+package vn.com.frankle.karaokelover.adapters.viewholders;
 
 import android.content.Context;
 import android.view.View;
@@ -33,7 +33,7 @@ public class ViewHolderVideoItem extends ViewHolderBase<VideoSearchItem> {
     @BindView(R.id.item_search_more)
     ImageButton btnMore;
 
-    ViewHolderVideoItem(View itemView) {
+    public ViewHolderVideoItem(View itemView) {
         super(itemView);
 
         ButterKnife.bind(this, itemView);
@@ -46,7 +46,7 @@ public class ViewHolderVideoItem extends ViewHolderBase<VideoSearchItem> {
         likeCount.setText(dataItem.getLikeCount());
         duration.setText(dataItem.getDuration());
         Glide.with(context).load(dataItem.getThumbnails())
-                .placeholder(R.drawable.drawable_default_preview).into(preview);
+                .placeholder(R.drawable.drawable_background_default).placeholder(R.drawable.drawable_background_default).into(preview);
     }
 
     @Override

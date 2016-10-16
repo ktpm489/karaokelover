@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover.adapters;
+package vn.com.frankle.karaokelover.adapters.viewholders;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +10,7 @@ import android.view.View;
 
 public abstract class ViewHolderBase<T> extends RecyclerView.ViewHolder {
 
-    ViewHolderBase(View itemView) {
+    public ViewHolderBase(View itemView) {
         super(itemView);
     }
 

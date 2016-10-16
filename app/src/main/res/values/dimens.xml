@@ -13,9 +13,14 @@
     <dimen name="padding_normal">16dp</dimen>
     <dimen name="spacing_content_area">8dp</dimen>
 
+    <dimen name="keyline_1">72dp</dimen>
+
     <!-- Z axis elevation -->
     <dimen name="z_app_bar">4dp</dimen>
     <dimen name="z_fab">6dp</dimen>
+    <dimen name="z_card">2dp</dimen>
+
+    <dimen name="divider_height">1px</dimen>
 
     <dimen name="app_bar_height">256dp</dimen>
 
@@ -30,4 +35,8 @@
     <dimen name="bottom_sheet_width">@dimen/match_parent</dimen>
     <!-- per https://developer.android.com/reference/android/view/ViewGroup.LayoutParams.html#MATCH_PARENT -->
     <item name="match_parent" format="integer" type="dimen">-1</item>
+
+    <!-- avatar should be a 40dp asset in a 48dp touch target & optically aligned with standard padding -->
+    <dimen name="avatar_size">40dp</dimen>
+    <dimen name="avatar_ripple_radius">20dp</dimen> <!-- avatar_size / 2 -->
 </resources>

@@ -1,13 +1,11 @@
-package vn.com.frankle.karaokelover.adapters;
+package vn.com.frankle.karaokelover.adapters.viewholders;
 
 import android.content.Context;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import vn.com.frankle.karaokelover.KApplication;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.services.responses.zingmp3.ZingArtistDetail;
 
@@ -20,7 +18,7 @@ public class ViewHolderArtistBio extends ViewHolderBase<ZingArtistDetail> {
     @BindView(R.id.tv_artist_bio)
     TextView mArtistBio;
 
-    ViewHolderArtistBio(View itemView) {
+    public ViewHolderArtistBio(View itemView) {
         super(itemView);
 
         ButterKnife.bind(this, itemView);

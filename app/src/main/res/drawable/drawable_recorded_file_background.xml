@@ -14,8 +14,9 @@
   limitations under the License.
   -->
 
-<resources>
-    <integer name="rapid_animation">120</integer>
-    <integer name="fab_expand_duration">360</integer>
-    <integer name="recorded_item_expand_collapse_duration">120</integer>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" android:constantSize="true" android:enterFadeDuration="@integer/recorded_item_expand_collapse_duration" android:exitFadeDuration="@integer/recorded_item_expand_collapse_duration">
+
+    <item android:drawable="@color/selected_recorded_item_background" android:state_activated="true" />
+    <item android:drawable="@android:color/transparent" />
+
+</selector>

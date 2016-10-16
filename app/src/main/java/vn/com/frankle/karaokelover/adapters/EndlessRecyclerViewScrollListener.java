@@ -4,16 +4,12 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 
 /**
  * Created by duclm on 9/22/2016.
  */
 
 public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnScrollListener {
-
-    // Defines the process for actually loading more data based on page
-    public abstract void onLoadMore(int page, int totalItemCount);
 
     // The minimum number of items to have below your current scroll position
     // before loading more.
@@ -26,7 +22,8 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
     private boolean loading = true;
     // Sets the starting page index
     private int startingPageIndex = 0;
-
+    // Enable / Disable loading more feature
+    private boolean isLoadMoreEnable = true;
     private RecyclerView.LayoutManager mLayoutManager;
 
     public EndlessRecyclerViewScrollListener(LinearLayoutManager layoutManager) {
@@ -43,6 +40,8 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
         visibleThreshold = visibleThreshold * layoutManager.getSpanCount();
     }
 
+    // Defines the process for actually loading more data based on page
+    public abstract void onLoadMore(int page, int totalItemCount);
 
     public int getLastVisibleItem(int[] lastVisibleItemPositions) {
         int maxSize = 0;
@@ -104,10 +103,14 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
         // the visibleThreshold and need to reload more data.
         // If we do need to reload some more data, we execute onLoadMore to fetch the data.
         // threshold should reflect how many total columns there are too
-        if (!loading && (lastVisibleItemPosition + visibleThreshold) > totalItemCount) {
+        if (isLoadMoreEnable && !loading && (lastVisibleItemPosition + visibleThreshold) > totalItemCount) {
             loading = true;
             currentPage++;
             onLoadMore(currentPage, totalItemCount);
         }
+    }
+
+    public void setLoadMoreEnable(boolean loadmoreEnable) {
+        this.isLoadMoreEnable = loadmoreEnable;
     }
 }

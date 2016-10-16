@@ -26,4 +26,10 @@
     <string name="nav_exit">Exit</string>
     <string name="title_bio">Tiểu sử</string>
     <string name="btn_bio_readmore">READ MORE</string>
+
+    <!-- Dialog message -->
+    <string name="msg_filename_existed">You\'ve recorded this song. Do you want to re-record?</string>
+
+    <!-- Toast message -->
+    <string name="toast_error_delete_file">Something wrong when trying to delete old recorded file. Please try again!</string>
 </resources>

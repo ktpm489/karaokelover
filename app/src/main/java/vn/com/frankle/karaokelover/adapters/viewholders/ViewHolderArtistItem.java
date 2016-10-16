@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover.adapters;
+package vn.com.frankle.karaokelover.adapters.viewholders;
 
 import android.content.Context;
 import android.view.View;
@@ -24,7 +24,7 @@ public class ViewHolderArtistItem extends ViewHolderBase<ZingArtist> {
     @BindView(R.id.list_artist_name)
     TextView mArtistName;
 
-    ViewHolderArtistItem(View itemView) {
+    public ViewHolderArtistItem(View itemView) {
         super(itemView);
 
         ButterKnife.bind(this, itemView);
@@ -34,7 +34,7 @@ public class ViewHolderArtistItem extends ViewHolderBase<ZingArtist> {
     public void bindData(Context context, ZingArtist dataItem) {
         mArtistName.setText(dataItem.getName());
 
-        Glide.with(context).load(ZingMp3API.getArtistAvatarURL(dataItem.getAvatar())).into(mAvatar);
+        Glide.with(context).load(ZingMp3API.getArtistAvatarURL(dataItem.getAvatar())).placeholder(R.drawable.drawable_background_default).into(mAvatar);
     }
 
     @Override

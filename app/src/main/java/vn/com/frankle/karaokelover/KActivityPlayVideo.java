@@ -1,6 +1,7 @@
 package vn.com.frankle.karaokelover;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -8,9 +9,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,12 +35,23 @@ import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
+import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener;
+import vn.com.frankle.karaokelover.adapters.KAdapterComments;
+import vn.com.frankle.karaokelover.adapters.viewholders.ViewHolderComment;
 import vn.com.frankle.karaokelover.events.EventPrepareRecordingCountdown;
+import vn.com.frankle.karaokelover.services.responses.ResponseCommentThreads;
 import vn.com.frankle.karaokelover.util.KSharedPreference;
 import vn.com.frankle.karaokelover.util.Utils;
+import vn.com.frankle.karaokelover.views.recyclerview.InsetDividerDecoration;
 
 public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecord.AudioRecordListener {
 
@@ -54,33 +70,38 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
     RelativeLayout mLayoutCountdown;
     @BindView(R.id.tv_countdown)
     TextView mTvCountdown;
-    @BindView(R.id.btn_re_record)
-    ImageButton btnReRecord;
+    @BindView(R.id.btn_record)
+    FloatingActionButton fabRecord;
     @BindView(R.id.timer_recording)
     TextView mTvTimerRecord;
     @BindView(R.id.saved_filename)
     TextView mTvSavedFilename;
+    @BindView(R.id.recyclerview_comments)
+    RecyclerView mRecyclerViewComment;
+    @BindView(R.id.progressbar_comment)
+    ProgressBar mProgressBarComment;
+    @BindView(R.id.layout_record)
+    RelativeLayout mLayoutRecord;
+    @BindView(R.id.layout_play_video)
+    RelativeLayout mLayoutPlayVideo;
 
     // App SharePreference
     KSharedPreference mAppSharePrefs = new KSharedPreference();
-
+    EndlessRecyclerViewScrollListener onScrollListener;
+    private KAdapterComments mAdapterComment;
     //    private GLAudioVisualizationView mAudioRecordVisualization;
     private String mCurrentVideoId;
     private String mCurrentVideoTitle;
     private String mCurrentSavedFilename;
-
+    private String mCurrentCommentPageToken;
     private boolean mFavoriteState;
-
     private YouTubePlayerSupportFragment mYoutubePlayerFragment;
+    //    private KAudioRecordDbmHandler mAudioDbmHandler = new KAudioRecordDbmHandler();
     private KAudioRecord mRecorder;
-//    private KAudioRecordDbmHandler mAudioDbmHandler = new KAudioRecordDbmHandler();
-
     // Handling record timer
     private int recorderSecondsElapsed = 0;
     private Handler handler = new Handler();
-
     private YouTubePlayer mYoutubePlayer;
-
     private YouTubePlayer.PlayerStateChangeListener playerStateChangeListener = new YouTubePlayer.PlayerStateChangeListener() {
         @Override
         public void onLoading() {
@@ -112,7 +133,6 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
             Log.i(DEBUG_TAG, "YouTubePlayer.PlayerStateChangeListener - OnError");
         }
     };
-
     private YouTubePlayer.PlaybackEventListener mPlaybackEventListener = new YouTubePlayer.PlaybackEventListener() {
         @Override
         public void onPlaying() {
@@ -139,7 +159,6 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
 
         }
     };
-
     private YouTubePlayer.OnInitializedListener onInitializedListener = new YouTubePlayer.OnInitializedListener() {
         @Override
         public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
@@ -155,7 +174,17 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
 
         }
     };
-
+    /**
+     * Task to update timer
+     */
+    private Runnable updateTimer = new Runnable() {
+        @Override
+        public void run() {
+            runOnUiThread(() -> mTvTimerRecord.setText(Utils.formatSeconds(recorderSecondsElapsed)));
+            recorderSecondsElapsed++;
+            handler.postDelayed(this, 1000);
+        }
+    };
     private View.OnClickListener onRecordClickListener = view -> onRecordButtonClick();
 
     private void switchRecordButton(boolean recording) {
@@ -171,8 +200,17 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
      */
     private void onRecordButtonClick() {
         if (!mRecorder.mIsRecording.get()) {
-            Log.d(DEBUG_TAG, "Start recording....");
-            new PrepareRecordingTask().execute();
+            mCurrentSavedFilename = mCurrentVideoTitle + ".wav";
+
+            if (!Utils.isAvailableFilename(mCurrentSavedFilename)) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(getResources().getString(R.string.msg_filename_existed));
+                builder.setNegativeButton("NO", (dialog, which) -> dialog.cancel());
+                builder.setPositiveButton("YES", (dialog, which) -> new DeleteRecordedFileTask().execute());
+                builder.create().show();
+            } else {
+                new PrepareRecordingTask().execute();
+            }
         } else {
             Log.d(DEBUG_TAG, "Stop recording...");
             switchRecordButton(false);
@@ -194,15 +232,55 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
         // Initialzie recorder
         mRecorder = new KAudioRecord(this);
 
+        mCurrentVideoTitle = getIntent().getStringExtra("title");
+        mCurrentVideoId = getIntent().getStringExtra("videoid");
+
         setupViews();
+
+        loadVideoComments();
+    }
+
+    private void loadVideoComments() {
+        Observable<ResponseCommentThreads> obsComment = KApplication.getRxYoutubeAPIService().getVideoComments(mCurrentVideoId);
+        compositeSubscriptionForOnStop.add(obsComment.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<ResponseCommentThreads>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Toast.makeText(KActivityPlayVideo.this, "Error getting comment", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNext(ResponseCommentThreads responseCommentThreads) {
+                        handleCommentResults(responseCommentThreads);
+                    }
+                }));
+    }
+
+    private void handleCommentResults(ResponseCommentThreads responseCommentThreads) {
+        if (responseCommentThreads.getCommentThreads().size() > 0) {
+            toggleLoadingCommentLayout();
+
+            mCurrentCommentPageToken = responseCommentThreads.getNextPageToken();
+            if (mCurrentCommentPageToken == null || mCurrentCommentPageToken.isEmpty()) {
+                mAdapterComment.setEndlessScroll(false);
+                onScrollListener.setLoadMoreEnable(false);
+            }
+            mAdapterComment.addDataItems(responseCommentThreads.getCommentThreads());
+        } else {
+            Toast.makeText(this, "No comment.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
      * Initialize activity's view on create
      */
     private void setupViews() {
-        mCurrentVideoTitle = getIntent().getStringExtra("title");
-        mCurrentVideoId = getIntent().getStringExtra("videoid");
 
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -212,6 +290,7 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
         mYoutubePlayerFragment = (YouTubePlayerSupportFragment) getSupportFragmentManager().findFragmentById(R.id.youtube_player);
         mYoutubePlayerFragment.initialize(Constants.YOUTUBE_API_KEY, onInitializedListener);
 
+        fabRecord.setOnClickListener(onRecordClickListener);
         btnRecord.setOnClickListener(onRecordClickListener);
 
 //        mAudioRecordVisualization = new GLAudioVisualizationView.Builder(this)
@@ -231,6 +310,54 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
 //        layoutParams.addRule(RelativeLayout.BELOW, R.id.youtube_player);
 //        layoutParams.addRule(RelativeLayout.SYSTEM_UI_FLAG_VISIBLE, View.INVISIBLE);
 //        mContentLayout.addView(mAudioRecordVisualization, 1, layoutParams);
+
+        //Setup comment view
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerViewComment.setLayoutManager(layoutManager);
+        mRecyclerViewComment.addItemDecoration(new InsetDividerDecoration(
+                ViewHolderComment.class,
+                getResources().getDimensionPixelSize(R.dimen.divider_height),
+                getResources().getDimensionPixelSize(R.dimen.keyline_1),
+                ContextCompat.getColor(this, R.color.divider_light)));
+        mAdapterComment = new KAdapterComments(this);
+//        Observable<ZingArtist> obsItemClickListener = mAdapter.onItemClickListener();
+//        compositeSubscriptionForOnStop.add(obsItemClickListener.subscribe(this::handleArtistItemClick));
+        mRecyclerViewComment.setAdapter(mAdapterComment);
+        onScrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemCount) {
+                loadMoreComments(totalItemCount);
+            }
+        };
+        mRecyclerViewComment.addOnScrollListener(onScrollListener);
+    }
+
+    private void loadMoreComments(int totalItemCount) {
+        Observable<ResponseCommentThreads> obsCommentMore = KApplication.getRxYoutubeAPIService().getVideoCommentsNext(mCurrentVideoId, mCurrentCommentPageToken);
+        compositeSubscriptionForOnStop.add(obsCommentMore.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<ResponseCommentThreads>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Toast.makeText(KActivityPlayVideo.this, "Error getting more comment!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNext(ResponseCommentThreads responseCommentThreads) {
+                        mCurrentCommentPageToken = responseCommentThreads.getNextPageToken();
+                        if (mCurrentCommentPageToken == null || mCurrentCommentPageToken.isEmpty()) {
+                            mAdapterComment.setEndlessScroll(false);
+                            onScrollListener.setLoadMoreEnable(false);
+                        }
+                        mAdapterComment.addDataItems(responseCommentThreads.getCommentThreads());
+                    }
+                }));
     }
 
     /**
@@ -244,10 +371,8 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
         postRecDialgBuilder.setView(actionDialog);
         LinearLayout actionEditRecord = (LinearLayout) actionDialog.findViewById(R.id.action_edit_recording);
         actionEditRecord.setOnClickListener(view -> {
-            Intent editRecordingIntent = new Intent(KActivityPlayVideo.this, KActivityEditRecording.class);
-            editRecordingIntent.putExtra("TITLE", mCurrentSavedFilename);
-            startActivity(editRecordingIntent);
-
+            Intent intent = new Intent(this, KActivityMyRecording.class);
+            startActivity(intent);
             KActivityPlayVideo.this.finish();
         });
         postRecDialgBuilder.create().show();
@@ -281,28 +406,6 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
         }
 
         return true;
-    }
-
-    /**
-     * Handle favorite click event
-     * If this video is already in the favorite list, remove it.
-     * Otherwise, add it to the current favorite video list and change the icon of Favorite button
-     *
-     * @param favoriteMenuItem : menu item
-     */
-    private void handleFavoriteClick(MenuItem favoriteMenuItem) {
-        boolean isInFavoriteList = mAppSharePrefs.isInFavoriteList(this, mCurrentVideoId);
-        if (!isInFavoriteList) {// Not in the favorite list -> add it
-            mAppSharePrefs.addFavorites(this, mCurrentVideoId);
-
-            favoriteMenuItem.setIcon(R.drawable.drawable_menu_favourite_added);
-            Toast.makeText(this, "Added to the favorite list", Toast.LENGTH_SHORT).show();
-        } else {// Currently in favorite list -> remove it
-            mAppSharePrefs.removeFavorite(this, mCurrentVideoId);
-
-            favoriteMenuItem.setIcon(R.drawable.drawable_menu_favourite);
-            Toast.makeText(this, "Removed to the favorite list", Toast.LENGTH_SHORT).show();
-        }
     }
 
 //    /**
@@ -392,6 +495,28 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
 //    }
 
     /**
+     * Handle favorite click event
+     * If this video is already in the favorite list, remove it.
+     * Otherwise, add it to the current favorite video list and change the icon of Favorite button
+     *
+     * @param favoriteMenuItem : menu item
+     */
+    private void handleFavoriteClick(MenuItem favoriteMenuItem) {
+        boolean isInFavoriteList = mAppSharePrefs.isInFavoriteList(this, mCurrentVideoId);
+        if (!isInFavoriteList) {// Not in the favorite list -> add it
+            mAppSharePrefs.addFavorites(this, mCurrentVideoId);
+
+            favoriteMenuItem.setIcon(R.drawable.drawable_menu_favourite_added);
+            Toast.makeText(this, "Added to the favorite list", Toast.LENGTH_SHORT).show();
+        } else {// Currently in favorite list -> remove it
+            mAppSharePrefs.removeFavorite(this, mCurrentVideoId);
+
+            favoriteMenuItem.setIcon(R.drawable.drawable_menu_favourite);
+            Toast.makeText(this, "Removed to the favorite list", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
      * Event of running prepare recording countdown
      *
      * @param event
@@ -407,18 +532,6 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
             mTvCountdown.setText(String.valueOf(current));
         }
     }
-
-    /**
-     * Task to update timer
-     */
-    private Runnable updateTimer = new Runnable() {
-        @Override
-        public void run() {
-            runOnUiThread(() -> mTvTimerRecord.setText(Utils.formatSeconds(recorderSecondsElapsed)));
-            recorderSecondsElapsed++;
-            handler.postDelayed(this, 1000);
-        }
-    };
 
     /**
      * Start updating recording timer
@@ -452,62 +565,19 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
 
     }
 
-
-    /**
-     * Display a prepare screen before starting recording
-     */
-    private class PrepareRecordingTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            if (mYoutubePlayer.isPlaying()) {
-                mYoutubePlayer.pause();
-                mYoutubePlayer.seekToMillis(0);
-            }
-            mLayoutCountdown.setVisibility(View.VISIBLE);
-
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            for (int i = 3; i >= 0; --i) {
-                Log.d(DEBUG_TAG, "Starting countdown: current = " + i);
-                KApplication.eventBus.post(new EventPrepareRecordingCountdown(i));
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            mLayoutCountdown.setVisibility(View.INVISIBLE);
-            // Start recording voice
-            startRecording();
-        }
-    }
-
     /**
      * Start recording voice
      */
     private void startRecording() {
         if (mYoutubePlayer != null && !mYoutubePlayer.isPlaying()) {
-            mCurrentSavedFilename = Utils.getAutoFilename();
+//            mCurrentSavedFilename = Utils.getAutoFilename();
             switchRecordButton(true);
 
             /*Auto configure audio output volume (try to prevent too loud beat)*/
             configAudioVolume();
 
             mYoutubePlayer.play();
-            mTvTimerRecord.setVisibility(View.VISIBLE);
             mTvSavedFilename.setText(mCurrentSavedFilename);
-            mTvSavedFilename.setVisibility(View.VISIBLE);
 //            mAudioRecordVisualization.setVisibility(View.VISIBLE);
 
             mRecorder.start(mCurrentSavedFilename);
@@ -523,7 +593,7 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
     private void configAudioVolume() {
         // This value's result maybe vary between devices
         // Just a start number, user may change volume if it's too loud or too small
-        float percent = 0.3f;
+        float percent = 0.4f;
 
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
@@ -576,5 +646,106 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
             setResult(Activity.RESULT_OK, updateFavoriteList);
         }
         super.onBackPressed();
+    }
+
+    private void toggleLoadingCommentLayout() {
+        if (mProgressBarComment.getVisibility() == View.VISIBLE) {
+            mProgressBarComment.setVisibility(View.GONE);
+            mRecyclerViewComment.setVisibility(View.VISIBLE);
+        } else {
+            mProgressBarComment.setVisibility(View.VISIBLE);
+            mRecyclerViewComment.setVisibility(View.GONE);
+        }
+    }
+
+    private void toggleLayoutPlayRecord() {
+        if (mLayoutPlayVideo.getVisibility() == View.VISIBLE) {
+            mLayoutPlayVideo.setVisibility(View.GONE);
+            mLayoutRecord.setVisibility(View.VISIBLE);
+        } else {
+            mLayoutPlayVideo.setVisibility(View.VISIBLE);
+            mLayoutRecord.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Display a prepare screen before starting recording
+     */
+    private class PrepareRecordingTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (mYoutubePlayer != null) {
+                if (mYoutubePlayer.isPlaying()) {
+                    mYoutubePlayer.pause();
+                }
+                mYoutubePlayer.seekToMillis(0);
+            }
+
+            mLayoutCountdown.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            for (int i = 3; i >= 0; --i) {
+                Log.d(DEBUG_TAG, "Starting countdown: current = " + i);
+                KApplication.eventBus.post(new EventPrepareRecordingCountdown(i));
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            mLayoutCountdown.setVisibility(View.INVISIBLE);
+            toggleLayoutPlayRecord();
+
+            // Start recording voice
+            startRecording();
+        }
+    }
+
+    /**
+     * Task to delete existed recorded file before starting recording
+     */
+    private class DeleteRecordedFileTask extends AsyncTask<Void, Void, Boolean> {
+
+        ProgressDialog deleteProgessDialog = new ProgressDialog(KActivityPlayVideo.this);
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            deleteProgessDialog.setMessage("Deleting old recorded file...");
+            deleteProgessDialog.setIndeterminate(true);
+            deleteProgessDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            File recordFileDir = new File(KApplication.RECORDING_DIRECTORY_URI);
+            File recordedFile = new File(recordFileDir, mCurrentSavedFilename);
+
+            return recordedFile.exists() && recordedFile.delete();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+
+            if (result) {
+                deleteProgessDialog.dismiss();
+                new PrepareRecordingTask().execute();
+            } else {
+                Toast.makeText(KActivityPlayVideo.this, getResources().getString(R.string.toast_error_delete_file), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

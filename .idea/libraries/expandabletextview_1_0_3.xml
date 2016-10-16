@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="expandabletextview-1.0.3">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/at.blogc/expandabletextview/1.0.3/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/at.blogc/expandabletextview/1.0.3/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/at.blogc/expandabletextview/1.0.3/334da1f6f589c0ea04509e1e1a4ca7aae2ce3ebc/expandabletextview-1.0.3-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover.adapters;
+package vn.com.frankle.karaokelover.adapters.viewholders;
 
 import android.content.Context;
 import android.view.View;

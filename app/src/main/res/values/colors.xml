@@ -7,10 +7,16 @@
     <color name="background_light">#FAFAFA</color>
     <color name="colorAccentBlur">#CCFF5722</color>
 
+    <color name="content_placeholder">#ffe0e0e0</color>
+    <color name="mid_grey">#40808080</color>
+    <color name="divider">#1f000000</color> <!-- 12% black -->
+    <color name="divider_light">#1FFFFFFF</color> <!-- 50% white -->
+
     <!-- Common colors for Dark Theme -->
     <color name="text_primary_light">#ffffffff</color>
     <color name="text_secondary_light">#b3ffffff</color> <!-- 70% -->
-    <color name="text_disabled_light">#4dffffff</color> <!-- 30% -->
+    <color name="text_thirdly_light">#80ffffff</color> <!-- 70% -->
+    <color name="text_disabled_light">#1fffffff</color> <!-- 50% -->
 
     <!-- Common colors for Light Theme -->
     <color name="text_primary_dark">#de000000</color> <!-- 87% -->
@@ -31,5 +37,7 @@
     <array name="av_colors">
         <item>@color/accent</item>
     </array>
+
+    <color name="selected_recorded_item_background">#FF2C2E35</color>
 
 </resources>

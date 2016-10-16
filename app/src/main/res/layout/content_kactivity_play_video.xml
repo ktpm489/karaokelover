@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content_kactivity_play_video"
     android:layout_width="match_parent"
@@ -15,53 +16,83 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="?attr/actionBarSize" />
 
-    <ImageButton
-        android:id="@+id/btn_recording"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="32dp"
-        android:background="@android:color/transparent"
-        android:scaleType="fitXY"
-        android:src="@drawable/btn_recording" />
-
-    <ImageButton
-        android:id="@+id/btn_re_record"
-        android:layout_width="46dp"
-        android:layout_height="46dp"
-        android:layout_alignBottom="@id/btn_recording"
-        android:layout_toEndOf="@id/btn_recording"
-        android:background="@android:color/transparent"
-        android:scaleType="fitXY"
-        android:src="@drawable/btn_re_record" />
-
     <RelativeLayout
+        android:id="@+id/layout_play_video"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/btn_recording"
         android:layout_below="@id/youtube_player">
 
-        <TextView
-            android:id="@+id/timer_recording"
+        <ProgressBar
+            android:id="@+id/progressbar_comment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_margin="16dp"
-            android:fontFamily="sans-serif-light"
-            android:textColor="@color/text_primary_light"
-            android:textSize="64sp"
-            android:visibility="invisible" />
+            android:layout_centerInParent="true" />
 
-        <TextView
-            android:id="@+id/saved_filename"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerview_comments"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:clipToPadding="false"
+            android:visibility="gone" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/btn_record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/timer_recording"
-            android:layout_centerInParent="true"
-            android:textColor="@color/text_secondary_light"
-            android:textSize="20sp"
-            android:visibility="invisible" />
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="@dimen/fab_margin"
+            app:srcCompat="@drawable/drawable_fab_record" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/layout_record"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/youtube_player"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/btn_recording"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="16dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitXY"
+            android:src="@drawable/btn_recording" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/btn_recording"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/timer_recording"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:fontFamily="sans-serif-light"
+                android:textColor="@color/text_primary_light"
+                android:textSize="64sp" />
+
+            <TextView
+                android:id="@+id/saved_filename"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="32dp"
+                android:layout_marginStart="32dp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:textColor="@color/text_secondary_light"
+                android:textSize="20sp" />
+        </LinearLayout>
 
     </RelativeLayout>
 </RelativeLayout>

@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import vn.com.frankle.karaokelover.R;
+import vn.com.frankle.karaokelover.adapters.viewholders.ViewHolderArtistItem;
+import vn.com.frankle.karaokelover.adapters.viewholders.ViewHolderBase;
 import vn.com.frankle.karaokelover.services.responses.zingmp3.ZingArtist;
 
 /**
@@ -21,7 +23,7 @@ public class KAdapterZingArtist extends RecyclerViewEndlessScrollBaseAdapter<Zin
 
 
     @Override
-    protected ViewHolderBase<ZingArtist> createView(ViewGroup parent) {
+    protected ViewHolderArtistItem createView(ViewGroup parent) {
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);
         View artistItemView = layoutInflater.inflate(R.layout.recyclerview_item_artist_zing, parent, false);
         return new ViewHolderArtistItem(artistItemView);
