@@ -18,6 +18,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/KaraokeLoverTheme">
+
         <activity
             android:name=".KActivityHome"
             android:label="@string/app_name"

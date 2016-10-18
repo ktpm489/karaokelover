@@ -8,6 +8,8 @@
     <string name="action_search">Search</string>
     <string name="action_record">Record</string>
 
+    <string name="share_send_to">Send to…</string>
+
     <!-- Search -->
     <string name="search_hint">Search karaoke videos…</string>
     <string name="no_search_results">No results for\n“%1$s”</string>
@@ -29,7 +31,9 @@
 
     <!-- Dialog message -->
     <string name="msg_filename_existed">You\'ve recorded this song. Do you want to re-record?</string>
+    <string name="msg_delete_file">Are you sure you want to permanently delete this record?</string>
 
     <!-- Toast message -->
-    <string name="toast_error_delete_file">Something wrong when trying to delete old recorded file. Please try again!</string>
+    <string name="toast_delete_file_success">File has been deleted successfully!</string>
+    <string name="toast_delete_file_error">Something wrong when trying to delete old recorded file. Please try again!</string>
 </resources>

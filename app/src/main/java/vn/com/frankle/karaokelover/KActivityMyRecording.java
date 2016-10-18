@@ -1,7 +1,12 @@
 package vn.com.frankle.karaokelover;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +15,7 @@ import android.transition.AutoTransition;
 import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.view.View;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.Arrays;
@@ -38,25 +44,54 @@ public class KActivityMyRecording extends AppCompatActivity {
      */
     private View.OnTouchListener touchEater = (view, motionEvent) -> true;
 
-    private KAdapterMyRecordings.OnItemClickListener onRecordedItemClickListener = (holder, file, position) -> {
-        if (position == RecyclerView.NO_POSITION) return;
+    private KAdapterMyRecordings.RecordedSongAdapterListener recordedSongAdapterListener = new KAdapterMyRecordings.RecordedSongAdapterListener() {
+        @Override
+        public void onItemClick(View holder, File file, int position) {
+            if (position == RecyclerView.NO_POSITION) return;
 
-        TransitionManager.beginDelayedTransition(mRecyclerView, expandCollapse);
-        recordedFileItemAnimator.setAnimateMoves(false);
+            TransitionManager.beginDelayedTransition(mRecyclerView, expandCollapse);
+            recordedFileItemAnimator.setAnimateMoves(false);
 
-        // collapse any currently expanded items
-        if (adapter.getExpandedItemPosition() != RecyclerView.NO_POSITION) {
-            adapter.notifyItemChanged(adapter.getExpandedItemPosition(), KAdapterMyRecordings.COLLAPSE);
+            // collapse any currently expanded items
+            if (adapter.getExpandedItemPosition() != RecyclerView.NO_POSITION) {
+                adapter.notifyItemChanged(adapter.getExpandedItemPosition(), KAdapterMyRecordings.COLLAPSE);
+            }
+
+            // expand this item (if it wasn't already)
+            if (adapter.getExpandedItemPosition() != position) {
+                adapter.setExpandedItemPosition(position);
+
+                mRecyclerView.getAdapter().notifyItemChanged(position, KAdapterMyRecordings.EXPAND);
+                holder.requestFocus();
+            } else {
+                adapter.setExpandedItemPosition(RecyclerView.NO_POSITION);
+            }
         }
 
-        // expand this item (if it wasn't already)
-        if (adapter.getExpandedItemPosition() != position) {
-            adapter.setExpandedItemPosition(position);
+        @Override
+        public void onPlayClick(File file) {
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.fromFile(file), "audio/*");
+            startActivity(intent);
+        }
 
-            mRecyclerView.getAdapter().notifyItemChanged(position, KAdapterMyRecordings.EXPAND);
-            holder.requestFocus();
-        } else {
-            adapter.setExpandedItemPosition(RecyclerView.NO_POSITION);
+        @Override
+        public void onShareClick(File file) {
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+            shareIntent.setType("*/*");
+            startActivity(Intent.createChooser(shareIntent, getResources().getText(R.string.share_send_to)));
+        }
+
+        @Override
+        public void onDeleteClick(File file, int position) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(KActivityMyRecording.this);
+            alertDialogBuilder.setMessage(getResources().getString(R.string.msg_delete_file));
+            alertDialogBuilder.setPositiveButton("YES", (dialog, which) -> new DeleteRecordedFileTask(position).execute(file));
+            alertDialogBuilder.setNegativeButton("NO", (dialog, which) -> dialog.cancel());
+            alertDialogBuilder.create().show();
         }
     };
 
@@ -108,7 +143,7 @@ public class KActivityMyRecording extends AppCompatActivity {
             }
         });
 
-        adapter = new KAdapterMyRecordings(this, recordings, onRecordedItemClickListener);
+        adapter = new KAdapterMyRecordings(this, recordings, recordedSongAdapterListener);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(layoutManager);
@@ -151,6 +186,47 @@ public class KActivityMyRecording extends AppCompatActivity {
                 return false;
             }
             return super.animateMove(holder, fromX, fromY, toX, toY);
+        }
+    }
+
+    /**
+     * Task to delete existed recorded file before starting recording
+     */
+    private class DeleteRecordedFileTask extends AsyncTask<File, Void, Boolean> {
+        ProgressDialog deleteProgessDialog = new ProgressDialog(KActivityMyRecording.this);
+        private int deletedPos;
+
+        public DeleteRecordedFileTask(int deletedPos) {
+            this.deletedPos = deletedPos;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            deleteProgessDialog.setMessage("Deleting old recorded file...");
+            deleteProgessDialog.setIndeterminate(true);
+            deleteProgessDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(File... params) {
+
+            return params[0].exists() && params[0].delete();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+
+            if (result) {
+                deleteProgessDialog.dismiss();
+                adapter.removeItemAtPosition(deletedPos);
+                adapter.setExpandedItemPosition(RecyclerView.NO_POSITION);
+                Toast.makeText(KActivityMyRecording.this, getResources().getString(R.string.toast_delete_file_success), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(KActivityMyRecording.this, getResources().getString(R.string.toast_delete_file_error), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

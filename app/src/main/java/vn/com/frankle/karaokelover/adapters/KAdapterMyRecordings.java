@@ -10,6 +10,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -29,13 +31,14 @@ public class KAdapterMyRecordings extends RecyclerView.Adapter<KAdapterMyRecordi
     private int expandedPosition = RecyclerView.NO_POSITION;
 
     private Context mContext;
-    private File[] mRecordings;
-    private OnItemClickListener mListener;
+    private ArrayList<File> mRecordDataSet;
+    private RecordedSongAdapterListener mListener;
 
-    public KAdapterMyRecordings(Context context, File[] listRecordings, OnItemClickListener onRecordedItemClickListener) {
+    public KAdapterMyRecordings(Context context, File[] listRecordings, RecordedSongAdapterListener onRecordedItemClickListener) {
         this.mContext = context;
-        this.mRecordings = listRecordings;
         this.mListener = onRecordedItemClickListener;
+        this.mRecordDataSet = new ArrayList<>();
+        Collections.addAll(mRecordDataSet, listRecordings);
     }
 
     @Override
@@ -49,7 +52,7 @@ public class KAdapterMyRecordings extends RecyclerView.Adapter<KAdapterMyRecordi
     @Override
     public void onBindViewHolder(ViewHolderRecording holder, int position) {
 
-        File item = mRecordings[position];
+        File item = mRecordDataSet.get(position);
 
         holder.bind(item, position, mListener);
         final boolean isExpanded = position == expandedPosition;
@@ -65,10 +68,20 @@ public class KAdapterMyRecordings extends RecyclerView.Adapter<KAdapterMyRecordi
 
     @Override
     public int getItemCount() {
-        if (mRecordings == null) {
+        if (mRecordDataSet == null) {
             return 0;
         }
-        return mRecordings.length;
+        return mRecordDataSet.size();
+    }
+
+    /**
+     * Remove an item from data set at specific position
+     *
+     * @param postion : the item at this position will be removed
+     */
+    public void removeItemAtPosition(int postion) {
+        mRecordDataSet.remove(postion);
+        notifyDataSetChanged();
     }
 
     private void setExpanded(ViewHolderRecording holder, boolean isExpanded) {
@@ -97,8 +110,14 @@ public class KAdapterMyRecordings extends RecyclerView.Adapter<KAdapterMyRecordi
         }
     }
 
-    public interface OnItemClickListener {
+    public interface RecordedSongAdapterListener {
         void onItemClick(View holder, File file, int position);
+
+        void onPlayClick(File file);
+
+        void onShareClick(File file);
+
+        void onDeleteClick(File file, int position);
     }
 
     public static class ViewHolderRecording extends RecyclerView.ViewHolder {
@@ -128,12 +147,16 @@ public class KAdapterMyRecordings extends RecyclerView.Adapter<KAdapterMyRecordi
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(File item, int position, OnItemClickListener listener) {
+        public void bind(File item, int position, RecordedSongAdapterListener listener) {
             filename.setText(item.getName());
             date.setText(DateFormat.format("MMM dd, yyyy", item.lastModified()));
             duration.setText(Utils.getDuration(item.getAbsolutePath()));
 
             itemView.setOnClickListener(v -> listener.onItemClick(itemView, item, position));
+
+            btnPlay.setOnClickListener(v -> listener.onPlayClick(item));
+            btnShare.setOnClickListener(v -> listener.onShareClick(item));
+            btnDelete.setOnClickListener(v -> listener.onDeleteClick(item, position));
         }
     }
 }

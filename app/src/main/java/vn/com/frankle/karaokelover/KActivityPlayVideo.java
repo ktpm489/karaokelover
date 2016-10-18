@@ -744,7 +744,7 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
                 deleteProgessDialog.dismiss();
                 new PrepareRecordingTask().execute();
             } else {
-                Toast.makeText(KActivityPlayVideo.this, getResources().getString(R.string.toast_error_delete_file), Toast.LENGTH_SHORT).show();
+                Toast.makeText(KActivityPlayVideo.this, getResources().getString(R.string.toast_delete_file_error), Toast.LENGTH_SHORT).show();
             }
         }
     }
