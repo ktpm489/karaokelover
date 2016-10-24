@@ -4,7 +4,7 @@ apply plugin: 'me.tatarka.retrolambda'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    buildToolsVersion "24.0.2"
     defaultConfig {
         applicationId "vn.com.frankle.karaokelover"
         minSdkVersion 21
@@ -55,10 +55,12 @@ dependencies {
 
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile "com.android.support:support-v4:${supportLibVersion}"
+    compile "com.android.support:preference-v7:${supportLibVersion}"
     compile "com.android.support:support-v13:${supportLibVersion}"
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.android.support:recyclerview-v7:${supportLibVersion}"
     compile "com.android.support:percent:${supportLibVersion}"
+
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha4'
     compile 'com.github.JakeWharton:ViewPagerIndicator:2.4.1@aar'
     compile 'com.jakewharton:butterknife:8.2.1'
@@ -87,6 +89,8 @@ dependencies {
     compile 'com.cleveroad:audiovisualization:0.9.4'
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'at.blogc:expandabletextview:1.0.3'
+    compile 'com.pavelsikun:material-seekbar-preference:2.3.0+'
+
 
     testCompile 'junit:junit:4.12'
     apt 'com.jakewharton:butterknife-compiler:8.2.1'

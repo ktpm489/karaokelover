@@ -34,16 +34,12 @@ import vn.com.frankle.karaokelover.util.Utils;
 public class KActivityHome extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private final String DEBUG_TAG = this.getClass().getSimpleName();
-
     private static final int PERMISSION_AUDIO_RECORD = 0;
-
     private static final int RC_SEARCH = 0;
-
     private static final int FRAGMENT_HOME = 0;
     private static final int FRAGMENT_ARTIST = 1;
     private static final int FRAGMENT_FAVORITE = 2;
-
+    private final String DEBUG_TAG = this.getClass().getSimpleName();
     @BindView(R.id.layout_main_activity_content)
     LinearLayout mLayoutMainContent;
 
@@ -283,7 +279,8 @@ public class KActivityHome extends AppCompatActivity
         } else if (id == R.id.nav_favorite) {
             showFragment(FRAGMENT_FAVORITE);
         } else if (id == R.id.nav_setting) {
-
+            Intent setting = new Intent(this, KActivitySettings.class);
+            startActivity(setting);
         } else if (id == R.id.nav_exit) {
 
         }
@@ -318,9 +315,10 @@ public class KActivityHome extends AppCompatActivity
 
     /**
      * Get tab layout for Artist fragment
+     *
      * @return tablayout
      */
-    public TabLayout getTabLayout(){
+    public TabLayout getTabLayout() {
         return mTabLayout;
     }
 }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SeekbarPreference">
+        <attr name="kl_minValue" format="integer" />
+        <attr name="kl_maxValue" format="integer" />
+        <attr name="kl_unit" format="string" />
+        <attr name="kl_interval" format="integer" />
+    </declare-styleable>
+</resources>

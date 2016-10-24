@@ -136,27 +136,27 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
     private YouTubePlayer.PlaybackEventListener mPlaybackEventListener = new YouTubePlayer.PlaybackEventListener() {
         @Override
         public void onPlaying() {
-
+            Log.i(DEBUG_TAG, "YouTubePlayer.PlaybackEventListener - onPlaying");
         }
 
         @Override
         public void onPaused() {
-
+            Log.i(DEBUG_TAG, "YouTubePlayer.PlaybackEventListener - onPaused");
         }
 
         @Override
         public void onStopped() {
-
+            Log.i(DEBUG_TAG, "YouTubePlayer.PlaybackEventListener - onStopped");
         }
 
         @Override
         public void onBuffering(boolean b) {
-
+            Log.i(DEBUG_TAG, "YouTubePlayer.PlaybackEventListener - onBuffering");
         }
 
         @Override
         public void onSeekTo(int i) {
-
+            Log.i(DEBUG_TAG, "YouTubePlayer.PlaybackEventListener - onSeekTo");
         }
     };
     private YouTubePlayer.OnInitializedListener onInitializedListener = new YouTubePlayer.OnInitializedListener() {

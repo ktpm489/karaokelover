@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        android:key="pref_key_category_audio"
+        android:title="@string/prefs_category_audio">
+        <vn.com.frankle.karaokelover.views.widgets.SeekbarPreference
+            android:defaultValue="30"
+            android:enabled="true"
+            android:key="pref_key_audio_volume"
+            android:summary=""
+            android:title="@string/prefs_audio_volume_title"
+            app:kl_interval="5"
+            app:kl_maxValue="70"
+            app:kl_minValue="20"
+            app:kl_unit="%" />
+    </PreferenceCategory>
+</PreferenceScreen>

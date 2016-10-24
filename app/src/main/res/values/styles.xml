@@ -13,6 +13,13 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="KaraokeLoverTheme.SettingActivity" parent="KaraokeLoverTheme">
+        <item name="android:textColorPrimary">@color/text_primary_light</item>
+        <item name="android:textColorSecondary">@color/text_secondary_light</item>
+        <item name="android:alertDialogTheme">@style/KaraokeLoverTheme.Dialog</item>
+        <item name="android:dialogTheme">@style/KaraokeLoverTheme.Dialog</item>
+    </style>
+
     <style name="KaraokeLoverTheme.ArtistWithSongs" parent="KaraokeLoverTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -70,6 +77,10 @@
 
     <style name="Widget.KaraokeLover" parent="android:Widget" />
 
+    <style name="TextAppearance.Main" parent="@android:style/TextAppearance.Material.Title">
+        <item name="android:textColor">@color/text_primary_light</item>
+    </style>
+
     <style name="TextAppearance.DialogContent" parent="@android:style/TextAppearance.Material.Subhead">
         <item name="android:textColor">@color/text_secondary_dark</item>
         <item name="android:fontFamily">sans-serif-medium</item>
@@ -106,4 +117,15 @@
     <style name="KaraokeTubeSheetTitleTextAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textColor">@color/text_primary_light</item>
     </style>
+
+    <style name="KaraokeLoverTheme.AlertDialogContentTextStyle">
+        <item name="android:textColor">@color/text_primary_light</item>
+        <item name="android:textColorSecondary">@color/text_secondary_light</item>
+    </style>
+
+    <style name="KaraokeLoverTheme.Dialog" parent="MaterialBaseTheme.AlertDialog">
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/background_dark</item>
+    </style>
+
 </resources>

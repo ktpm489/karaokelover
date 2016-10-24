@@ -14,9 +14,12 @@
     <string name="search_hint">Search karaoke videos…</string>
     <string name="no_search_results">No results for\n“%1$s”</string>
     <string name="btn_more">MORE</string>
+
     <string name="title_activity_kplay_video">KActivityPlayVideo</string>
     <string name="title_activity_kmy_recording">My Recordings</string>
     <string name="title_activity_kkedit_recording">Edit</string>
+    <string name="title_activity_setting">Settings</string>
+
     <string name="action_save">Save</string>
     <string name="activity_editrecording_title">Title</string>
     <string name="action_favourite">Favourite</string>
@@ -36,4 +39,9 @@
     <!-- Toast message -->
     <string name="toast_delete_file_success">File has been deleted successfully!</string>
     <string name="toast_delete_file_error">Something wrong when trying to delete old recorded file. Please try again!</string>
+
+    <!-- Perferences -->
+    <string name="prefs_category_audio">Audio</string>
+    <string name="prefs_audio_volume_title">Beat volume</string>
+    <string name="prefs_audio_volume_summary">Adjust volume of beat when recording directly from device\'s microphone.</string>
 </resources>
