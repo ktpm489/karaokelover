@@ -23,6 +23,9 @@ public interface YoutubeAPIEndpointInterface {
     @GET("search?part=snippet&maxResults=15&type=video&order=relevance&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
     Observable<ResponseSearch> searchKaraokeVideos(@Query("q") String searchQuery);
 
+    @GET("search?part=snippet&type=video&order=relevance&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
+    Observable<ResponseSearch> searchKaraokeVideos(@Query("q") String searchQuery, @Query("maxResults") int maxResult);
+
     @GET("search?part=snippet&maxResults=15&type=video&order=relevance&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
     Observable<ResponseSearch> searchYoutubeVideoNext(@Query("q") String searchQuery, @Query("pageToken") String nextPageToken);
 

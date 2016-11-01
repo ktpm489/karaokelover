@@ -21,8 +21,8 @@ import vn.com.frankle.karaokelover.KActivityHome;
 import vn.com.frankle.karaokelover.KActivityPlayVideo;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.database.entities.ArtistWithKaraoke;
+import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.fragments.KFragmentFavorite;
-import vn.com.frankle.karaokelover.services.responses.ResponseSnippetContentDetails;
 import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 
@@ -33,17 +33,9 @@ import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 public class KHotArtistAdapter extends RecyclerView.Adapter<KHotArtistAdapter.ViewHolderHotArtist> {
 
     private Context mContext;
+    private final KHotKaraokeRecycleAdapter.OnItemClickListener mListener = this::handleOnVideoClickListener;
     private List<ArtistWithKaraoke> mHotArtists;
     private KHotKaraokeRecycleAdapter mHotKaraokes;
-
-    private final KHotKaraokeRecycleAdapter.OnItemClickListener mListener = this::handleOnVideoClickListener;
-
-    private void handleOnVideoClickListener(ResponseSnippetContentDetails item) {
-        Intent playVideoItent = new Intent(mContext, KActivityPlayVideo.class);
-        playVideoItent.putExtra("title", item.getItems().get(0).getSnippet().getTitle());
-        playVideoItent.putExtra("videoid", item.getItems().get(0).getId());
-        ((KActivityHome) mContext).startActivityForResult(playVideoItent, KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST);
-    }
 
     public KHotArtistAdapter(Context context) {
         mContext = context;
@@ -53,6 +45,13 @@ public class KHotArtistAdapter extends RecyclerView.Adapter<KHotArtistAdapter.Vi
     public KHotArtistAdapter(Context context, @NonNull List<ArtistWithKaraoke> hotArtists) {
         mContext = context;
         mHotArtists = hotArtists;
+    }
+
+    private void handleOnVideoClickListener(VideoSearchItem item) {
+        Intent playVideoItent = new Intent(mContext, KActivityPlayVideo.class);
+        playVideoItent.putExtra("title", item.getTitle());
+        playVideoItent.putExtra("videoid", item.getVideoId());
+        ((KActivityHome) mContext).startActivityForResult(playVideoItent, KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST);
     }
 
     @Override

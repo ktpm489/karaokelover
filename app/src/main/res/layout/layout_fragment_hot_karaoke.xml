@@ -50,8 +50,8 @@
 
         <View
             android:id="@+id/circle_divider"
-            android:layout_width="6dp"
-            android:layout_height="6dp"
+            android:layout_width="4dp"
+            android:layout_height="4dp"
             android:layout_centerHorizontal="true"
             android:layout_margin="8dp"
             android:layout_toEndOf="@id/tv_sub_hot_count"

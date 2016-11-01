@@ -49,7 +49,6 @@ import vn.com.frankle.karaokelover.adapters.KAdapterComments;
 import vn.com.frankle.karaokelover.adapters.viewholders.ViewHolderComment;
 import vn.com.frankle.karaokelover.events.EventPrepareRecordingCountdown;
 import vn.com.frankle.karaokelover.services.responses.ResponseCommentThreads;
-import vn.com.frankle.karaokelover.util.KSharedPreference;
 import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.views.recyclerview.InsetDividerDecoration;
 

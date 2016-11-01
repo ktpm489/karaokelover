@@ -18,9 +18,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.subscriptions.CompositeSubscription;
 import vn.com.frankle.karaokelover.R;
-import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.database.entities.ArtistWithKaraoke;
-import vn.com.frankle.karaokelover.services.responses.ResponseSnippetContentDetails;
+import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 
 /**
  * Created by duclm on 7/17/2016.
@@ -28,21 +27,16 @@ import vn.com.frankle.karaokelover.services.responses.ResponseSnippetContentDeta
 
 public class KHotKaraokeRecycleAdapter extends RecyclerView.Adapter<KHotKaraokeRecycleAdapter.ViewHolder> {
 
-    private Context mContext;
-    private List<ResponseSnippetContentDetails> mYoutubeKaraokes;
     private final OnItemClickListener mListener;
-
-    public interface OnItemClickListener {
-        void onItemClick(ResponseSnippetContentDetails item);
-    }
-
     @NonNull
     private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
+    private Context mContext;
+    private List<VideoSearchItem> mYoutubeKaraokes;
 
     public KHotKaraokeRecycleAdapter(Context context, ArtistWithKaraoke artistWithKaraoke, OnItemClickListener onItemClickListener) {
         mContext = context;
         mYoutubeKaraokes = new ArrayList<>();
-        mYoutubeKaraokes = artistWithKaraoke.getResponseYoutubeVideos();
+        mYoutubeKaraokes = artistWithKaraoke.getVideoList();
         mListener = onItemClickListener;
     }
 
@@ -59,15 +53,19 @@ public class KHotKaraokeRecycleAdapter extends RecyclerView.Adapter<KHotKaraokeR
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        ResponseSnippetContentDetails youtubeKaraoke = mYoutubeKaraokes.get(position);
+        VideoSearchItem videoItem = mYoutubeKaraokes.get(position);
 
         // Set item views based on your views and data model
-        holder.bind(mContext, youtubeKaraoke, mListener);
+        holder.bind(mContext, videoItem, mListener);
     }
 
     @Override
     public int getItemCount() {
         return mYoutubeKaraokes.size();
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(VideoSearchItem item);
     }
 
     // Provide a direct reference to each of the views within a data item
@@ -92,10 +90,18 @@ public class KHotKaraokeRecycleAdapter extends RecyclerView.Adapter<KHotKaraokeR
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(final Context context, final ResponseSnippetContentDetails item, final OnItemClickListener listener) {
-            title.setText(item.getItems().get(0).getSnippet().getTitle());
-            duration.setText(Utils.convertYoutubeTimeformat(item.getItems().get(0).getContentDetails().getDuration()));
-            Glide.with(context).load(Utils.getThumbnailURL(item.getItems().get(0).getSnippet().getThumbnails()))
+//        public void bind(final Context context, final ResponseSnippetContentDetails item, final OnItemClickListener listener) {
+//            title.setText(item.getItems().get(0).getSnippet().getTitle());
+//            duration.setText(Utils.convertYoutubeTimeformat(item.getItems().get(0).getContentDetails().getDuration()));
+//            Glide.with(context).load(Utils.getThumbnailURL(item.getItems().get(0).getSnippet().getThumbnails()))
+//                    .placeholder(R.drawable.drawable_default_preview).into(preview);
+//            itemView.setOnClickListener(v -> listener.onItemClick(item));
+//        }
+
+        public void bind(final Context context, final VideoSearchItem item, final OnItemClickListener listener) {
+            title.setText(item.getTitle());
+            duration.setText(item.getDuration());
+            Glide.with(context).load(item.getThumbnails())
                     .placeholder(R.drawable.drawable_default_preview).into(preview);
             itemView.setOnClickListener(v -> listener.onItemClick(item));
         }

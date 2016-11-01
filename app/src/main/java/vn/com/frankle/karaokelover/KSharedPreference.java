@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover.util;
+package vn.com.frankle.karaokelover;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -8,7 +8,15 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
 
 /**
  * Created by duclm on 9/18/2016.
@@ -16,9 +24,13 @@ import java.util.List;
 
 public class KSharedPreference {
 
-    public static final String PREFS_KARAOKETUBE = "KARAOKE_TUBE";
+    private static final String PREFS_KARAOKETUBE = "KARAOKE_TUBE";
 
-    public static final String KEY_FAVOURITES = "karaoke_favourite";
+    private static final String KEY_FAVOURITES = "karaoke_favourite";
+    private static final String KEY_FAVOURITE_ARTISTS = "karaoke_favourite_artist";
+
+    private String defaultFavoriteArtists[] = {"Backstreet Boys", "Trung Quân Idol", "Sơn Tùng MTP"};
+    private final Set<String> DEFAULT_FAVORITE_ARTISTS = new HashSet<>(Arrays.asList(defaultFavoriteArtists));
 
     public KSharedPreference() {
         super();
@@ -96,5 +108,24 @@ public class KSharedPreference {
     public boolean isInFavoriteList(Context context, String videoId) {
         ArrayList<String> listFavorite = getFavoritesVideo(context);
         return listFavorite.contains(videoId);
+    }
+
+
+    /**
+     * Get list of favourite artists
+     */
+    public ArrayList<String> getFavouriteArtists(Context context) {
+        SharedPreferences sf = context.getSharedPreferences(PREFS_KARAOKETUBE, Context.MODE_PRIVATE);
+
+        ArrayList<String> favouriteArtists = new ArrayList<>();
+
+        if (sf.contains(KEY_FAVOURITE_ARTISTS)) {
+            Set<String> artistsSet = sf.getStringSet(KEY_FAVOURITE_ARTISTS, DEFAULT_FAVORITE_ARTISTS);
+            favouriteArtists.addAll(artistsSet);
+        } else {
+            favouriteArtists.addAll(DEFAULT_FAVORITE_ARTISTS);
+        }
+
+        return favouriteArtists;
     }
 }

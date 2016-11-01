@@ -30,7 +30,7 @@ import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.adapters.KAdapterYoutbeVideoSearchLimit;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
-import vn.com.frankle.karaokelover.util.KSharedPreference;
+import vn.com.frankle.karaokelover.KSharedPreference;
 import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 
@@ -129,8 +129,6 @@ public class KFragmentFavorite extends Fragment {
         View layout = inflater.inflate(R.layout.layout_fragment_my_favorite, container, false);
 
         ButterKnife.bind(this, layout);
-
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("My Favorites");
 
         setupFavoriteView();
 

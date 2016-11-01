@@ -80,7 +80,7 @@ public class SeekbarPreference extends DialogPreference implements SeekBar.OnSee
         super.onBindDialogView(view);
 
         ButterKnife.bind(this, view);
-        
+
         mCurrentValue = getPersistedInt(DEFAULT_CURRENT_VALUE);
 
         mSeekbar.setMax((mMaxValue - mMinValue) / mInterval);

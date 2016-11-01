@@ -44,4 +44,7 @@
     <string name="prefs_category_audio">Audio</string>
     <string name="prefs_audio_volume_title">Beat volume</string>
     <string name="prefs_audio_volume_summary">Adjust volume of beat when recording directly from device\'s microphone.</string>
+
+    <!-- Activites -->
+    <string name="msg_no_connection">Oops! Can\'t retrieve data.\nMake sure your network connection is active and try again.</string>
 </resources>

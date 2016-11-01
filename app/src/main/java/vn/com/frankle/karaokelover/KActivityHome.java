@@ -197,6 +197,7 @@ public class KActivityHome extends AppCompatActivity
     private void showFragment(int fragmentToShow) {
         switch (fragmentToShow) {
             case FRAGMENT_HOME:
+                mToolbar.setTitle("Karaoke Lover");
                 mTabLayout.setVisibility(View.GONE);
                 if (mHomeFragment == null || !mHomeFragment.isVisible()) {
                     if (mFavoriteFragment != null && mFavoriteFragment.isVisible()) {
@@ -217,6 +218,7 @@ public class KActivityHome extends AppCompatActivity
                 }
                 break;
             case FRAGMENT_ARTIST:
+                mToolbar.setTitle("Artists");
                 mTabLayout.setVisibility(View.VISIBLE);
                 if (mArtistFragment == null || !mArtistFragment.isVisible()) {
                     if (mFavoriteFragment != null && mFavoriteFragment.isVisible()) {
@@ -238,6 +240,7 @@ public class KActivityHome extends AppCompatActivity
                 }
                 break;
             case FRAGMENT_FAVORITE:
+                mToolbar.setTitle("My Favorites");
                 mTabLayout.setVisibility(View.GONE);
                 if (mFavoriteFragment == null || !mFavoriteFragment.isVisible()) {
                     if (mArtistFragment != null && mArtistFragment.isVisible()) {
@@ -274,6 +277,7 @@ public class KActivityHome extends AppCompatActivity
         } else if (id == R.id.nav_my_recording) {
             // Set flag to indicate that this item has been clicked
             mFlagNavMyRecording = true;
+            item.setChecked(false);
         } else if (id == R.id.nav_artists) {
             showFragment(FRAGMENT_ARTIST);
         } else if (id == R.id.nav_favorite) {

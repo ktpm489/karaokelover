@@ -3,6 +3,7 @@ package vn.com.frankle.karaokelover.database.entities;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import vn.com.frankle.karaokelover.services.responses.ResponseSnippetContentDetails;
@@ -21,6 +22,8 @@ public final class ArtistWithKaraoke {
 
     private List<ResponseSnippetContentDetails> responseYoutubeVideos;
 
+    private List<VideoSearchItem> mVideosList;
+
     public ArtistWithKaraoke() {
         artist = null;
         karaokes = null;
@@ -37,22 +40,11 @@ public final class ArtistWithKaraoke {
         this.karaokes = unmodifiableList(karaokes); // We prefer immutable entities
     }
 
-    @NonNull
-    public String getArtist() {
-        return artist;
-    }
-
-    @NonNull
-    public List<String> getKaraokes() {
-        return karaokes;
-    }
-
-    public void setArtist(String artist) {
+    public ArtistWithKaraoke(String artist, List<String> karaokes, List<ResponseSnippetContentDetails> listYoutubeVideos, List<VideoSearchItem> listVideosSearch) {
         this.artist = artist;
-    }
-
-    public void setKaraokes(List<String> karaokes) {
         this.karaokes = karaokes;
+        this.responseYoutubeVideos = listYoutubeVideos;
+        this.mVideosList = listVideosSearch;
     }
 
     public static ArtistWithKaraoke getInstance(List<KaraokeAndArtist> list) {
@@ -63,11 +55,42 @@ public final class ArtistWithKaraoke {
         return new ArtistWithKaraoke(list.get(0).getArtist(), video_ids);
     }
 
+    public String debugGetVideoTitleList() {
+        ArrayList<String> titleList = new ArrayList<>();
+        for (int i = 0; i < mVideosList.size(); i++) {
+            titleList.add(mVideosList.get(i).getTitle());
+        }
+
+        return Arrays.toString(titleList.toArray());
+    }
+
+    @NonNull
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    @NonNull
+    public List<String> getKaraokes() {
+        return karaokes;
+    }
+
+    public void setKaraokes(List<String> karaokes) {
+        this.karaokes = karaokes;
+    }
+
     public List<ResponseSnippetContentDetails> getResponseYoutubeVideos() {
         return responseYoutubeVideos;
     }
 
     public void setResponseYoutubeVideos(List<ResponseSnippetContentDetails> responseYoutubeVideos) {
         this.responseYoutubeVideos = responseYoutubeVideos;
+    }
+
+    public List<VideoSearchItem> getVideoList() {
+        return this.mVideosList;
     }
 }

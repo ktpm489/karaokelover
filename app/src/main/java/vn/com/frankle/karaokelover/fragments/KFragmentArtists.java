@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,10 +21,9 @@ import vn.com.frankle.karaokelover.adapters.KFragmentAdapterArtists;
 
 public class KFragmentArtists extends Fragment {
 
-    private Context mContext;
-
     @BindView(R.id.viewpager_artist)
     ViewPager mViewPager;
+    private Context mContext;
 
     @Override
     public void onAttach(Context context) {
@@ -45,8 +43,6 @@ public class KFragmentArtists extends Fragment {
         View layout = inflater.inflate(R.layout.layout_fragment_artist_list, container, false);
 
         ButterKnife.bind(this, layout);
-
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Artists");
 
         mViewPager.setAdapter(new KFragmentAdapterArtists(getFragmentManager(), mContext));
         mViewPager.setOffscreenPageLimit(2);

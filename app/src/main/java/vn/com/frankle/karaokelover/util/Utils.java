@@ -2,6 +2,8 @@ package vn.com.frankle.karaokelover.util;
 
 import android.content.Context;
 import android.media.MediaMetadataRetriever;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 import android.util.TypedValue;
 
@@ -228,5 +230,16 @@ public class Utils {
         return !recordFile.exists();
     }
 
+    /**
+     * Check if device's network is available
+     *
+     * @param context : context
+     * @return true : if device is connecting to the internet
+     */
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnected();
+    }
 
 }
