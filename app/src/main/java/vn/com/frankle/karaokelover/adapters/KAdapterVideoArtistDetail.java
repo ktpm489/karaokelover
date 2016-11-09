@@ -23,8 +23,8 @@ public class KAdapterVideoArtistDetail extends RecyclerViewEndlessScrollBaseAdap
     private ZingArtistDetail mArtistInfo;
     private OnReadMoreClickListener onReadMoreListener;
 
-    public KAdapterVideoArtistDetail(Context context) {
-        super(context);
+    public KAdapterVideoArtistDetail(Context context, OnItemClickListener<VideoSearchItem> onItemClickListener) {
+        super(context, onItemClickListener);
         mArtistInfo = null;
     }
 
@@ -98,7 +98,7 @@ public class KAdapterVideoArtistDetail extends RecyclerViewEndlessScrollBaseAdap
         this.mArtistInfo = artistInfo;
         notifyDataSetChanged();
     }
-    
+
     public void setOnReadMoreListener(OnReadMoreClickListener listener) {
         this.onReadMoreListener = listener;
     }

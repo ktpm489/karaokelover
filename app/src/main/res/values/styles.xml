@@ -6,6 +6,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/background_dark</item>
+        <item name="android:popupMenuStyle">@style/KaraokeLoverTheme.PopupMenu</item>
     </style>
 
     <style name="KaraokeLoverTheme.NoActionBar">
@@ -127,5 +128,31 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/background_dark</item>
     </style>
+
+    <!-- Popup Menu style -->
+    <style name="KaraokeLoverTheme.PopupMenuTextAppearanceSmall" parent="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small">
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="KaraokeLoverTheme.PopupMenuTextAppearanceLarge" parent="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Large">
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="KaraokeLoverTheme.PopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@color/colorPrimary</item>
+        <item name="android:textAppearanceLargePopupMenu">
+            @style/KaraokeLoverTheme.PopupMenuTextAppearanceLarge
+        </item>
+        <item name="textAppearanceLargePopupMenu">
+            @style/KaraokeLoverTheme.PopupMenuTextAppearanceLarge
+        </item>
+        <item name="android:textAppearanceSmallPopupMenu">
+            @style/KaraokeLoverTheme.PopupMenuTextAppearanceSmall
+        </item>
+        <item name="textAppearanceSmallPopupMenu">
+            @style/KaraokeLoverTheme.PopupMenuTextAppearanceSmall
+        </item>
+    </style>
+    <!-- End of Popup Menu style -->
 
 </resources>

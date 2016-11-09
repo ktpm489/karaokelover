@@ -17,8 +17,8 @@ import vn.com.frankle.karaokelover.services.responses.zingmp3.ZingArtist;
 public class KAdapterZingArtist extends RecyclerViewEndlessScrollBaseAdapter<ZingArtist> {
 
 
-    public KAdapterZingArtist(Context context) {
-        super(context);
+    public KAdapterZingArtist(Context context, OnItemClickListener<ZingArtist> onItemClickListener) {
+        super(context, onItemClickListener);
     }
 
 

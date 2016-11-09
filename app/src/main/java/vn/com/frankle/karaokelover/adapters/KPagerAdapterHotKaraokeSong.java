@@ -5,11 +5,13 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
+import android.view.ViewGroup;
 
 import java.util.List;
 
-import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
+import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.views.FragmentHotKaraoke;
 
 /**
@@ -17,6 +19,8 @@ import vn.com.frankle.karaokelover.views.FragmentHotKaraoke;
  */
 
 public class KPagerAdapterHotKaraokeSong extends FragmentStatePagerAdapter {
+    private static final String DEBUG_TAG = KPagerAdapterHotKaraokeSong.class.getSimpleName();
+
     private static final int MAX_HOT_KARAOKE = 5;
 
     private Context mContext;
@@ -30,6 +34,8 @@ public class KPagerAdapterHotKaraokeSong extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
+        Log.d(DEBUG_TAG, "getItem: position = " + position);
+
         ResponseSnippetStatistics karaoke = mListHotTrendKaraokes.get(position);
         Bundle args = new Bundle();
         args.putString("title", karaoke.getItems().get(0).getSnippet().getTitle());
@@ -40,6 +46,13 @@ public class KPagerAdapterHotKaraokeSong extends FragmentStatePagerAdapter {
         FragmentHotKaraoke fragmentItem = new FragmentHotKaraoke();
         fragmentItem.setArguments(args);
         return fragmentItem;
+    }
+
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        Log.d(DEBUG_TAG, "instantiateItem: position = " + position);
+        FragmentHotKaraoke createdFragment = (FragmentHotKaraoke) super.instantiateItem(container, position);
+        return createdFragment;
     }
 
     @Override

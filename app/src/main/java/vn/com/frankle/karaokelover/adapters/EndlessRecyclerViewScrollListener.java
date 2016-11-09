@@ -4,6 +4,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 
 /**
  * Created by duclm on 9/22/2016.
@@ -84,6 +85,7 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
 
         // If the total item count is zero and the previous isn't, assume the
         // list is invalidated and should be reset back to initial state
+
         if (totalItemCount < previousTotalItemCount) {
             this.currentPage = this.startingPageIndex;
             this.previousTotalItemCount = totalItemCount;

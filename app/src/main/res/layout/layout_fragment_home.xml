@@ -8,41 +8,14 @@
     tools:context="vn.com.frankle.karaokelover.KActivityHome"
     tools:showIn="@layout/app_bar_kactivity_home">
 
-    <RelativeLayout
-        android:id="@+id/layout_home_no_connection"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:background="@drawable/selector_no_connection">
-
-        <ImageView
-            android:id="@+id/imgv_no_connection"
-            android:layout_width="256dp"
-            android:layout_height="256dp"
-            android:layout_centerInParent="true"
-            android:layout_margin="32dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/drawable_no_connection" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/imgv_no_connection"
-            android:layout_centerInParent="true"
-            android:layout_margin="16dp"
-            android:gravity="center"
-            android:text="@string/msg_no_connection"
-            android:textColor="@color/text_secondary_light"
-            android:textSize="20sp" />
-    </RelativeLayout>
-
+    <include layout="@layout/content_connection_error" />
 
     <RelativeLayout
         android:id="@+id/layout_home_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <cn.yangbingqiang.android.parallaxviewpager.ParallaxViewPager
+        <com.github.ybq.parallaxviewpager.ParallaxViewPager
             android:id="@+id/cover_container_viewpager"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -22,6 +22,10 @@ public class KAdapterYoutubeVideoSearch extends RecyclerViewEndlessScrollBaseAda
         super(context);
     }
 
+    public KAdapterYoutubeVideoSearch(Context context, OnItemClickListener<VideoSearchItem> onItemClickListener) {
+        super(context, onItemClickListener);
+    }
+
     public KAdapterYoutubeVideoSearch(Context context, ArrayList<VideoSearchItem> data) {
         super(context, data);
     }

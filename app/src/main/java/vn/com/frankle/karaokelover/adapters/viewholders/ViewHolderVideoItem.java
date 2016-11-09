@@ -1,9 +1,12 @@
 package vn.com.frankle.karaokelover.adapters.viewholders;
 
 import android.content.Context;
+import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -33,10 +36,20 @@ public class ViewHolderVideoItem extends ViewHolderBase<VideoSearchItem> {
     @BindView(R.id.item_search_more)
     ImageButton btnMore;
 
+    private PopupMenu mPopupMenu;
+
     public ViewHolderVideoItem(View itemView) {
         super(itemView);
 
         ButterKnife.bind(this, itemView);
+    }
+
+    private void createPopupMenu(Menu popupMenu) {
+        popupMenu.add("Add to favorites")
+                .setOnMenuItemClickListener(item -> {
+                    Log.d("LOADMORE", "Click on context menu");
+                    return true;
+                });
     }
 
     @Override
@@ -47,6 +60,12 @@ public class ViewHolderVideoItem extends ViewHolderBase<VideoSearchItem> {
         duration.setText(dataItem.getDuration());
         Glide.with(context).load(dataItem.getThumbnails())
                 .placeholder(R.drawable.drawable_background_default).placeholder(R.drawable.drawable_background_default).into(preview);
+        btnMore.setOnClickListener(v -> {
+            mPopupMenu = new PopupMenu(v.getContext(), v);
+            createPopupMenu(mPopupMenu.getMenu());
+            mPopupMenu.setOnDismissListener(menu -> mPopupMenu = null);
+            mPopupMenu.show();
+        });
     }
 
     @Override

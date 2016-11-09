@@ -22,5 +22,6 @@ public abstract class ViewHolderBase<T> extends RecyclerView.ViewHolder {
         int HEADER = 0;
         int DATA_ITEM = 1;
         int LOADING_INDICATOR = 2;
+        int CONNECTION_ERROR = 3;
     }
 }

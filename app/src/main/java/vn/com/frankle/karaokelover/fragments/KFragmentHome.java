@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import com.github.ybq.parallaxviewpager.ParallaxViewPager;
 import com.viewpagerindicator.CirclePageIndicator;
 
 import org.json.JSONArray;
@@ -26,7 +27,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cn.yangbingqiang.android.parallaxviewpager.ParallaxViewPager;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -65,7 +65,7 @@ public class KFragmentHome extends Fragment {
     ProgressBar mProgressBarHotArtist;
     @BindView(R.id.layout_home_content)
     RelativeLayout mLayoutContent;
-    @BindView(R.id.layout_home_no_connection)
+    @BindView(R.id.layout_connection_error)
     RelativeLayout mLayoutNoConnection;
 
     private Context mContext;

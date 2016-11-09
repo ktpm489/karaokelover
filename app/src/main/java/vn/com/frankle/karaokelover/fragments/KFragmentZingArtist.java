@@ -29,6 +29,7 @@ import vn.com.frankle.karaokelover.KApplication;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener;
 import vn.com.frankle.karaokelover.adapters.KAdapterZingArtist;
+import vn.com.frankle.karaokelover.adapters.RecyclerViewEndlessScrollBaseAdapter;
 import vn.com.frankle.karaokelover.services.responses.zingmp3.ResponseListArtist;
 import vn.com.frankle.karaokelover.services.responses.zingmp3.ZingArtist;
 import vn.com.frankle.karaokelover.util.Utils;
@@ -52,6 +53,17 @@ public class KFragmentZingArtist extends Fragment {
     private Context mContext;
     private int mArtistType;
     private KAdapterZingArtist mAdapter;
+    private RecyclerViewEndlessScrollBaseAdapter.OnItemClickListener<ZingArtist> mOnItemClickListener = new RecyclerViewEndlessScrollBaseAdapter.OnItemClickListener<ZingArtist>() {
+        @Override
+        public void onDataItemClick(ZingArtist dataItem) {
+            handleArtistItemClick(dataItem);
+        }
+
+        @Override
+        public void onErrorLoadMoreRetry() {
+
+        }
+    };
 
     public static KFragmentZingArtist newInstance(int artistType) {
         Log.d(DEBUG_TAG, "Create fragment for artistype = " + artistType);
@@ -194,9 +206,7 @@ public class KFragmentZingArtist extends Fragment {
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(mContext, 16), SpaceItemDecoration.VERTICAL));
-        mAdapter = new KAdapterZingArtist(mContext);
-        Observable<ZingArtist> obsItemClickListener = mAdapter.onItemClickListener();
-        compositeSubscriptionForOnStop.add(obsItemClickListener.subscribe(this::handleArtistItemClick));
+        mAdapter = new KAdapterZingArtist(mContext, mOnItemClickListener);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override

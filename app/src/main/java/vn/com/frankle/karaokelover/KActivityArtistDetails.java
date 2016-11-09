@@ -36,6 +36,7 @@ import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener;
 import vn.com.frankle.karaokelover.adapters.KAdapterVideoArtistDetail;
+import vn.com.frankle.karaokelover.adapters.RecyclerViewEndlessScrollBaseAdapter;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
 import vn.com.frankle.karaokelover.services.responses.zingmp3.ZingArtistDetail;
@@ -82,6 +83,18 @@ public class KActivityArtistDetails extends AppCompatActivity {
     private String mArtistId;
     private String mArtistAvatarUrl;
     private String mNextPageToken;
+
+    private RecyclerViewEndlessScrollBaseAdapter.OnItemClickListener<VideoSearchItem> onItemClickListener = new RecyclerViewEndlessScrollBaseAdapter.OnItemClickListener<VideoSearchItem>() {
+        @Override
+        public void onDataItemClick(VideoSearchItem dataItem) {
+            handleVideoItemClick(dataItem);
+        }
+
+        @Override
+        public void onErrorLoadMoreRetry() {
+
+        }
+    };
 
 
     @SuppressWarnings("ConstantConditions")
@@ -137,9 +150,7 @@ public class KActivityArtistDetails extends AppCompatActivity {
         mListSongs.setLayoutManager(layoutManager);
         mListSongs.setHasFixedSize(true);
         mListSongs.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(this, 16), SpaceItemDecoration.VERTICAL));
-        mArtistDetailAdapter = new KAdapterVideoArtistDetail(this);
-        Observable<VideoSearchItem> itemClickObservable = mArtistDetailAdapter.onItemClickListener();
-        compositeSubscriptionForOnStop.add(itemClickObservable.subscribe(this::handleVideoItemClick));
+        mArtistDetailAdapter = new KAdapterVideoArtistDetail(this, onItemClickListener);
         mListSongs.setAdapter(mArtistDetailAdapter);
         mListSongs.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override

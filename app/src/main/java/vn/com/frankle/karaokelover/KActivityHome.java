@@ -18,6 +18,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,6 +34,8 @@ import vn.com.frankle.karaokelover.util.Utils;
 
 public class KActivityHome extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    private static final String KEY_MENU_SELECTED_ITEM = "key_menu_selected_item";
+
 
     private static final int PERMISSION_AUDIO_RECORD = 0;
     private static final int RC_SEARCH = 0;
@@ -50,8 +53,10 @@ public class KActivityHome extends AppCompatActivity
     TabLayout mTabLayout;
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
+    @BindView(R.id.nav_view)
+    NavigationView mNavigationView;
 
-    private boolean mFlagNavMyRecording = false;
+    private boolean mFlagWaitDrawerClosed = false;
 
     private int mPhyScreenWidthInPixel;
 
@@ -59,6 +64,8 @@ public class KActivityHome extends AppCompatActivity
     private KFragmentHome mHomeFragment;
     private KFragmentArtists mArtistFragment;
     private KFragmentFavorite mFavoriteFragment;
+
+    private int mCurrentSelectedMenuItem;
 
     @Override
     protected void onStart() {
@@ -76,6 +83,22 @@ public class KActivityHome extends AppCompatActivity
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.d(DEBUG_TAG, "onSaveInstanceState");
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_MENU_SELECTED_ITEM, this.mCurrentSelectedMenuItem);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.d(DEBUG_TAG, "onRestoreInstanceState");
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            this.mCurrentSelectedMenuItem = savedInstanceState.getInt(KEY_MENU_SELECTED_ITEM);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_activity_home);
@@ -86,7 +109,7 @@ public class KActivityHome extends AppCompatActivity
         // Set up Navigation View
         setUpNavigationView();
 
-        showFragment(FRAGMENT_HOME);
+        loadFragment(FRAGMENT_HOME);
 
         //Request for needed permission (INTERNET, STORAGE)
         requestPermission();
@@ -123,12 +146,19 @@ public class KActivityHome extends AppCompatActivity
                 this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override
             public void onDrawerClosed(View drawerView) {
-                if (mFlagNavMyRecording) {
+                if (mFlagWaitDrawerClosed) {
                     // Reset flag
-                    mFlagNavMyRecording = false;
-
-                    Intent intent = new Intent(KActivityHome.this, KActivityMyRecording.class);
-                    startActivity(intent);
+                    mFlagWaitDrawerClosed = false;
+                    switch (mCurrentSelectedMenuItem) {
+                        case R.id.nav_my_recording:
+                            Intent intent = new Intent(KActivityHome.this, KActivityMyRecording.class);
+                            startActivity(intent);
+                            break;
+                        case R.id.nav_setting:
+                            Intent setting = new Intent(KActivityHome.this, KActivitySettings.class);
+                            startActivity(setting);
+                            break;
+                    }
                 }
             }
         };
@@ -144,14 +174,13 @@ public class KActivityHome extends AppCompatActivity
         display.getSize(size);
         mPhyScreenWidthInPixel = size.x;
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         /**
          * Navigation Drawer width is the minimum (NavDrawerMaxWidth , (ScreenSize — ActionBarSize))
          * where NavDrawerMaxWidth is 320 dp for phones and 400 dp for tablets.
          **/
-        navigationView.getLayoutParams().width = Utils.convertDpToPixel(this, Math.min(320, mPhysicScreenWidthInDp - 56));
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.getMenu().getItem(0).setChecked(true);
+        mNavigationView.getLayoutParams().width = Utils.convertDpToPixel(this, Math.min(320, mPhysicScreenWidthInDp - 56));
+        mNavigationView.setNavigationItemSelectedListener(this);
+        mNavigationView.getMenu().getItem(0).setChecked(true);
     }
 
     @Override
@@ -194,7 +223,7 @@ public class KActivityHome extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void showFragment(int fragmentToShow) {
+    private void loadFragment(int fragmentToShow) {
         switch (fragmentToShow) {
             case FRAGMENT_HOME:
                 mToolbar.setTitle("Karaoke Lover");
@@ -267,24 +296,21 @@ public class KActivityHome extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        FragmentManager fm = getSupportFragmentManager();
-
         int id = item.getItemId();
 
+        this.mCurrentSelectedMenuItem = id;
+
         if (id == R.id.nav_home) {
-            showFragment(FRAGMENT_HOME);
+            loadFragment(FRAGMENT_HOME);
         } else if (id == R.id.nav_my_recording) {
             // Set flag to indicate that this item has been clicked
-            mFlagNavMyRecording = true;
-            item.setChecked(false);
+            mFlagWaitDrawerClosed = true;
         } else if (id == R.id.nav_artists) {
-            showFragment(FRAGMENT_ARTIST);
+            loadFragment(FRAGMENT_ARTIST);
         } else if (id == R.id.nav_favorite) {
-            showFragment(FRAGMENT_FAVORITE);
+            loadFragment(FRAGMENT_FAVORITE);
         } else if (id == R.id.nav_setting) {
-            Intent setting = new Intent(this, KActivitySettings.class);
-            startActivity(setting);
+            mFlagWaitDrawerClosed = true;
         } else if (id == R.id.nav_exit) {
 
         }

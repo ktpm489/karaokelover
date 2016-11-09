@@ -47,4 +47,5 @@
 
     <!-- Activites -->
     <string name="msg_no_connection">Oops! Can\'t retrieve data.\nMake sure your network connection is active and try again.</string>
+    <string name="msg_load_more_error">Error! Tap to try again.</string>
 </resources>
