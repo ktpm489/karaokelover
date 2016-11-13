@@ -17,6 +17,7 @@
     <color name="text_secondary_light">#b3ffffff</color> <!-- 70% -->
     <color name="text_thirdly_light">#80ffffff</color> <!-- 70% -->
     <color name="text_disabled_light">#1fffffff</color> <!-- 50% -->
+    <color name="ripple">#43FF5722</color> <!-- 26% of color accent -->
 
     <!-- Common colors for Light Theme -->
     <color name="text_primary_dark">#de000000</color> <!-- 87% -->

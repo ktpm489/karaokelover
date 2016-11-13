@@ -76,7 +76,7 @@
         android:background="@color/background_dark">
 
         <ProgressBar
-            android:id="@android:id/empty"
+            android:id="@+id/progressbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:indeterminate="true"

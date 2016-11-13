@@ -1,10 +1,12 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    compileSdkVersion 25
+    buildToolsVersion "24.0.3"
     defaultConfig {
         applicationId "vn.com.frankle.karaokelover"
         minSdkVersion 21
@@ -31,16 +33,20 @@ android {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
 }
 
 repositories {
     maven {
         url "https://jitpack.io"
     }
+    mavenCentral()
 }
 
 ext {
-    supportLibVersion = '24.2.1'
+    supportLibVersion = '25.0.0'
 }
 
 dependencies {
@@ -61,7 +67,7 @@ dependencies {
     compile "com.android.support:recyclerview-v7:${supportLibVersion}"
     compile "com.android.support:percent:${supportLibVersion}"
 
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha4'
+//    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha8'
     compile 'com.github.JakeWharton:ViewPagerIndicator:2.4.1@aar'
     compile 'com.jakewharton:butterknife:8.2.1'
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
@@ -100,4 +106,5 @@ dependencies {
     apt 'org.parceler:parceler:1.1.5'
     provided 'org.glassfish:javax.annotation:10.0-b28'
     provided 'javax.annotation:jsr250-api:1.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }

@@ -213,7 +213,7 @@ public class KActivityHome extends AppCompatActivity
             View searchMenuView = mToolbar.findViewById(R.id.menu_search);
             int[] loc = new int[2];
             searchMenuView.getLocationOnScreen(loc);
-            startActivityForResult(KActivitySearch.createStartIntent(this, loc[0], loc[0] +
+            startActivityForResult(KActivitySearch.Companion.createStartIntent(this, loc[0], loc[0] +
                     (searchMenuView.getWidth() / 2)), RC_SEARCH, ActivityOptions
                     .makeSceneTransitionAnimation(this).toBundle());
             searchMenuView.setAlpha(0f);
@@ -330,8 +330,8 @@ public class KActivityHome extends AppCompatActivity
                 if (searchMenuView != null) {
                     searchMenuView.setAlpha(1f);
                 }
-                if (resultCode == KActivitySearch.RESULT_CODE_SAVE) {
-                    String query = data.getStringExtra(KActivitySearch.EXTRA_QUERY);
+                if (resultCode == KActivitySearch.Companion.getRESULT_CODE_SAVE()) {
+                    String query = data.getStringExtra(KActivitySearch.Companion.getEXTRA_QUERY());
                     if (TextUtils.isEmpty(query)) return;
                 }
                 break;
