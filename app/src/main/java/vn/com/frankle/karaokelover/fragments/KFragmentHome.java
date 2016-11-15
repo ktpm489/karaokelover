@@ -182,7 +182,7 @@ public class KFragmentHome extends Fragment {
         return Observable.from(trendVideoIdList)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(s -> KApplication.getRxYoutubeAPIService().getYoutubeVideoById(s))
+                .flatMap(s -> KApplication.rxYoutubeAPIService.getYoutubeVideoById(s))
                 .toList();
     }
 
@@ -196,7 +196,7 @@ public class KFragmentHome extends Fragment {
         Log.d(DEBUG_TAG, "favouriteArtistList = " + Arrays.toString(favouriteArtistList.toArray()));
 
         return Observable.from(favouriteArtistList)
-                .flatMap(s -> KApplication.getRxYoutubeAPIService().searchKaraokeVideos(s + " karaoke", 5)
+                .flatMap(s -> KApplication.rxYoutubeAPIService.searchKaraokeVideos(s + " karaoke", 5)
                         .flatMap(responseSearch -> Observable.from(responseSearch.getItems())
                                 .flatMap(ReactiveHelper::getStatisticsContentDetails)
                                 .toList()

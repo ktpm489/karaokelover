@@ -112,7 +112,7 @@ public class KActivityMyRecording extends AppCompatActivity {
     }
 
     private void loadMyRecordings() {
-        File recordingDir = new File(KApplication.RECORDING_DIRECTORY_URI);
+        File recordingDir = new File(KApplication.Companion.getRECORDING_DIRECTORY_URI());
 
 
         File recordings[] = recordingDir.listFiles(new RecordingFileFilter());

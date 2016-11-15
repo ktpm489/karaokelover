@@ -222,7 +222,7 @@ public class Utils {
      * @return true : if this filename is avai
      */
     public static boolean isAvailableFilename(String filename) {
-        File recordFileDir = new File(KApplication.RECORDING_DIRECTORY_URI);
+        File recordFileDir = new File(KApplication.Companion.getRECORDING_DIRECTORY_URI());
         if (!recordFileDir.exists()) {
             return true;
         }

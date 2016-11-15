@@ -32,8 +32,12 @@ import android.view.inputmethod.EditorInfo
 import android.widget.SearchView
 import android.widget.Toast
 import butterknife.OnClick
+import com.pushtorefresh.storio.sqlite.StorIOSQLite
+import com.pushtorefresh.storio.sqlite.operations.put.PutResult
 import kotlinx.android.synthetic.main.content_connection_error.*
 import kotlinx.android.synthetic.main.layout_activity_search.*
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import rx.Observable
 import rx.Subscriber
 import rx.android.schedulers.AndroidSchedulers
@@ -42,7 +46,9 @@ import rx.subscriptions.CompositeSubscription
 import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener
 import vn.com.frankle.karaokelover.adapters.KAdapterYoutubeVideoSearch
 import vn.com.frankle.karaokelover.adapters.RecyclerViewEndlessScrollBaseAdapter
+import vn.com.frankle.karaokelover.database.entities.Favorite
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem
+import vn.com.frankle.karaokelover.events.EventPopupMenuItemClick
 import vn.com.frankle.karaokelover.services.ReactiveHelper
 import vn.com.frankle.karaokelover.util.AnimUtils
 import vn.com.frankle.karaokelover.util.ImeUtils
@@ -50,12 +56,16 @@ import vn.com.frankle.karaokelover.util.Utils
 import vn.com.frankle.karaokelover.util.ViewUtils
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration
 import vn.com.frankle.karaokelover.views.widgets.BaselineGridTextView
+import javax.inject.Inject
+
 
 /**
  * Created by duclm on 7/31/2016.
  */
 
 class KActivitySearch : AppCompatActivity() {
+
+    @Inject lateinit var storIOSqlite: StorIOSQLite
 
     private val compositeSubscriptionForOnStop = CompositeSubscription()
 
@@ -84,6 +94,10 @@ class KActivitySearch : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val application = application as KApplication
+        application.appComponent.inject(this)
+
         setContentView(R.layout.layout_activity_search)
         setupSearchView()
         setupSearchResultView()
@@ -207,8 +221,14 @@ class KActivitySearch : AppCompatActivity() {
         super.onPause()
     }
 
+    override fun onStart() {
+        super.onStart()
+        KApplication.eventBus.register(this)
+    }
+
     override fun onStop() {
         super.onStop()
+        KApplication.eventBus.unregister(this)
     }
 
 
@@ -406,7 +426,7 @@ class KActivitySearch : AppCompatActivity() {
 
             val karaokeQuery = mCurrentSearchQuery!! + " karaoke"
 
-            val searchRequest: Observable<List<VideoSearchItem>> = KApplication.getRxYoutubeAPIService()
+            val searchRequest: Observable<List<VideoSearchItem>> = KApplication.rxYoutubeAPIService
                     .searchKaraokeVideos(karaokeQuery)
                     .flatMap {
                         mNextPageToken = it.nextPageToken
@@ -444,7 +464,7 @@ class KActivitySearch : AppCompatActivity() {
         Log.d(DEBUG_TAG, "Load more videos: mCurrentToken = " + mNextPageToken!!)
         val karaokeQuery = mCurrentSearchQuery!! + " karaoke"
 
-        val loadMoreRequest: Observable<List<VideoSearchItem>> = KApplication.getRxYoutubeAPIService()
+        val loadMoreRequest: Observable<List<VideoSearchItem>> = KApplication.rxYoutubeAPIService
                 .searchYoutubeVideoNext(karaokeQuery, mNextPageToken!!)
                 .flatMap {
                     mNextPageToken = it.nextPageToken
@@ -483,6 +503,36 @@ class KActivitySearch : AppCompatActivity() {
             progressbar!!.visibility = View.VISIBLE
         }
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onPopupMenuItemClick(event: EventPopupMenuItemClick) {
+        val obsAddToFavoriteDB: Observable<PutResult> =
+                storIOSqlite.put().`object`(Favorite.newFavorite(event.dataItem.videoId, 0))
+                        .prepare()
+                        .asRxObservable()
+
+        compositeSubscriptionForOnStop.add(obsAddToFavoriteDB
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    object : Subscriber<PutResult>() {
+                        override fun onNext(t: PutResult?) {
+                            Toast.makeText(this@KActivitySearch, "Saved to favorite list!", Toast.LENGTH_SHORT).show()
+                            Log.d("FAVORITE", "Saved to db: " + t.toString())
+                        }
+
+                        override fun onError(e: Throwable?) {
+                            Toast.makeText(this@KActivitySearch, "Error saving to favorite list. Please try again!", Toast.LENGTH_SHORT).show()
+                            Log.e("FAVORITE", "Error save to db: " + e!!.message)
+                        }
+
+                        override fun onCompleted() {
+                        }
+                    }
+                }
+        )
+    }
+
 
     companion object {
         val DEBUG_TAG = KActivitySearch::class.java.simpleName

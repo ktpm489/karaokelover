@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.webkit.WebView;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -49,7 +48,7 @@ public class YoutubeAudioDownloadService extends IntentService {
         mCurrentVideoId = intent.getStringExtra("videoId");
         mVideoTitle = intent.getStringExtra("title");
 
-        KApplication.eventBus.post(new EventDownloadAudioPreparing());
+        KApplication.Companion.getEventBus().post(new EventDownloadAudioPreparing());
 
         new Thread(() -> {
             int retry = 0;
@@ -61,7 +60,7 @@ public class YoutubeAudioDownloadService extends IntentService {
                     return;
                 }
 
-                Call<ResponseBody> requestAudioUrl = KApplication.getYoutubeInMp3APIService().downloadAudioFile(audioUrl.substring(16));
+                Call<ResponseBody> requestAudioUrl = KApplication.youtubeInMp3APIService.downloadAudioFile(audioUrl.substring(16));
                 try {
                     ResponseBody audioContent = requestAudioUrl.execute().body();
                     if (audioContent.contentLength() < 0) {
@@ -71,7 +70,7 @@ public class YoutubeAudioDownloadService extends IntentService {
                         ++retry;
                     } else {
                         Log.d(TAG, "Successful retry. Start downloading...");
-                        KApplication.eventBus.post(new EventDownloadAudioStart());
+                        KApplication.Companion.getEventBus().post(new EventDownloadAudioStart());
                         downloadAudioFile(audioContent);
                         return;
                     }
@@ -80,8 +79,8 @@ public class YoutubeAudioDownloadService extends IntentService {
                     e.printStackTrace();
                 }
                 Log.e(TAG, "Error get audio file from youtubeinmp3.com server");
-            }while (retry < 4);
-            KApplication.eventBus.post(new EventDownloadAudioError());
+            } while (retry < 4);
+            KApplication.Companion.getEventBus().post(new EventDownloadAudioError());
         }).run();
     }
 
@@ -150,7 +149,7 @@ public class YoutubeAudioDownloadService extends IntentService {
                 download.setCurrentFileSize((int) current);
                 download.setProgress(progress);
                 // Notify about download progress
-                KApplication.eventBus.post(new EventDownloadAudioProgress(download));
+                KApplication.Companion.getEventBus().post(new EventDownloadAudioProgress(download));
                 Log.d(TAG, "Update download progress dialog");
                 timeCount++;
             }
@@ -158,7 +157,7 @@ public class YoutubeAudioDownloadService extends IntentService {
             output.write(data, 0, count);
         }
         // Notify on download completed
-        KApplication.eventBus.post(new EventDownloadAudioCompleted());
+        KApplication.Companion.getEventBus().post(new EventDownloadAudioCompleted());
 
         output.flush();
         output.close();

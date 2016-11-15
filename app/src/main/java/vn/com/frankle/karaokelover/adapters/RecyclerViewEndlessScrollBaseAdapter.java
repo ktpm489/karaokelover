@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
-import rx.subjects.PublishSubject;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.adapters.viewholders.ViewHolderBase;
 import vn.com.frankle.karaokelover.adapters.viewholders.ViewHolderConnectionError;

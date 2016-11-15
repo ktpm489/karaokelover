@@ -106,7 +106,7 @@ public class KActivityEditRecording extends AppCompatActivity {
      * @return true : if operation success
      */
     private boolean changeFilename(String currentFilename, String newFilename) {
-        File directory = new File(KApplication.RECORDING_DIRECTORY_URI);
+        File directory = new File(KApplication.Companion.getRECORDING_DIRECTORY_URI());
         File originalFile = new File(directory, currentFilename + ".wav");
         File renameFile = new File(directory, newFilename + ".wav");
         if (originalFile.exists()) {
@@ -139,7 +139,7 @@ public class KActivityEditRecording extends AppCompatActivity {
     private Runnable discardRecordingFile = new Runnable() {
         @Override
         public void run() {
-            File recordFileDir = new File(KApplication.RECORDING_DIRECTORY_URI);
+            File recordFileDir = new File(KApplication.Companion.getRECORDING_DIRECTORY_URI());
             File recordedFile = new File(recordFileDir, mCurRecordingFilename);
 
             if (recordedFile.exists()) {

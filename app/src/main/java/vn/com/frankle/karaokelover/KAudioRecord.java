@@ -86,7 +86,7 @@ public class KAudioRecord {
                     return;
                 }
 
-                File recordFileDir = new File(KApplication.RECORDING_DIRECTORY_URI);
+                File recordFileDir = new File(KApplication.Companion.getRECORDING_DIRECTORY_URI());
                 if (!recordFileDir.exists()) {
                     recordFileDir.mkdir();
                 }

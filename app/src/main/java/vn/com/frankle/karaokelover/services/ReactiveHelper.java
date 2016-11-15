@@ -3,7 +3,6 @@ package vn.com.frankle.karaokelover.services;
 import com.pushtorefresh.storio.sqlite.StorIOSQLite;
 import com.pushtorefresh.storio.sqlite.queries.RawQuery;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
@@ -37,7 +36,7 @@ public class ReactiveHelper {
         return Observable.from(listDAOHotTrend)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .concatMap(daoHotTrend -> KApplication.getRxYoutubeAPIService().getYoutubeVideoById(daoHotTrend.getVideoId()))
+                .concatMap(daoHotTrend -> KApplication.rxYoutubeAPIService.getYoutubeVideoById(daoHotTrend.getVideoId()))
                 .toList();
     }
 
@@ -74,7 +73,7 @@ public class ReactiveHelper {
     public static Observable<List<ArtistWithKaraoke>> getListHotKaraokeOfArtist(List<ArtistWithKaraoke> artistWithKaraokes) {
         return Observable.from(artistWithKaraokes)
                 .concatMap(artistWithKaraoke -> Observable.from(artistWithKaraoke.getKaraokes())
-                        .concatMap(s -> KApplication.getRxYoutubeAPIService().getYoutubeDetailContentById(s))
+                        .concatMap(s -> KApplication.rxYoutubeAPIService.getYoutubeDetailContentById(s))
                         .toList()
                         .map(responseYoutubeSnippetContentDetailses -> new ArtistWithKaraoke(artistWithKaraoke.getArtist(), artistWithKaraoke.getKaraokes(), responseYoutubeSnippetContentDetailses)))
                 .toList();
@@ -82,7 +81,7 @@ public class ReactiveHelper {
 
 
     public static Observable<VideoSearchItem> getStatisticsContentDetails(ItemSearch itemSearch) {
-        return KApplication.getRxYoutubeAPIService().getStatisticContentDetailById(itemSearch.getId().getVideoId())
+        return KApplication.rxYoutubeAPIService.getStatisticContentDetailById(itemSearch.getId().getVideoId())
                 .map(responseStatisticContentDetails
                         -> new VideoSearchItem(itemSearch.getId().getVideoId(), itemSearch.getSnippet().getTitle(),
                         responseStatisticContentDetails.getDurationISO8601Format(),
@@ -94,7 +93,7 @@ public class ReactiveHelper {
     public static Observable<VideoSearchItem> getStatisticsContentDetails(ResponseSnippetStatistics response) {
         String id = response.getItems().get(0).getId();
         Snippet snippet = response.getItems().get(0).getSnippet();
-        return KApplication.getRxYoutubeAPIService().getStatisticContentDetailById(id)
+        return KApplication.rxYoutubeAPIService.getStatisticContentDetailById(id)
                 .map(responseStatisticContentDetails
                                 -> new VideoSearchItem(id, snippet.getTitle(),
                                 responseStatisticContentDetails.getDurationISO8601Format(),
@@ -114,7 +113,7 @@ public class ReactiveHelper {
     public static Observable<List<VideoSearchItem>> searchKarokeVideos(String query) {
         // Append "karaoke" at the end of query string for searching for Karaoke video
         String karaokeQuery = query + " karaoke";
-        return KApplication.getRxYoutubeAPIService()
+        return KApplication.rxYoutubeAPIService
                 .searchKaraokeVideos(karaokeQuery)
                 .concatMap(
                         responseSearch -> Observable.from(responseSearch.getItems())
@@ -123,12 +122,12 @@ public class ReactiveHelper {
                 .toList();
     }
 
-    public static Observable<List<VideoSearchItem>> getFavoritesVideos(ArrayList<String> listFavoriteId) {
+    public static Observable<List<VideoSearchItem>> getFavoritesVideos(List<String> listFavoriteId) {
         return Observable.from(listFavoriteId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .concatMap(s -> KApplication.getRxYoutubeAPIService().getYoutubeVideoById(s)
-                        .concatMap(ReactiveHelper::getStatisticsContentDetails)
+                .flatMap(s -> KApplication.rxYoutubeAPIService.getYoutubeVideoById(s)
+                        .flatMap(ReactiveHelper::getStatisticsContentDetails)
                 )
                 .toList();
     }

@@ -133,7 +133,7 @@ public class KFragmentZingArtist extends Fragment {
         try {
             String url = ZingMp3API.getListArtistURL(mArtistType, 0);
 
-            Observable<ResponseListArtist> getArtistRequest = KApplication.getRxZingMp3APIService().getArtist(url);
+            Observable<ResponseListArtist> getArtistRequest = KApplication.rxZingMp3APIService.getArtist(url);
             compositeSubscriptionForOnStop.add(getArtistRequest
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -168,7 +168,7 @@ public class KFragmentZingArtist extends Fragment {
         try {
             String url = ZingMp3API.getListArtistURL(mArtistType, totalItemCount);
 
-            Observable<ResponseListArtist> getArtistRequest = KApplication.getRxZingMp3APIService().getArtist(url);
+            Observable<ResponseListArtist> getArtistRequest = KApplication.rxZingMp3APIService.getArtist(url);
             compositeSubscriptionForOnStop.add(getArtistRequest
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())

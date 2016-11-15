@@ -240,7 +240,7 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
     }
 
     private void loadVideoComments() {
-        Observable<ResponseCommentThreads> obsComment = KApplication.getRxYoutubeAPIService().getVideoComments(mCurrentVideoId);
+        Observable<ResponseCommentThreads> obsComment = KApplication.rxYoutubeAPIService.getVideoComments(mCurrentVideoId);
         compositeSubscriptionForOnStop.add(obsComment.subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<ResponseCommentThreads>() {
@@ -333,7 +333,7 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
     }
 
     private void loadMoreComments(int totalItemCount) {
-        Observable<ResponseCommentThreads> obsCommentMore = KApplication.getRxYoutubeAPIService().getVideoCommentsNext(mCurrentVideoId, mCurrentCommentPageToken);
+        Observable<ResponseCommentThreads> obsCommentMore = KApplication.rxYoutubeAPIService.getVideoCommentsNext(mCurrentVideoId, mCurrentCommentPageToken);
         compositeSubscriptionForOnStop.add(obsCommentMore.subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<ResponseCommentThreads>() {
@@ -616,14 +616,14 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
     protected void onStop() {
         super.onStop();
         Log.d(DEBUG_TAG, "OnStop-------------------------");
-        KApplication.eventBus.unregister(this);
+        KApplication.Companion.getEventBus().unregister(this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.d(DEBUG_TAG, "OnStart-------------------------");
-        KApplication.eventBus.register(this);
+        KApplication.Companion.getEventBus().register(this);
     }
 
     @Override
@@ -689,7 +689,7 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
         protected Void doInBackground(Void... voids) {
             for (int i = 3; i >= 0; --i) {
                 Log.d(DEBUG_TAG, "Starting countdown: current = " + i);
-                KApplication.eventBus.post(new EventPrepareRecordingCountdown(i));
+                KApplication.Companion.getEventBus().post(new EventPrepareRecordingCountdown(i));
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -729,7 +729,7 @@ public class KActivityPlayVideo extends AppCompatActivity implements KAudioRecor
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            File recordFileDir = new File(KApplication.RECORDING_DIRECTORY_URI);
+            File recordFileDir = new File(KApplication.Companion.getRECORDING_DIRECTORY_URI());
             File recordedFile = new File(recordFileDir, mCurrentSavedFilename);
 
             return recordedFile.exists() && recordedFile.delete();

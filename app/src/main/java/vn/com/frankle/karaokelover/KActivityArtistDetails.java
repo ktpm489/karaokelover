@@ -230,7 +230,7 @@ public class KActivityArtistDetails extends AppCompatActivity {
 
         String jsonArtistData = JSONHelper.writeJsonDataArtistDetail(mArtistId).toString();
 
-        Observable<ZingArtistDetail> obsArtistDetail = KApplication.getRxZingMp3APIService().getArtistDetail(jsonArtistData);
+        Observable<ZingArtistDetail> obsArtistDetail = KApplication.rxZingMp3APIService.getArtistDetail(jsonArtistData);
         compositeSubscriptionForOnStop.add(obsArtistDetail
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -255,7 +255,7 @@ public class KActivityArtistDetails extends AppCompatActivity {
 
         String karaokeQuery = mArtistName + " karaoke";
 
-        Observable<List<VideoSearchItem>> obsGetArtistSong = KApplication.getRxYoutubeAPIService()
+        Observable<List<VideoSearchItem>> obsGetArtistSong = KApplication.rxYoutubeAPIService
                 .searchKaraokeVideos(karaokeQuery)
                 .concatMap(
                         responseSearch -> {
@@ -275,7 +275,7 @@ public class KActivityArtistDetails extends AppCompatActivity {
     private void loadMoreArtistSongs() {
         String karaokeQuery = mArtistName + " karaoke";
 
-        Observable<List<VideoSearchItem>> obsLoadMoreRequest = KApplication.getRxYoutubeAPIService()
+        Observable<List<VideoSearchItem>> obsLoadMoreRequest = KApplication.rxYoutubeAPIService
                 .searchYoutubeVideoNext(karaokeQuery, mNextPageToken)
                 .concatMap(
                         responseSearch -> {

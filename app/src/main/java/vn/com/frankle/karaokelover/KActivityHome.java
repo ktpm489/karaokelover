@@ -286,7 +286,7 @@ public class KActivityHome extends AppCompatActivity
                         } catch (InstantiationException | IllegalAccessException e) {
                             e.printStackTrace();
                         }
-                        fm.beginTransaction().add(R.id.main_content, mFavoriteFragment, KFragmentFavorite.TAG).commit();
+                        fm.beginTransaction().add(R.id.main_content, mFavoriteFragment, KFragmentFavorite.Companion.getTAG()).commit();
                     }
                 }
                 break;
