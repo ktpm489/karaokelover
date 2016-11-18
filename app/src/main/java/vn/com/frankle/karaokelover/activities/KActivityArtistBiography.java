@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover;
+package vn.com.frankle.karaokelover.activities;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
@@ -21,6 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.services.responses.zingmp3.ZingArtistDetail;
 import vn.com.frankle.karaokelover.views.widgets.BottomSheet;
 

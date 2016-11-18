@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/KaraokeLoverTheme">
         <activity
-            android:name=".KActivityHome"
+            android:name=".activities.KActivityHome"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/KaraokeLoverTheme.NoActionBar">
@@ -31,7 +31,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".KActivitySearch"
+            android:name=".activities.KActivitySearch"
             android:launchMode="singleTop"
             android:theme="@style/KaraokeLoverTheme.Translucent.Search">
             <intent-filter>
@@ -48,45 +48,45 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity
-            android:name=".KActivityArtistDetails"
-            android:parentActivityName=".KActivityHome"
+            android:name=".activities.KActivityArtistDetails"
+            android:parentActivityName=".activities.KActivityHome"
             android:theme="@style/KaraokeLoverTheme.ArtistWithSongs" />
         <activity
-            android:name=".KActivityPlayVideo"
+            android:name=".activities.KActivityPlayVideo"
             android:label="@string/title_activity_kplay_video"
             android:theme="@style/KaraokeLoverTheme.NoActionBar" />
 
         <service android:name=".services.YoutubeAudioDownloadService" />
 
         <activity
-            android:name=".KActivityMyRecording"
+            android:name=".activities.KActivityMyRecording"
             android:label="@string/title_activity_kmy_recording"
-            android:parentActivityName=".KActivityHome"
+            android:parentActivityName=".activities.KActivityHome"
             android:theme="@style/KaraokeLoverTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="vn.com.frankle.karaokelover.KActivityHome" />
+                android:value="vn.com.frankle.karaokelover.activities.KActivityHome" />
         </activity>
         <activity
-            android:name=".KActivityEditRecording"
+            android:name=".activities.KActivityEditRecording"
             android:label="@string/title_activity_kkedit_recording"
-            android:parentActivityName=".KActivityPlayVideo"
+            android:parentActivityName=".activities.KActivityPlayVideo"
             android:theme="@style/KaraokeLoverTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="vn.com.frankle.karaokelover.KActivityHome" />
+                android:value="vn.com.frankle.karaokelover.activities.KActivityHome" />
         </activity>
         <activity
-            android:name=".KActivityArtistBiography"
+            android:name=".activities.KActivityArtistBiography"
             android:theme="@style/KaraokeLoverTheme.Translucent.Zing.BottomSheet" />
 
         <activity
-            android:name=".KActivitySettings"
+            android:name=".activities.KActivitySettings"
             android:label="@string/title_activity_setting"
             android:theme="@style/KaraokeLoverTheme.SettingActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="vn.com.frankle.karaokelover.KActivityHome" />
+                android:value="vn.com.frankle.karaokelover.activities.KActivityHome" />
         </activity>
 
     </application>

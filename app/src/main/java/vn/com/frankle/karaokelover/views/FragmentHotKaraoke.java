@@ -16,8 +16,8 @@ import com.bumptech.glide.Glide;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import vn.com.frankle.karaokelover.KActivityHome;
-import vn.com.frankle.karaokelover.KActivityPlayVideo;
+import vn.com.frankle.karaokelover.activities.KActivityHome;
+import vn.com.frankle.karaokelover.activities.KActivityPlayVideo;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.fragments.KFragmentFavorite;
 import vn.com.frankle.karaokelover.util.Utils;

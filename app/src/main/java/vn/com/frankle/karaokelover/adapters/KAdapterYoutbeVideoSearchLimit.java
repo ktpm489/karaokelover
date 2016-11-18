@@ -113,6 +113,17 @@ public class KAdapterYoutbeVideoSearchLimit extends RecyclerView.Adapter<KAdapte
         }
     }
 
+    public void setDataItemList(List<VideoSearchItem> newList) {
+        if (this.mSearchResult != null && this.mSearchResult.size() > 0) {
+            this.mSearchResult.clear();
+        }
+        if (this.mSearchResult == null) {
+            this.mSearchResult = new ArrayList<>();
+        }
+        this.mSearchResult.addAll(newList);
+        notifyDataSetChanged();
+    }
+
     /**
      * Remove all item from current data set
      */

@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import vn.com.frankle.karaokelover.KActivityHome;
+import vn.com.frankle.karaokelover.activities.KActivityHome;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.adapters.KFragmentAdapterArtists;
 

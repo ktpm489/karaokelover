@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover;
+package vn.com.frankle.karaokelover.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,8 @@ import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import vn.com.frankle.karaokelover.KApplication;
+import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.util.Utils;
 
 public class KActivityEditRecording extends AppCompatActivity {

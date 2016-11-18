@@ -5,7 +5,7 @@
     android:id="@+id/content_kactivity_play_video"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="vn.com.frankle.karaokelover.KActivityPlayVideo"
+    tools:context="vn.com.frankle.karaokelover.activities.KActivityPlayVideo"
     tools:showIn="@layout/activity_kplay_video">
 
     <fragment

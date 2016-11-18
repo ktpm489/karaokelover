@@ -41,6 +41,18 @@ public class FavoriteTable {
             .distinct(true)
             .build();
 
+    // Yep, with StorIO you can safely store queries as objects and reuse them, they are immutable
+    @NonNull
+    public static Query mapToGetQueryByVideoId(String videoId) {
+        return Query.builder()
+                    .table(TABLE)
+                    .columns(COLUMN_VIDEO_ID)
+                    .where("video_id = ?")
+                    .whereArgs(videoId)
+                    .limit(1)
+                    .build();
+    }
+
     @NonNull
     public static String getCreateTableQuery() {
         return "CREATE TABLE " + TABLE + "("

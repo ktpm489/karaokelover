@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover;
+package vn.com.frankle.karaokelover.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,6 +34,8 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
+import vn.com.frankle.karaokelover.KApplication;
+import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener;
 import vn.com.frankle.karaokelover.adapters.KAdapterVideoArtistDetail;
 import vn.com.frankle.karaokelover.adapters.RecyclerViewEndlessScrollBaseAdapter;

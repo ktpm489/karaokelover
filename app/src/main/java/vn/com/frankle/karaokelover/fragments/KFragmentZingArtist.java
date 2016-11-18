@@ -24,7 +24,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
-import vn.com.frankle.karaokelover.KActivityArtistDetails;
+import vn.com.frankle.karaokelover.activities.KActivityArtistDetails;
 import vn.com.frankle.karaokelover.KApplication;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener;

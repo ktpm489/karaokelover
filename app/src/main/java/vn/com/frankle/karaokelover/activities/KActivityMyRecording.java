@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover;
+package vn.com.frankle.karaokelover.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -22,6 +22,8 @@ import java.util.Arrays;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import vn.com.frankle.karaokelover.KApplication;
+import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.adapters.KAdapterMyRecordings;
 import vn.com.frankle.karaokelover.util.AnimUtils;
 import vn.com.frankle.karaokelover.util.FileCompare;

@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover
+package vn.com.frankle.karaokelover.activities
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -32,8 +32,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.SearchView
 import android.widget.Toast
 import butterknife.OnClick
-import com.pushtorefresh.storio.sqlite.StorIOSQLite
-import com.pushtorefresh.storio.sqlite.operations.put.PutResult
+import io.realm.Realm
 import kotlinx.android.synthetic.main.content_connection_error.*
 import kotlinx.android.synthetic.main.layout_activity_search.*
 import org.greenrobot.eventbus.Subscribe
@@ -43,12 +42,16 @@ import rx.Subscriber
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
+import vn.com.frankle.karaokelover.KApplication
+import vn.com.frankle.karaokelover.R
 import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener
 import vn.com.frankle.karaokelover.adapters.KAdapterYoutubeVideoSearch
 import vn.com.frankle.karaokelover.adapters.RecyclerViewEndlessScrollBaseAdapter
-import vn.com.frankle.karaokelover.database.entities.Favorite
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem
+import vn.com.frankle.karaokelover.database.realm.FavoriteRealm
+import vn.com.frankle.karaokelover.database.tables.FavoriteTable
 import vn.com.frankle.karaokelover.events.EventPopupMenuItemClick
+import vn.com.frankle.karaokelover.events.EventUpdateFavoriteList
 import vn.com.frankle.karaokelover.services.ReactiveHelper
 import vn.com.frankle.karaokelover.util.AnimUtils
 import vn.com.frankle.karaokelover.util.ImeUtils
@@ -65,7 +68,7 @@ import javax.inject.Inject
 
 class KActivitySearch : AppCompatActivity() {
 
-    @Inject lateinit var storIOSqlite: StorIOSQLite
+    @Inject lateinit var realm: Realm
 
     private val compositeSubscriptionForOnStop = CompositeSubscription()
 
@@ -97,6 +100,9 @@ class KActivitySearch : AppCompatActivity() {
 
         val application = application as KApplication
         application.appComponent.inject(this)
+
+        // init realm instance
+        realm = Realm.getDefaultInstance()
 
         setContentView(R.layout.layout_activity_search)
         setupSearchView()
@@ -235,6 +241,9 @@ class KActivitySearch : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        //Close Realm object
+        realm.close()
+
         compositeSubscriptionForOnStop.unsubscribe()
     }
 
@@ -338,7 +347,6 @@ class KActivitySearch : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(query: String): Boolean {
-                Log.d(DEBUG_TAG, "onQueryTextChange")
                 if (TextUtils.isEmpty(query)) {
                     clearResults()
                 }
@@ -370,8 +378,7 @@ class KActivitySearch : AppCompatActivity() {
                     ImeUtils.showIme(search_view!!)
                 }
             }
-            val message = String.format(getString(R
-                    .string.no_search_results), search_view!!.query.toString())
+            val message = String.format(getString(R.string.no_search_results), search_view!!.query.toString())
             val ssb = SpannableStringBuilder(message)
             ssb.setSpan(StyleSpan(Typeface.ITALIC),
                     message.indexOf('“') + 1,
@@ -506,33 +513,31 @@ class KActivitySearch : AppCompatActivity() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onPopupMenuItemClick(event: EventPopupMenuItemClick) {
-        val obsAddToFavoriteDB: Observable<PutResult> =
-                storIOSqlite.put().`object`(Favorite.newFavorite(event.dataItem.videoId, 0))
-                        .prepare()
-                        .asRxObservable()
+        val inserted = realm.where(FavoriteRealm::class.java).equalTo(FavoriteTable.COLUMN_VIDEO_ID, event.dataItem.videoId).findFirst()
 
-        compositeSubscriptionForOnStop.add(obsAddToFavoriteDB
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    object : Subscriber<PutResult>() {
-                        override fun onNext(t: PutResult?) {
-                            Toast.makeText(this@KActivitySearch, "Saved to favorite list!", Toast.LENGTH_SHORT).show()
-                            Log.d("FAVORITE", "Saved to db: " + t.toString())
-                        }
-
-                        override fun onError(e: Throwable?) {
-                            Toast.makeText(this@KActivitySearch, "Error saving to favorite list. Please try again!", Toast.LENGTH_SHORT).show()
-                            Log.e("FAVORITE", "Error save to db: " + e!!.message)
-                        }
-
-                        override fun onCompleted() {
-                        }
+        when (event.action) {
+            EventPopupMenuItemClick.ACTION.ADD_FAVORITE -> {
+                // All writes must be wrapped in a transaction to facilitate safe multi threading
+                if (inserted != null) {
+                    Toast.makeText(this@KActivitySearch, "This video is already in the favorite list", Toast.LENGTH_SHORT).show()
+                } else {
+                    realm.executeTransaction {
+                        val favoriteVideo = realm.createObject(FavoriteRealm::class.java, System.currentTimeMillis())
+                        favoriteVideo.video_id = event.dataItem.videoId
+                        Toast.makeText(this@KActivitySearch, "Added to the favorite list", Toast.LENGTH_SHORT).show()
+                        KApplication.eventBus.post(EventUpdateFavoriteList())
                     }
                 }
-        )
+            }
+            EventPopupMenuItemClick.ACTION.REMOVE_FAVORITE -> {
+                realm.executeTransaction {
+                    inserted.deleteFromRealm()
+                    Toast.makeText(this@KActivitySearch, "Removed from the favorite list", Toast.LENGTH_SHORT).show()
+                    KApplication.eventBus.post(EventUpdateFavoriteList())
+                }
+            }
+        }
     }
-
 
     companion object {
         val DEBUG_TAG = KActivitySearch::class.java.simpleName

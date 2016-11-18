@@ -21,15 +21,31 @@ class ViewHolderVideoItem(itemView: View) : ViewHolderBase<VideoSearchItem>(item
     private lateinit var dataItem: VideoSearchItem
 
     private fun createPopupMenu(popupMenu: Menu) {
-        popupMenu.add("Add to favorites")
-                .setOnMenuItemClickListener { item ->
-                    KApplication.eventBus.post(EventPopupMenuItemClick(dataItem))
+        if (dataItem.isInFavoriteList()) {
+            popupMenu.add("Remove from favorite")
+                    .setOnMenuItemClickListener { item ->
+                        KApplication.eventBus.post(EventPopupMenuItemClick(dataItem, EventPopupMenuItemClick.ACTION.REMOVE_FAVORITE))
+                        true
+                    }
+        } else {
+            popupMenu.add("Add to favorite")
+                    .setOnMenuItemClickListener { item ->
+                        KApplication.eventBus.post(EventPopupMenuItemClick(dataItem, EventPopupMenuItemClick.ACTION.ADD_FAVORITE))
+                        true
+                    }
+        }
+
+        popupMenu.add("Add to playlist")
+                .setOnMenuItemClickListener {
+                    /**TO-DO-------------------*/
                     true
                 }
     }
 
     override fun bindData(context: Context, dataItem: VideoSearchItem) {
         this.dataItem = dataItem
+
+
 
         itemView.item_search_video_title.text = dataItem.title
         itemView.item_search_play_count.text = dataItem.viewCount

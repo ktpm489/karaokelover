@@ -39,7 +39,7 @@ public class KAudioRecord {
 
     private AudioRecordListener mDataListener;
 
-    final AtomicBoolean mIsRecording;
+    public final AtomicBoolean mIsRecording;
 
     private ExecutorService mExecutorService;
     private AudioRecord mAudioRecord;

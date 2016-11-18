@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover;
+package vn.com.frankle.karaokelover.activities;
 
 import android.os.Bundle;
 import android.preference.Preference;
@@ -7,6 +7,8 @@ import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.MenuItem;
 
+import vn.com.frankle.karaokelover.AppCompatPreferenceActivity;
+import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.views.widgets.SeekbarPreference;
 
 public class KActivitySettings extends AppCompatPreferenceActivity {

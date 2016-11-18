@@ -5,7 +5,7 @@
     android:id="@+id/content_kactivity_home"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="vn.com.frankle.karaokelover.KActivityHome"
+    tools:context="vn.com.frankle.karaokelover.activities.KActivityHome"
     tools:showIn="@layout/app_bar_kactivity_home">
 
     <include layout="@layout/content_connection_error" />

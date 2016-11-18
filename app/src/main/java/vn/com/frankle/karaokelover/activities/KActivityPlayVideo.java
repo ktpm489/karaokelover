@@ -1,4 +1,4 @@
-package vn.com.frankle.karaokelover;
+package vn.com.frankle.karaokelover.activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -44,6 +44,11 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
+import vn.com.frankle.karaokelover.Constants;
+import vn.com.frankle.karaokelover.KApplication;
+import vn.com.frankle.karaokelover.KAudioRecord;
+import vn.com.frankle.karaokelover.KSharedPreference;
+import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener;
 import vn.com.frankle.karaokelover.adapters.KAdapterComments;
 import vn.com.frankle.karaokelover.adapters.viewholders.ViewHolderComment;

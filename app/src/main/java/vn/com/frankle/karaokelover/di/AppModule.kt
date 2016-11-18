@@ -16,12 +16,12 @@ class AppModule(val app: KApplication) {
     @Provides
     @Singleton
     fun provideContext(): Context {
-        return app;
+        return app
     }
 
     @Provides
     @Singleton
     fun provideApplication(): KApplication {
-        return app;
+        return app
     }
 }

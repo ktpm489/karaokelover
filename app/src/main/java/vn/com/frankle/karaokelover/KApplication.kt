@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.os.Environment
 import com.droidcba.kedditbysteps.di.AppModule
+import io.realm.Realm
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.greenrobot.eventbus.EventBus
@@ -12,6 +13,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import rx.schedulers.Schedulers
 import vn.com.frankle.karaokelover.di.DaggerKAppComponent
+import vn.com.frankle.karaokelover.di.DatabaseModule
 import vn.com.frankle.karaokelover.di.KAppComponent
 import vn.com.frankle.karaokelover.services.YoutubeAPIEndpointInterface
 import vn.com.frankle.karaokelover.services.YoutubeAudioMp3APIInterface
@@ -35,8 +37,11 @@ class KApplication : Application() {
         super.onCreate()
         KApplication.context = applicationContext
 
+        Realm.init(this@KApplication)
+
         appComponent = DaggerKAppComponent.builder()
-                .appModule(AppModule(this)).build()
+                .appModule(AppModule(this))
+                .databaseModule(DatabaseModule()).build()
 
         eventBus = EventBus()
 

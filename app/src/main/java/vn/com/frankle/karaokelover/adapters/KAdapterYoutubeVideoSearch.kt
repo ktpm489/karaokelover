@@ -35,6 +35,4 @@ class KAdapterYoutubeVideoSearch : RecyclerViewEndlessScrollBaseAdapter<VideoSea
             viewHolder.bindData(mContext, item)
         }
     }
-
-
 }

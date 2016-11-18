@@ -16,9 +16,9 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import vn.com.frankle.karaokelover.KActivityArtistDetails;
-import vn.com.frankle.karaokelover.KActivityHome;
-import vn.com.frankle.karaokelover.KActivityPlayVideo;
+import vn.com.frankle.karaokelover.activities.KActivityArtistDetails;
+import vn.com.frankle.karaokelover.activities.KActivityHome;
+import vn.com.frankle.karaokelover.activities.KActivityPlayVideo;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.database.entities.ArtistWithKaraoke;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;

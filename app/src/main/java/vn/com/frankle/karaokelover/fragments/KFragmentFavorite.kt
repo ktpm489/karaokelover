@@ -11,19 +11,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.pushtorefresh.storio.sqlite.StorIOSQLite
+import io.realm.Realm
 import kotlinx.android.synthetic.main.layout_fragment_my_favorite.*
-import rx.Observable
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
-import vn.com.frankle.karaokelover.KActivityPlayVideo
 import vn.com.frankle.karaokelover.KApplication
 import vn.com.frankle.karaokelover.KSharedPreference
 import vn.com.frankle.karaokelover.R
+import vn.com.frankle.karaokelover.activities.KActivityPlayVideo
 import vn.com.frankle.karaokelover.adapters.KAdapterYoutbeVideoSearchLimit
-import vn.com.frankle.karaokelover.database.entities.Favorite
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem
-import vn.com.frankle.karaokelover.database.tables.FavoriteTable
+import vn.com.frankle.karaokelover.database.realm.FavoriteRealm
+import vn.com.frankle.karaokelover.events.EventUpdateFavoriteList
 import vn.com.frankle.karaokelover.services.ReactiveHelper
 import vn.com.frankle.karaokelover.util.Utils
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration
@@ -37,19 +39,19 @@ import javax.inject.Inject
 class KFragmentFavorite : Fragment() {
 
     @Inject lateinit var storIOSQLite: StorIOSQLite
+    @Inject lateinit var realm: Realm
 
     private val compositeSubscriptionForOnStop = CompositeSubscription()
-
-//    @BindView(R.id.progressbar_favorite)
-//    internal var mProgressBar: ProgressBar? = null
-//    @BindView(R.id.recyclerview_my_favorite)
-//    internal var mRecyclerView: RecyclerView? = null
 
 
     private var mContext: Context? = null
     private val mAppPrefs = KSharedPreference()
     private var mCurSizeList = 0
     private var mFavoriteAdapter: KAdapterYoutbeVideoSearchLimit? = null
+    // Flag to indicate whether reload the video list or not
+    // Basically when realm results get notified by change somewhere, we set this flag to true
+    // and we will use this flag at onResume
+    private var mRefreshList = false
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -69,16 +71,24 @@ class KFragmentFavorite : Fragment() {
     override fun onResume() {
         super.onResume()
         Log.d(DEBUG_TAG, "onResume")
+        if (this.mRefreshList) {
+            // This flag is true -> need to reload list of favorite videos
+            getFavoriteVideosFromDB()
+            // Reset flag
+            this.mRefreshList = false
+        }
     }
 
     override fun onStart() {
         super.onStart()
         Log.d(DEBUG_TAG, "onStart")
+        KApplication.eventBus.register(this)
     }
 
     override fun onStop() {
         super.onStop()
         Log.d(DEBUG_TAG, "onStop")
+        KApplication.eventBus.unregister(this)
     }
 
 
@@ -118,26 +128,21 @@ class KFragmentFavorite : Fragment() {
 
         val layout = inflater!!.inflate(R.layout.layout_fragment_my_favorite, container, false)
 
-//        ButterKnife.bind(this, layout)
-
         return layout
     }
 
+    /**
+     * Read list of favorite videos from Realm database
+     */
     private fun getFavoriteVideosFromDB() {
-        val obsGetFavorites = storIOSQLite
-                .get()
-                .listOfObjects(Favorite::class.java)
-                .withQuery(FavoriteTable.QUERY_ALL_DISTINCT)
-                .prepare()
-                .asRxObservable() // Get Result as rx.Observable and subscribe to further updates of tables from Query!
-                .concatMap {
-                    Observable.from(it).map { it.video_id }.toList()
-                }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()) // All Rx operations work on Schedulers.io()
-        compositeSubscriptionForOnStop.add(obsGetFavorites.subscribe({
-            loadFavoriteVideos(it)
-        }))
+        val favorites = realm.where(FavoriteRealm::class.java).findAll()
+
+        if (favorites.isEmpty()) (
+                Toast.makeText(mContext, "There is no video in favorite list", Toast.LENGTH_SHORT).show()
+                ) else {
+            val favoriteVideoIds = favorites.map { it.video_id!! }
+            loadFavoriteVideos(favoriteVideoIds)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -178,7 +183,7 @@ class KFragmentFavorite : Fragment() {
         if (favoriteVideos.isNotEmpty()) {
             setLoadingState(false)
 
-            mFavoriteAdapter!!.addDataItemList(favoriteVideos)
+            mFavoriteAdapter!!.setDataItemList(favoriteVideos)
         } else {
             Toast.makeText(mContext, "Empty favorite videos list", Toast.LENGTH_SHORT).show()
         }
@@ -225,6 +230,15 @@ class KFragmentFavorite : Fragment() {
             progressbar_favorite.visibility = View.GONE
             recyclerview_my_favorite.visibility = View.VISIBLE
         }
+    }
+
+    /**
+     * Handle event: update favorite video list
+     */
+    @Subscribe(threadMode = ThreadMode.POSTING)
+    fun OnEventUpdateFavoriteList(event: EventUpdateFavoriteList) {
+        Log.d(DEBUG_TAG, "Event: update favorite list")
+        this.mRefreshList = true
     }
 
     companion object {

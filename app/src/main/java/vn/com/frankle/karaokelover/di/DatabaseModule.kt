@@ -3,11 +3,14 @@ package vn.com.frankle.karaokelover.di
 import android.content.Context
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import com.pushtorefresh.storio.sqlite.BuildConfig
 import com.pushtorefresh.storio.sqlite.SQLiteTypeMapping
 import com.pushtorefresh.storio.sqlite.StorIOSQLite
 import com.pushtorefresh.storio.sqlite.impl.DefaultStorIOSQLite
 import dagger.Module
 import dagger.Provides
+import io.realm.Realm
+import io.realm.RealmConfiguration
 import vn.com.frankle.karaokelover.database.DbOpenHelper
 import vn.com.frankle.karaokelover.database.entities.Favorite
 import vn.com.frankle.karaokelover.database.resolvers.FavoriteDeleteResolver
@@ -43,5 +46,21 @@ class DatabaseModule {
     fun provideSQLiteOpenHelper(context: Context): SQLiteOpenHelper {
         Log.d("DI", "provideSQLiteOpenHelper")
         return DbOpenHelper(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRealmConfiguration(): RealmConfiguration {
+        var realmBuilder: RealmConfiguration.Builder = RealmConfiguration.Builder()
+        if (BuildConfig.DEBUG) {
+            realmBuilder = realmBuilder.deleteRealmIfMigrationNeeded()
+        }
+        return realmBuilder.build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRealm(realmConfiguration: RealmConfiguration): Realm {
+        return Realm.getInstance(realmConfiguration)
     }
 }
