@@ -6,6 +6,8 @@ import android.media.MediaRecorder;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
+import com.orhanobut.logger.Logger;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,7 +28,7 @@ public class KAudioRecord {
 
     public interface AudioRecordListener {
         @WorkerThread
-        void onAudioRecordDataReceived(byte[] data);
+        void onAudioRecordDataReceived(byte[] data, int readSize);
 
         void onAudioRecordError();
     }
@@ -71,14 +73,19 @@ public class KAudioRecord {
     private class AudioRecordRunnable implements Runnable {
 
         private String mFilename;
+        private boolean mIsResume;
 
-        public AudioRecordRunnable(String filename) {
+        public AudioRecordRunnable(String filename, boolean isResume) {
             this.mFilename = filename;
+            this.mIsResume = isResume;
         }
 
         @Override
         public void run() {
             if (mAudioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
+                Logger.t(DEBUG_TAG).d("Actual run recording in thread");
+                File recordFileDir = new File(KApplication.Companion.getRECORDING_DIRECTORY_URI());
+                File recordFile = new File(recordFileDir, mFilename);
                 try {
                     mAudioRecord.startRecording();
                 } catch (IllegalStateException e) {
@@ -86,15 +93,13 @@ public class KAudioRecord {
                     return;
                 }
 
-                File recordFileDir = new File(KApplication.Companion.getRECORDING_DIRECTORY_URI());
-                if (!recordFileDir.exists()) {
-                    recordFileDir.mkdir();
-                }
-                File recordFile = new File(recordFileDir, mFilename);
-                FileOutputStream os = null;
                 try {
-                    os = new FileOutputStream(recordFile);
-
+                    FileOutputStream os;
+                    if (mIsResume) {
+                        os = new FileOutputStream(recordFile, true);
+                    } else {
+                        os = new FileOutputStream(recordFile, false);
+                    }
                     // Write out the wav file header
                     writeWavHeader(os, RECORDER_CHANNELS_IN, RECORDER_SAMPLE_RATE, RECORDER_AUDIO_ENCODING);
 
@@ -103,24 +108,26 @@ public class KAudioRecord {
 
                         if (retVal > 0) {
                             os.write(mByteBuffer, 0, mByteBufferSize);
-                            mDataListener.onAudioRecordDataReceived(mByteBuffer);
+                            mDataListener.onAudioRecordDataReceived(mByteBuffer, retVal);
                         } else {
                             mDataListener.onAudioRecordError();
                         }
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
 
-                try {
-                    if (os != null) {
-                        os.close();
-                    }
+                    os.close();
+
                     updateWavHeader(recordFile);
+
+                    mAudioRecord.stop();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    public void releaseRecorder() {
+        if (mAudioRecord != null && mAudioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
             mAudioRecord.release();
         }
     }
@@ -129,15 +136,17 @@ public class KAudioRecord {
      * Start recording voice
      *
      * @param recordFilename : the name of the file to be saved
+     * @param isResume       : flag to indicate this record is resume from previous time or not
      * @return
      */
-    public synchronized boolean start(String recordFilename) {
+    public synchronized boolean start(String recordFilename, boolean isResume) {
         stop();
 
         mExecutorService = Executors.newSingleThreadExecutor();
 
         if (mIsRecording.compareAndSet(false, true)) {
-            mExecutorService.execute(new AudioRecordRunnable(recordFilename));
+            Logger.d("Start recording in background...");
+            mExecutorService.execute(new AudioRecordRunnable(recordFilename, isResume));
             return true;
         }
         return false;

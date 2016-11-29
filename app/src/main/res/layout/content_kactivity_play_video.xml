@@ -8,13 +8,24 @@
     tools:context="vn.com.frankle.karaokelover.activities.KActivityPlayVideo"
     tools:showIn="@layout/activity_kplay_video">
 
-    <fragment
+    <include layout="@layout/content_connection_error" />
+
+    <FrameLayout
         android:id="@+id/youtube_player"
-        android:name="com.google.android.youtube.player.YouTubePlayerSupportFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="?attr/actionBarSize" />
+        android:layout_marginTop="?attr/actionBarSize">
+
+    </FrameLayout>
+
+    <!--<fragment-->
+        <!--android:id="@+id/youtube_player"-->
+        <!--android:name="vn.com.frankle.karaokelover.fragments.KYoutubePlayerFragment"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:layout_marginTop="?attr/actionBarSize" />-->
 
     <RelativeLayout
         android:id="@+id/layout_play_video"
@@ -26,7 +37,8 @@
             android:id="@+id/progressbar_comment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerview_comments"
@@ -36,6 +48,11 @@
             android:layout_alignParentTop="true"
             android:clipToPadding="false"
             android:visibility="gone" />
+
+
+        <include layout="@layout/content_no_comment" />
+
+        <include layout="@layout/content_error_loading" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/btn_record"
@@ -54,6 +71,12 @@
         android:layout_height="match_parent"
         android:layout_below="@id/youtube_player"
         android:visibility="gone">
+
+        <!--<vn.com.frankle.karaokelover.views.VisualizerView-->
+        <!--android:id="@+id/visualizer"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="512dp"-->
+        <!--android:layout_centerInParent="true" />-->
 
         <ImageButton
             android:id="@+id/btn_recording"
@@ -93,6 +116,5 @@
                 android:textColor="@color/text_secondary_light"
                 android:textSize="20sp" />
         </LinearLayout>
-
     </RelativeLayout>
 </RelativeLayout>

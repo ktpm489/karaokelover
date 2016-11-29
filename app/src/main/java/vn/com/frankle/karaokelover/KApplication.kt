@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.os.Environment
 import com.droidcba.kedditbysteps.di.AppModule
+import com.orhanobut.logger.Logger
 import io.realm.Realm
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -35,6 +36,9 @@ class KApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        Logger.init(TAG_DEFAULT)
+
         KApplication.context = applicationContext
 
         Realm.init(this@KApplication)
@@ -97,6 +101,7 @@ class KApplication : Application() {
         val YOUTUBE_MP3_AUDIO_URL = "http://www.youtubeinmp3.com/"
         val ZING_MP3_BASE_URL = "http://api.mp3.zing.vn/api/"
         val RECORDING_DIRECTORY_URI = Environment.getExternalStorageDirectory().absolutePath + "/Karaoke Lover/"
+        val TAG_DEFAULT = KApplication::class.java.simpleName
 
         private var context: Context? = null
 

@@ -12,12 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
-
 /**
  * Created by duclm on 9/18/2016.
  */
@@ -28,6 +22,8 @@ public class KSharedPreference {
 
     private static final String KEY_FAVOURITES = "karaoke_favourite";
     private static final String KEY_FAVOURITE_ARTISTS = "karaoke_favourite_artist";
+    private static final String KEY_RECORDING_PROGRESS = "karaoke_recording_progress";
+    private static final String KEY_RECORDING_VIDEOID = "karaoke_recording_videoid";
 
     private String defaultFavoriteArtists[] = {"Backstreet Boys", "Trung Quân Idol", "Sơn Tùng MTP"};
     private final Set<String> DEFAULT_FAVORITE_ARTISTS = new HashSet<>(Arrays.asList(defaultFavoriteArtists));
@@ -84,7 +80,7 @@ public class KSharedPreference {
      * @param context : context
      * @return list of favorite video, empty list if there is no favorite video
      */
-    public ArrayList<String> getFavoritesVideo(Context context) {
+    private ArrayList<String> getFavoritesVideo(Context context) {
         SharedPreferences settings = context.getSharedPreferences(PREFS_KARAOKETUBE, Context.MODE_PRIVATE);
         ArrayList<String> favorites;
         if (settings.contains(KEY_FAVOURITES)) {

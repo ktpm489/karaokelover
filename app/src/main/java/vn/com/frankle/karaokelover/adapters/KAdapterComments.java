@@ -19,8 +19,8 @@ import vn.com.frankle.karaokelover.services.responses.youtube.commentthread.Comm
 public class KAdapterComments extends RecyclerViewEndlessScrollBaseAdapter<CommentThread> {
 
 
-    public KAdapterComments(Context context) {
-        super(context);
+    public KAdapterComments(Context context, OnItemClickListener listener) {
+        super(context, listener);
     }
 
     public KAdapterComments(Context context, ArrayList<CommentThread> data) {

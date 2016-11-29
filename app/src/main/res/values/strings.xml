@@ -35,6 +35,7 @@
     <!-- Dialog message -->
     <string name="msg_filename_existed">You\'ve recorded this song. Do you want to re-record?</string>
     <string name="msg_delete_file">Are you sure you want to permanently delete this record?</string>
+    <string name="msg_re_record">It seems like that the most recent recording was not finished. Do you want to re-record this song?</string>
 
     <!-- Toast message -->
     <string name="toast_delete_file_success">File has been deleted successfully!</string>
@@ -47,5 +48,10 @@
 
     <!-- Activites -->
     <string name="msg_no_connection">Oops! Can\'t retrieve data.\nMake sure your network connection is active and try again.</string>
-    <string name="msg_load_more_error">Error! Tap to try again.</string>
+    <string name="msg_load_data_error">Data load error occurred! Tap to retry.</string>
+    <string name="display_no_comment">No comment.</string>
+    <string name="action_save_current">Save current record</string>
+    <string name="action_record_new_song">Sing new song</string>
+    <string name="action_record_restart">Restart</string>
+    <string name="action_record_resume">Resume</string>
 </resources>

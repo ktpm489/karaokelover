@@ -75,11 +75,13 @@ public abstract class RecyclerViewEndlessScrollBaseAdapter<T extends Comparable<
             ((ViewHolderLoadingMore) holder).setIndeterminate(true);
         } else if (ViewHolderBase.VIEW_TYPE.DATA_ITEM == holder.getViewType()) {
             bindView(mDataList.get(position), holder);
-            holder.itemView.setOnClickListener(v -> {
-                mItemListener.onDataItemClick(mDataList.get(position));
-            });
+            if (mItemListener != null) {
+                holder.itemView.setOnClickListener(v -> mItemListener.onDataItemClick(mDataList.get(position)));
+            }
         } else if (ViewHolderBase.VIEW_TYPE.CONNECTION_ERROR == holder.getViewType()) {
-            holder.itemView.setOnClickListener(v -> mItemListener.onErrorLoadMoreRetry());
+            if (mItemListener != null) {
+                holder.itemView.setOnClickListener(v -> mItemListener.onErrorLoadMoreRetry());
+            }
         }
     }
 

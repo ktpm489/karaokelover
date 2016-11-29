@@ -4,17 +4,14 @@ import android.util.Log;
 
 import com.cleveroad.audiovisualization.DbmHandler;
 
-import vn.com.frankle.karaokelover.util.AudioChunk;
-
 /**
  * Created by duclm on 8/27/2016.
  */
 public class KAudioRecordDbmHandler extends DbmHandler<Float> implements KAudioRecord.AudioRecordListener {
 
-
     @Override
-    public void onAudioRecordDataReceived(byte[] data) {
-        onDataReceived((float) AudioChunk.getMaxAmplitude(data));
+    public void onAudioRecordDataReceived(byte[] data, int readSize) {
+
     }
 
     @Override

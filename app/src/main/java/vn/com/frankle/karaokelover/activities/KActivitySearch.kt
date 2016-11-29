@@ -49,7 +49,6 @@ import vn.com.frankle.karaokelover.adapters.KAdapterYoutubeVideoSearch
 import vn.com.frankle.karaokelover.adapters.RecyclerViewEndlessScrollBaseAdapter
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem
 import vn.com.frankle.karaokelover.database.realm.FavoriteRealm
-import vn.com.frankle.karaokelover.database.tables.FavoriteTable
 import vn.com.frankle.karaokelover.events.EventPopupMenuItemClick
 import vn.com.frankle.karaokelover.events.EventUpdateFavoriteList
 import vn.com.frankle.karaokelover.services.ReactiveHelper
@@ -513,7 +512,7 @@ class KActivitySearch : AppCompatActivity() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onPopupMenuItemClick(event: EventPopupMenuItemClick) {
-        val inserted = realm.where(FavoriteRealm::class.java).equalTo(FavoriteTable.COLUMN_VIDEO_ID, event.dataItem.videoId).findFirst()
+        val inserted = realm.where(FavoriteRealm::class.java).equalTo(FavoriteRealm.COLUMN_VIDEO_ID, event.dataItem.videoId).findFirst()
 
         when (event.action) {
             EventPopupMenuItemClick.ACTION.ADD_FAVORITE -> {

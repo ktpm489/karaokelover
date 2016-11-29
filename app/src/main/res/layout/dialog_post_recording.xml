@@ -5,59 +5,121 @@
     android:background="@color/colorPrimary"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/action_edit_recording"
+    <!--<RelativeLayout-->
+    <!--android:id="@+id/action_record_resume"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:background="?android:attr/selectableItemBackground"-->
+    <!--android:clickable="true"-->
+    <!--android:paddingBottom="16dp"-->
+    <!--android:paddingStart="32dp"-->
+    <!--android:paddingTop="16dp">-->
+
+    <!--<ImageView-->
+    <!--android:id="@+id/ic_action_resume"-->
+    <!--android:layout_width="24dp"-->
+    <!--android:layout_height="24dp"-->
+    <!--android:layout_centerVertical="true"-->
+    <!--android:background="@android:color/transparent"-->
+    <!--android:src="@drawable/ic_record_resume" />-->
+
+    <!--<TextView-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_centerInParent="true"-->
+    <!--android:layout_centerVertical="true"-->
+    <!--android:layout_marginStart="16dp"-->
+    <!--android:layout_toEndOf="@id/ic_action_resume"-->
+    <!--android:text="@string/action_record_resume"-->
+    <!--android:textColor="@color/text_primary_light"-->
+    <!--android:textSize="18sp" />-->
+    <!--</RelativeLayout>-->
+
+    <RelativeLayout
+        android:id="@+id/action_record_restart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
-        android:orientation="horizontal"
         android:paddingBottom="16dp"
         android:paddingStart="32dp"
         android:paddingTop="16dp">
 
+        <ImageView
+            android:id="@+id/ic_action_restart"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_record_restart" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Edit Recording"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:layout_toEndOf="@id/ic_action_restart"
+            android:text="@string/action_record_restart"
             android:textColor="@color/text_primary_light"
             android:textSize="18sp" />
-    </LinearLayout>
+    </RelativeLayout>
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/action_record_new_song"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
-        android:orientation="horizontal"
         android:paddingBottom="16dp"
         android:paddingStart="32dp"
         android:paddingTop="16dp">
 
+        <ImageView
+            android:id="@+id/ic_action_new_song"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_record_new_song" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sing again"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:layout_toEndOf="@id/ic_action_new_song"
+            android:text="@string/action_record_new_song"
             android:textColor="@color/text_primary_light"
             android:textSize="18sp" />
-    </LinearLayout>
+    </RelativeLayout>
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/action_record_save_early"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
-        android:orientation="horizontal"
         android:paddingBottom="16dp"
         android:paddingStart="32dp"
         android:paddingTop="16dp">
 
+        <ImageView
+            android:id="@+id/ic_action_save_current"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_record_save_early" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sing new song"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:layout_toEndOf="@id/ic_action_save_current"
+            android:text="@string/action_save_current"
             android:textColor="@color/text_primary_light"
             android:textSize="18sp" />
-    </LinearLayout>
+    </RelativeLayout>
 
 </LinearLayout>

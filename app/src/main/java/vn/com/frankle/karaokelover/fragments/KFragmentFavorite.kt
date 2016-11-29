@@ -29,7 +29,6 @@ import vn.com.frankle.karaokelover.events.EventUpdateFavoriteList
 import vn.com.frankle.karaokelover.services.ReactiveHelper
 import vn.com.frankle.karaokelover.util.Utils
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration
-import java.util.*
 import javax.inject.Inject
 
 /**
@@ -134,7 +133,7 @@ class KFragmentFavorite : Fragment() {
     /**
      * Read list of favorite videos from Realm database
      */
-    private fun getFavoriteVideosFromDB() {
+    fun getFavoriteVideosFromDB() {
         val favorites = realm.where(FavoriteRealm::class.java).findAll()
 
         if (favorites.isEmpty()) (
@@ -149,8 +148,9 @@ class KFragmentFavorite : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         Log.d(DEBUG_TAG, "onActivityResult")
         when (requestCode) {
-            KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST -> reloadIfNecessary(data)
+            KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST -> getFavoriteVideosFromDB()
         }
+
     }
 
     /**
@@ -195,26 +195,6 @@ class KFragmentFavorite : Fragment() {
         playVideoItent.putExtra("videoid", video.videoId)
         playVideoItent.putExtra("from_favorite", true)
         startActivityForResult(playVideoItent, REQUEST_CODE_RELOAD_FAVORITE_LIST)
-    }
-
-    /**
-     * Reload the favorite video list if necessary (change from other activity)
-
-     * @param resultData : intent data sent by called activity
-     */
-    fun reloadIfNecessary(resultData: Intent?) {
-        if (resultData != null) {
-            val videoId = resultData.getStringExtra("video_id")
-            if (mAppPrefs.isInFavoriteList(mContext, videoId)) {
-                // User has add this video to the favorite list
-                val newVideo = ArrayList<String>()
-                newVideo.add(videoId)
-                loadFavoriteVideos(newVideo)
-            } else {
-                // User remove this video from the favorite list
-                mFavoriteAdapter!!.removeVideoFromList(videoId)
-            }
-        }
     }
 
     /**

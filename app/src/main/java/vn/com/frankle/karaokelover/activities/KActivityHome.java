@@ -338,7 +338,7 @@ public class KActivityHome extends AppCompatActivity
                 break;
             case KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST:
                 if (mFavoriteFragment != null) {
-                    mFavoriteFragment.reloadIfNecessary(data);
+                    mFavoriteFragment.getFavoriteVideosFromDB();
                 }
                 break;
         }

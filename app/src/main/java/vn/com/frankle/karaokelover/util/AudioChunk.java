@@ -10,17 +10,15 @@ import java.nio.ByteOrder;
 public class AudioChunk {
     private static final double REFERENCE = 0.6;
 
-    public static double getMaxAmplitude(byte[] data) {
-        short[] shorts = toShorts(data);
-        int nMaxAmp = 0;
-        int arrLen = shorts.length;
-        int peakIndex;
-        for (peakIndex = 0; peakIndex < arrLen; peakIndex++) {
-            if (shorts[peakIndex] >= nMaxAmp) {
-                nMaxAmp = shorts[peakIndex];
-            }
+    public static float getMaxAmplitude(byte[] data, int readSize) {
+        double sum = 0;
+        for (int i = 0; i < readSize; i++) {
+            sum += data[i] * data[i];
         }
-        return (int) (20 * Math.log10(nMaxAmp / REFERENCE));
+        if (readSize > 0) {
+            return (float) sum / readSize;
+        }
+        return 0;
     }
 
     public static short[] toShorts(byte[] bytes) {
