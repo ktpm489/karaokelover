@@ -1,0 +1,22 @@
+<!-- [ Mirror metadata ] generatedAt: 1480687636140 -->
+<!-- Generated screen file. Fill the id tags below with content with
+which to populate your previewed layout. For a complete specification
+of sample data, please see http://jimulabs.com/sample-data-specifications/ 
+
+Valid attributes on <screen> tag: theme="@style/someTheme" inEditMode="false" overlay="@drawable/mockup" -->
+<screen>
+    <_content layout="@layout/recyclerview_item_comment">
+        <!-- TextView Examples:
+        <item_comment_author text="@string/string_resource" />
+        <item_comment_author text="Text literal" textSize="14sp" /> -->
+        <item_comment_author />
+        <item_comment_btn_readmore />
+        <item_comment_published_at />
+        <!-- ImageView Examples:
+        <item_comment_divider src="@drawable/image_resource" />
+        <item_comment_divider src="relative_path/image.jpg" /> -->
+        <item_comment_divider />
+        <item_comment_ic_like />
+        <item_comment_like />
+    </_content>
+</screen>

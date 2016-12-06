@@ -20,12 +20,12 @@
     </FrameLayout>
 
     <!--<fragment-->
-        <!--android:id="@+id/youtube_player"-->
-        <!--android:name="vn.com.frankle.karaokelover.fragments.KYoutubePlayerFragment"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentTop="true"-->
-        <!--android:layout_marginTop="?attr/actionBarSize" />-->
+    <!--android:id="@+id/youtube_player"-->
+    <!--android:name="vn.com.frankle.karaokelover.fragments.KYoutubePlayerFragment"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignParentTop="true"-->
+    <!--android:layout_marginTop="?attr/actionBarSize" />-->
 
     <RelativeLayout
         android:id="@+id/layout_play_video"

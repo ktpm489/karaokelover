@@ -1,0 +1,21 @@
+<!-- [ Mirror metadata ] generatedAt: 1480687636164 -->
+<!-- Generated screen file. Fill the id tags below with content with
+which to populate your previewed layout. For a complete specification
+of sample data, please see http://jimulabs.com/sample-data-specifications/ 
+
+Valid attributes on <screen> tag: theme="@style/someTheme" inEditMode="false" overlay="@drawable/mockup" -->
+<screen>
+    <_content layout="@layout/recyclerview_item_video_search">
+        <!-- ImageView Examples:
+        <item_search_video_preview src="@drawable/image_resource" />
+        <item_search_video_preview src="relative_path/image.jpg" /> -->
+        <item_search_video_preview />
+        <!-- TextView Examples:
+        <item_search_duration text="@string/string_resource" />
+        <item_search_duration text="Text literal" textSize="14sp" /> -->
+        <item_search_duration />
+        <item_search_video_title />
+        <item_search_play_count />
+        <item_search_like_count />
+    </_content>
+</screen>

@@ -10,7 +10,7 @@ import vn.com.frankle.karaokelover.util.Utils
  * Created by duclm on 8/2/2016.
  */
 
-class VideoSearchItem(var videoId: String?, var title: String?, duration: String, viewcount: String, likecount: String, private var mThumbnails: Thumbnails?) : Comparable<VideoSearchItem> {
+class VideoSearchItem(var videoId: String?, var title: String?, duration: String?, viewcount: String?, likecount: String?, private var mThumbnails: Thumbnails?) : Comparable<VideoSearchItem> {
 
     var duration: String? = null
         get() = Utils.convertYoutubeTimeformat(field)

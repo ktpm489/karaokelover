@@ -1,0 +1,20 @@
+<!-- [ Mirror metadata ] generatedAt: 1480687636082 -->
+<!-- Generated screen file. Fill the id tags below with content with
+which to populate your previewed layout. For a complete specification
+of sample data, please see http://jimulabs.com/sample-data-specifications/ 
+
+Valid attributes on <screen> tag: theme="@style/someTheme" inEditMode="false" overlay="@drawable/mockup" -->
+<screen>
+    <_content layout="@layout/layout_fragment_hot_karaoke">
+        <!-- ImageView Examples:
+        <imgv_video_thumbnail src="@drawable/image_resource" />
+        <imgv_video_thumbnail src="relative_path/image.jpg" /> -->
+        <imgv_video_thumbnail />
+        <!-- TextView Examples:
+        <tv_title_hot_karaoke text="@string/string_resource" />
+        <tv_title_hot_karaoke text="Text literal" textSize="14sp" /> -->
+        <tv_title_hot_karaoke />
+        <tv_sub_hot_count />
+        <tv_sub_hot_like />
+    </_content>
+</screen>

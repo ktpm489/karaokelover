@@ -1,0 +1,15 @@
+<!-- [ Mirror metadata ] generatedAt: 1480687636120 -->
+<!-- Generated screen file. Fill the id tags below with content with
+which to populate your previewed layout. For a complete specification
+of sample data, please see http://jimulabs.com/sample-data-specifications/ 
+
+Valid attributes on <screen> tag: theme="@style/someTheme" inEditMode="false" overlay="@drawable/mockup" -->
+<screen>
+    <_content layout="@layout/recyclerview_item_artist_bio">
+        <!-- TextView Examples:
+        <tv_artist_bio text="@string/string_resource" />
+        <tv_artist_bio text="Text literal" textSize="14sp" /> -->
+        <tv_artist_bio />
+        <btn_bio_more />
+    </_content>
+</screen>

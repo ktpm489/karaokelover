@@ -1,0 +1,9 @@
+#Automatically generated header file. Editing this file may cause problems.
+#Fri Dec 02 21:14:38 ICT 2016
+serverVersion=2.5.9
+dexState=NO_CHANGE
+package=vn.com.frankle.karaokelover
+version=13
+serverVersionCode=70
+dexManagerName=ExtractFromApkDexManager
+appTheme=@style/KaraokeLoverTheme

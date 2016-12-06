@@ -10,6 +10,7 @@
         <item name="android:popupMenuStyle">@style/KaraokeLoverTheme.PopupMenu</item>
         <item name="android:itemTextAppearance">@style/KaraokeLoverTheme.MenuItemTextAppearance
         </item>
+        <item name="alertDialogTheme">@style/KaraokeLoverTheme.AlertDialog</item>
     </style>
 
     <style name="KaraokeLoverTheme.NoActionBar">
@@ -143,5 +144,16 @@
         <item name="android:popupBackground">@color/colorPrimary</item>
     </style>
     <!-- End of Popup Menu style -->
+
+    <!-- Alert Dialog style -->
+    <style name="KaraokeLoverTheme.AlertDialog" parent="Base.Theme.AppCompat.Light.Dialog.Alert">
+        <!-- Used for the buttons -->
+        <item name="colorAccent">@color/colorAccent</item>
+        <!-- Used for the title and text -->
+        <item name="android:textColorPrimary">@color/text_primary_light</item>
+        <!-- Used for the background -->
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+    <!-- End of Alert Dialog style -->
 
 </resources>

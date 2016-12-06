@@ -21,7 +21,6 @@ import android.widget.RelativeLayout
 import android.widget.Toast
 import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubePlayer
-import com.google.android.youtube.player.YouTubePlayerSupportFragment
 import com.orhanobut.logger.Logger
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_kplay_video.*
@@ -36,6 +35,10 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
 import vn.com.frankle.karaokelover.*
+import vn.com.frankle.karaokelover.activities.states.KActivityPlayVideoBaseState
+import vn.com.frankle.karaokelover.activities.states.KActivityPlayVideoPlayingState
+import vn.com.frankle.karaokelover.activities.states.KActivityPlayVideoRecordingState
+import vn.com.frankle.karaokelover.activities.states.KActivityPlayVideoUnitializeState
 import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener
 import vn.com.frankle.karaokelover.adapters.KAdapterComments
 import vn.com.frankle.karaokelover.adapters.RecyclerViewEndlessScrollBaseAdapter.OnItemClickListener
@@ -43,6 +46,7 @@ import vn.com.frankle.karaokelover.adapters.viewholders.ViewHolderComment
 import vn.com.frankle.karaokelover.database.realm.FavoriteRealm
 import vn.com.frankle.karaokelover.events.EventPrepareRecordingCountdown
 import vn.com.frankle.karaokelover.events.EventUpdateFavoriteList
+import vn.com.frankle.karaokelover.fragments.KYoutubePlayerFragment
 import vn.com.frankle.karaokelover.services.responses.ResponseCommentThreads
 import vn.com.frankle.karaokelover.services.responses.youtube.commentthread.CommentThread
 import vn.com.frankle.karaokelover.util.Utils
@@ -57,23 +61,89 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     internal lateinit var onScrollListener: EndlessRecyclerViewScrollListener
     private var mAdapterComment: KAdapterComments? = null
     //    private GLAudioVisualizationView mAudioRecordVisualization;
-    private var mCurrentVideoId: String? = null
+    private lateinit var mCurrentVideoId: String
     private var mCurrentVideoTitle: String? = null
     private var mCurrentSavedFilename: String? = null
     private var mCurrentCommentPageToken: String? = null
     private var mFavoriteState: Boolean = false
-    private lateinit var mYoutubePlayerFragment: YouTubePlayerSupportFragment
-    // Flag to indicate that YoutubePlayer has been re-initialized
-    private var mFlagYoutubePlayerReinit = false
+    private lateinit var mYoutubePlayerFragment: KYoutubePlayerFragment
     // Store previously video's position
     private var mLastVideoPos: Int = 0
-    //    private KAudioRecordDbmHandler mAudioDbmHandler = new KAudioRecordDbmHandler();
     private var mRecorder: KAudioRecord? = null
     // Handling record timer
     private var recorderSecondsElapsed = 0
     private val handler = Handler()
     private var mYoutubePlayer: YouTubePlayer? = null
     private val mSharedPref: KSharedPreference = KSharedPreference()
+
+    private lateinit var mState: KActivityPlayVideoBaseState
+    // States of activity
+    private val mUninitState: KActivityPlayVideoBaseState = KActivityPlayVideoUnitializeState(this@KActivityPlayVideo)
+    private val mPlayingState: KActivityPlayVideoBaseState = KActivityPlayVideoPlayingState(this@KActivityPlayVideo)
+    private val mRecordingState: KActivityPlayVideoBaseState = KActivityPlayVideoRecordingState(this@KActivityPlayVideo)
+
+    //----------------------------------LIFE CYCLE--------------------------------------------------
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_kplay_video)
+
+        // Set activity to unitialize state
+        setActivityState(mUninitState)
+
+        // Initialzie recorder
+        mRecorder = KAudioRecord(this)
+
+        // Get extra data from received intent
+        mCurrentVideoTitle = intent.getStringExtra("title")
+        mCurrentVideoId = intent.getStringExtra("videoid")
+
+        setSupportActionBar(apv_toolbar)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        supportActionBar!!.title = mCurrentVideoTitle
+
+        layout_connection_error.setOnClickListener { checkInternetConnectionAndInitViews() }
+        content_error_loading.setOnClickListener { loadVideoComments() }
+
+        checkInternetConnectionAndInitViews()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(DEBUG_TAG, "onStart")
+        KApplication.eventBus.register(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(DEBUG_TAG, "onResume")
+        mState.onResume()
+    }
+
+    override fun onPause() {
+        Log.d(DEBUG_TAG, "onPause")
+        super.onPause()
+        mState.onPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(DEBUG_TAG, "onStop")
+        KApplication.eventBus.unregister(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeSubscriptionForOnStop.unsubscribe()
+    }
+
+    //----------------------------------LIFE CYCLE--------------------------------------------------
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (RECOVERY_REQUEST == requestCode) {
+            mYoutubePlayerFragment.initialize(Constants.YOUTUBE_API_KEY, onInitializedListener)
+        }
+    }
 
     private val playerStateChangeListener = object : YouTubePlayer.PlayerStateChangeListener {
         override fun onLoading() {
@@ -94,19 +164,23 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
 
         override fun onVideoEnded() {
             Log.i(DEBUG_TAG, "YouTubePlayer.PlayerStateChangeListener - OnVideoEnded")
+            if (mRecorder != null && mRecorder!!.mIsRecording.get()) {
+                // The application is recording
+                stopRecording()
+            }
         }
 
         override fun onError(errorReason: YouTubePlayer.ErrorReason) {
-            Log.i(DEBUG_TAG, "YouTubePlayer.PlayerStateChangeListener - OnError")
+            Log.i(DEBUG_TAG, "YouTubePlayer.PlayerStateChangeListener - OnError: " + errorReason.name)
         }
     }
     private val mPlaybackEventListener = object : YouTubePlayer.PlaybackEventListener {
         override fun onPlaying() {
-            Logger.d("PlaybackEventListener - onPlaying")
+            Log.i(DEBUG_TAG, "PlaybackEventListener - onPlaying")
         }
 
         override fun onPaused() {
-            Logger.d("PlaybackEventListener - onPaused")
+            Log.i(DEBUG_TAG, "PlaybackEventListener - onPaused")
             if (mRecorder != null && mRecorder!!.mIsRecording.get()) {
                 // Currently is recording
                 switchRecordButton(false)
@@ -121,11 +195,11 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         }
 
         override fun onBuffering(b: Boolean) {
-            Logger.d("PlaybackEventListener - onBuffering")
+            Log.d(DEBUG_TAG, "PlaybackEventListener - onBuffering")
         }
 
         override fun onSeekTo(i: Int) {
-            Logger.d("PlaybackEventListener - onSeekTo %s", i)
+            Log.d(DEBUG_TAG, "PlaybackEventListener - onSeekTo " + i)
         }
 
 
@@ -133,21 +207,41 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     private val onInitializedListener = object : YouTubePlayer.OnInitializedListener {
         override fun onInitializationSuccess(provider: YouTubePlayer.Provider, youTubePlayer: YouTubePlayer, wasRestored: Boolean) {
             Log.d(DEBUG_TAG, "YoutubePlayer - onInitializationSuccess")
+            mYoutubePlayer = youTubePlayer
+            mYoutubePlayer!!.setPlayerStateChangeListener(playerStateChangeListener)
+            mYoutubePlayer!!.setPlaybackEventListener(mPlaybackEventListener)
+            mYoutubePlayer!!.setShowFullscreenButton(false)
+            if (!wasRestored) {
+                mYoutubePlayer!!.loadVideo(mCurrentVideoId)
+                setActivityState(mPlayingState)
+            } else {
+                Log.d(DEBUG_TAG, "Restored from a previously saved state")
+            }
+        }
+
+        override fun onInitializationFailure(provider: YouTubePlayer.Provider, youTubeInitializationResult: YouTubeInitializationResult) {
+            if (youTubeInitializationResult.isUserRecoverableError) {
+                youTubeInitializationResult.getErrorDialog(this@KActivityPlayVideo, 1).show()
+            } else {
+                Toast.makeText(this@KActivityPlayVideo,
+                        "Failed to initialize video, please try again!",
+                        Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    /**
+     * Used for re-initialization of youtube player
+     */
+    private val onReInitializedListener = object : YouTubePlayer.OnInitializedListener {
+        override fun onInitializationSuccess(provider: YouTubePlayer.Provider, youTubePlayer: YouTubePlayer, wasRestored: Boolean) {
+            Log.d(DEBUG_TAG, "YoutubePlayer - onReInitializationSuccess")
             if (!wasRestored) {
                 mYoutubePlayer = youTubePlayer
                 mYoutubePlayer!!.setPlayerStateChangeListener(playerStateChangeListener)
                 mYoutubePlayer!!.setPlaybackEventListener(mPlaybackEventListener)
                 mYoutubePlayer!!.setShowFullscreenButton(false)
-
-                if (mFlagYoutubePlayerReinit) {
-                    mYoutubePlayer!!.cueVideo(mCurrentVideoId, mLastVideoPos)
-                    // Reset flag
-                    mFlagYoutubePlayerReinit = false
-                } else {
-                    mYoutubePlayer!!.loadVideo(mCurrentVideoId)
-                }
-            } else {
-                Log.d(DEBUG_TAG, "Restored from a previously saved state")
+                mYoutubePlayer!!.cueVideo(mCurrentVideoId, mLastVideoPos)
             }
         }
 
@@ -155,6 +249,31 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
             Log.d(DEBUG_TAG, "YoutubePlayer - onInitializationFailure")
         }
     }
+
+    /**
+     * Callback to get sample when recording
+
+     * @param data : sample data
+     */
+    override fun onAudioRecordDataReceived(data: ByteArray?, readSize: Int) {
+//        runOnUiThread { visualizer!!.addAmplitude(AudioChunk.getMaxAmplitude(data, readSize)) }
+    }
+
+    /**
+     * Callback when recording get errors
+     */
+    override fun onAudioRecordError() {
+
+    }
+
+    fun setActivityState(newState: KActivityPlayVideoBaseState) {
+        this.mState = newState
+    }
+
+    fun getYoutubePlayerInstance(): YouTubePlayer? {
+        return this.mYoutubePlayer
+    }
+
     /**
      * Task to update timer
      */
@@ -200,29 +319,10 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_kplay_video)
-
-
-        // Initialzie recorder
-        mRecorder = KAudioRecord(this)
-
-        // Get extra data from received intent
-        mCurrentVideoTitle = intent.getStringExtra("title")
-        mCurrentVideoId = intent.getStringExtra("videoid")
-
-        setSupportActionBar(apv_toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        supportActionBar!!.title = mCurrentVideoTitle
-
-        layout_connection_error.setOnClickListener { checkInternetConnectionAndInitilaizeViews() }
-        content_error_loading.setOnClickListener { loadVideoComments() }
-
-        checkInternetConnectionAndInitilaizeViews()
-    }
-
-    private fun checkInternetConnectionAndInitilaizeViews() {
+    /**
+     * Setup views based on validity of internet connection
+     */
+    private fun checkInternetConnectionAndInitViews() {
         if (Utils.isOnline(this@KActivityPlayVideo)) {
             setLayoutVisibility(LayoutType.PLAYING)
             setupViews()
@@ -284,8 +384,8 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
      */
     private fun setupViews() {
         //Setup youtube player view
-        mYoutubePlayerFragment = YouTubePlayerSupportFragment.newInstance()
-        supportFragmentManager.beginTransaction().replace(R.id.youtube_player, mYoutubePlayerFragment).commit()
+        mYoutubePlayerFragment = KYoutubePlayerFragment.newInstance()
+        fragmentManager.beginTransaction().replace(R.id.youtube_player, mYoutubePlayerFragment).commit()
         mYoutubePlayerFragment.initialize(Constants.YOUTUBE_API_KEY, onInitializedListener)
 
         btn_record!!.setOnClickListener({ onRecordButtonClick() })
@@ -447,7 +547,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
 
         return true
     }
-
+    /**
     //    /**
     //     * Preparing audio file (download from youtubeinmp3.com) of current Youtube video
     //     */
@@ -533,6 +633,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     //                .setPositiveButton("OK", (dialogInterface, i) -> dialogInterface.dismiss())
     //                .show();
     //    }
+     */
 
     /**
      * Handle favorite click event
@@ -597,22 +698,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     }
 
     /**
-     * Callback to get sample when recording
-
-     * @param data : sample data
-     */
-    override fun onAudioRecordDataReceived(data: ByteArray?, readSize: Int) {
-//        runOnUiThread { visualizer!!.addAmplitude(AudioChunk.getMaxAmplitude(data, readSize)) }
-    }
-
-    /**
-     * Callback when recording get errors
-     */
-    override fun onAudioRecordError() {
-
-    }
-
-    /**
      * Start recording voice
      */
     private fun startRecording() {
@@ -625,6 +710,20 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         saved_filename!!.text = mCurrentSavedFilename
         mRecorder!!.start(mCurrentSavedFilename, false)
         startRecordingTimer()
+
+        setActivityState(mRecordingState)
+    }
+
+    /**
+     * Stop recording voice
+     */
+    fun stopRecording() {
+        if (mRecorder != null && mRecorder!!.mIsRecording.get()) {
+            switchRecordButton(false)
+            stopRecordingTimer()
+            mRecorder!!.stop()
+            buildPostRecordDialog()
+        }
     }
 
     /**
@@ -648,56 +747,12 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         Logger.d("onSaveInstanceState")
     }
 
-    override fun onPause() {
-        super.onPause()
-        Log.d(DEBUG_TAG, "onPause")
-        if (mYoutubePlayer != null) {
-            mFlagYoutubePlayerReinit = true
-            mLastVideoPos = mYoutubePlayer!!.currentTimeMillis
-        }
-
-        if (mRecorder != null && mRecorder!!.mIsRecording.get()) {
-            // Currently is recording
-            switchRecordButton(false)
-            mRecorder!!.stop()
-            stopRecordingTimer()
-            buildPostRecordDialog()
-        }
-    }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
         Logger.d("onRestoreInstanceState")
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.d(DEBUG_TAG, "onResume")
-        if (mYoutubePlayer != null) {
-            Log.d(DEBUG_TAG, "onResume - Reinitialize YoutubePlayer")
-            mYoutubePlayerFragment = YouTubePlayerSupportFragment.newInstance()
-            supportFragmentManager.beginTransaction().replace(R.id.youtube_player, mYoutubePlayerFragment).commit()
-            mYoutubePlayerFragment.initialize(Constants.YOUTUBE_API_KEY, onInitializedListener)
-        }
-
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d(DEBUG_TAG, "onStop")
-        KApplication.eventBus.unregister(this)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Log.d(DEBUG_TAG, "onStart")
-        KApplication.eventBus.register(this)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        compositeSubscriptionForOnStop.unsubscribe()
-    }
 
     override fun onBackPressed() {
         Log.d(DEBUG_TAG, "onBackPressed")
@@ -743,7 +798,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
             }
         }
     }
-
 
     private fun setLayoutVisibility(layoutType: LayoutType) {
         when (layoutType) {
@@ -846,9 +900,34 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         }
     }
 
+    fun getUnitializeState(): KActivityPlayVideoBaseState {
+        return this.mUninitState
+    }
+
+    fun getPlayingState(): KActivityPlayVideoBaseState {
+        return this.mPlayingState
+    }
+
+    fun getRecordingState(): KActivityPlayVideoBaseState {
+        return this.mRecordingState
+    }
+
+    fun getCurrentVideoId(): String {
+        return this.mCurrentVideoId
+    }
+
+    fun reinitializeYoutubePlayerFragment(currentVideoPos: Int) {
+        this.mLastVideoPos = currentVideoPos
+        mYoutubePlayerFragment = KYoutubePlayerFragment.newInstance()
+        fragmentManager.beginTransaction().replace(R.id.youtube_player, mYoutubePlayerFragment).commit()
+        mYoutubePlayerFragment.initialize(Constants.YOUTUBE_API_KEY, onReInitializedListener)
+        mYoutubePlayer!!.cueVideo(mCurrentVideoId, mLastVideoPos)
+    }
+
     companion object {
 
         private val DEBUG_TAG = KActivityPlayVideo::class.java.simpleName
+        private val RECOVERY_REQUEST = 1
     }
 
     enum class ContentViewtype {

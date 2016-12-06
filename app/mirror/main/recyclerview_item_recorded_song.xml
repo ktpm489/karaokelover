@@ -1,0 +1,20 @@
+<!-- [ Mirror metadata ] generatedAt: 1480687636158 -->
+<!-- Generated screen file. Fill the id tags below with content with
+which to populate your previewed layout. For a complete specification
+of sample data, please see http://jimulabs.com/sample-data-specifications/ 
+
+Valid attributes on <screen> tag: theme="@style/someTheme" inEditMode="false" overlay="@drawable/mockup" -->
+<screen>
+    <_content layout="@layout/recyclerview_item_recorded_song">
+        <!-- ImageView Examples:
+        <item_recording_icon src="@drawable/image_resource" />
+        <item_recording_icon src="relative_path/image.jpg" /> -->
+        <item_recording_icon />
+        <!-- TextView Examples:
+        <item_recording_filename text="@string/string_resource" />
+        <item_recording_filename text="Text literal" textSize="14sp" /> -->
+        <item_recording_filename />
+        <item_recording_date />
+        <item_recording_duration />
+    </_content>
+</screen>

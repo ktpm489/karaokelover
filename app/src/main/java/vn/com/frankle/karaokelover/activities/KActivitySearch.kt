@@ -451,6 +451,8 @@ class KActivitySearch : AppCompatActivity() {
                         }
 
                         override fun onError(e: Throwable) {
+                            Log.e(DEBUG_TAG, "Error: " + e.message)
+                            Log.e(DEBUG_TAG, "Error cause: " + e.stackTrace.toString())
                             switchConnectionErrorLayout(true)
                         }
 

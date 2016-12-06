@@ -1,0 +1,18 @@
+<!-- [ Mirror metadata ] generatedAt: 1480687635699 -->
+<!-- Generated screen file. Fill the id tags below with content with
+which to populate your previewed layout. For a complete specification
+of sample data, please see http://jimulabs.com/sample-data-specifications/ 
+
+Valid attributes on <screen> tag: theme="@style/someTheme" inEditMode="false" overlay="@drawable/mockup" -->
+<screen>
+    <_content layout="@layout/activity_artist_detail">
+        <!-- ImageView Examples:
+        <imgv_backdrop src="@drawable/image_resource" />
+        <imgv_backdrop src="relative_path/image.jpg" /> -->
+        <imgv_backdrop />
+        <!-- TextView Examples:
+        <tv_artist_name text="@string/string_resource" />
+        <tv_artist_name text="Text literal" textSize="14sp" /> -->
+        <tv_artist_name />
+    </_content>
+</screen>
