@@ -246,4 +246,12 @@ public class ViewUtils {
                 paddingBottom);
     }
 
+
+    public static int convertDpToPx(int dp){
+        return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
+    }
+
+    public static int convertPxToDp(int px){
+        return (int) (px / Resources.getSystem().getDisplayMetrics().density);
+    }
 }

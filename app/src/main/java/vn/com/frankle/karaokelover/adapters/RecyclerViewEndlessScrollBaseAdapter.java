@@ -163,7 +163,7 @@ public abstract class RecyclerViewEndlessScrollBaseAdapter<T extends Comparable<
 
     public void setErrorLoadingMore(boolean isError) {
         this.isLoadMoreError = isError;
-        notifyItemChanged(mDataList.size() + 1);
+        notifyItemChanged(mDataList.size());
     }
 
     public interface OnItemClickListener<T> {

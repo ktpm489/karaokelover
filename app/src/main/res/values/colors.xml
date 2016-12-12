@@ -35,6 +35,10 @@
     <!-- Artist Detail Activity -->
     <color name="scrim_cover">#73000000</color>
 
+    <!-- ViewPagerIndicator -->
+    <color name="pageIndicatorColor">#bdbdbd</color>
+    <color name="currentPageIndicatorColor">@color/colorAccent</color>
+
     <array name="av_colors">
         <item>@color/accent</item>
     </array>

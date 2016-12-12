@@ -6,8 +6,8 @@
 
     <ImageView
         android:id="@+id/imgv_item_hot_karaoke_item_preview"
-        android:layout_width="208dp"
-        android:layout_height="117dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:scaleType="centerCrop" />
 
     <TextView
@@ -19,9 +19,10 @@
         android:layout_below="@id/imgv_item_hot_karaoke_item_preview"
         android:layout_marginTop="8dp"
         android:ellipsize="end"
+        android:fontFamily="sans-serif-light"
         android:maxLines="2"
         android:textColor="@color/text_primary_light"
-        android:textSize="16sp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/tv_item_hotkaraoke_duration"
@@ -38,6 +39,6 @@
         android:paddingRight="6dp"
         android:paddingTop="2dp"
         android:textColor="@color/text_primary_light"
-        android:textSize="14sp" />
+        android:textSize="13sp" />
 
 </RelativeLayout>

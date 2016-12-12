@@ -20,6 +20,7 @@ import rx.subscriptions.CompositeSubscription;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.database.entities.ArtistWithKaraoke;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
+import vn.com.frankle.karaokelover.util.ViewUtils;
 
 /**
  * Created by duclm on 7/17/2016.
@@ -48,7 +49,7 @@ public class KHotKaraokeRecycleAdapter extends RecyclerView.Adapter<KHotKaraokeR
         View hotKaraokeView = inflater.inflate(R.layout.item_hot_artist_song, parent, false);
 
         // Return a new holder instance
-        return new ViewHolder(hotKaraokeView);
+        return new ViewHolder(mContext, hotKaraokeView);
     }
 
     @Override
@@ -82,21 +83,20 @@ public class KHotKaraokeRecycleAdapter extends RecyclerView.Adapter<KHotKaraokeR
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
-        public ViewHolder(View itemView) {
+        public ViewHolder(Context context, View itemView) {
             // Stores the itemView in a public final member variable that can be used
             // to access the context from any ViewHolder instance.
             super(itemView);
 
             ButterKnife.bind(this, itemView);
-        }
 
-//        public void bind(final Context context, final ResponseSnippetContentDetails item, final OnItemClickListener listener) {
-//            title.setText(item.getItems().get(0).getSnippet().getTitle());
-//            duration.setText(Utils.convertYoutubeTimeformat(item.getItems().get(0).getContentDetails().getDuration()));
-//            Glide.with(context).load(Utils.getThumbnailURL(item.getItems().get(0).getSnippet().getThumbnails()))
-//                    .placeholder(R.drawable.drawable_default_preview).into(preview);
-//            itemView.setOnClickListener(v -> listener.onItemClick(item));
-//        }
+            int widthScreen = context.getResources().getDisplayMetrics().widthPixels;
+
+            int actualWidth = (widthScreen - ViewUtils.convertDpToPx(12) * 3) / 2;
+            int actualHeight = actualWidth * 9 / 16;
+            preview.getLayoutParams().width = actualWidth;
+            preview.getLayoutParams().height = actualHeight;
+        }
 
         public void bind(final Context context, final VideoSearchItem item, final OnItemClickListener listener) {
             title.setText(item.getTitle());

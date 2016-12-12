@@ -16,10 +16,10 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.activities.KActivityArtistDetails;
 import vn.com.frankle.karaokelover.activities.KActivityHome;
 import vn.com.frankle.karaokelover.activities.KActivityPlayVideo;
-import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.database.entities.ArtistWithKaraoke;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.fragments.KFragmentFavorite;
@@ -122,9 +122,11 @@ public class KHotArtistAdapter extends RecyclerView.Adapter<KHotArtistAdapter.Vi
             layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
             hotSongs.setHasFixedSize(true);
             hotSongs.setLayoutManager(layoutManager);
-            hotSongs.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(context, 16), SpaceItemDecoration.HORIZONTAL));
+            hotSongs.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(context, 12), SpaceItemDecoration.HORIZONTAL));
             hotSongs.setNestedScrollingEnabled(false);
         }
+
+
     }
 
 }

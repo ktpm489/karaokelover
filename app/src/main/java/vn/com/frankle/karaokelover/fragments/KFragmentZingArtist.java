@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
@@ -24,9 +25,9 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
-import vn.com.frankle.karaokelover.activities.KActivityArtistDetails;
 import vn.com.frankle.karaokelover.KApplication;
 import vn.com.frankle.karaokelover.R;
+import vn.com.frankle.karaokelover.activities.KActivityArtistDetails;
 import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener;
 import vn.com.frankle.karaokelover.adapters.KAdapterZingArtist;
 import vn.com.frankle.karaokelover.adapters.RecyclerViewEndlessScrollBaseAdapter;
@@ -50,9 +51,14 @@ public class KFragmentZingArtist extends Fragment {
     ProgressBar mProgressBar;
     @BindView(R.id.recyclerview_artists)
     RecyclerView mRecyclerView;
+    @BindView(R.id.content_error_loading)
+    RelativeLayout mErrorLoading;
+
     private Context mContext;
     private int mArtistType;
     private KAdapterZingArtist mAdapter;
+    private int mCurrentTotalArtistCount;
+
     private RecyclerViewEndlessScrollBaseAdapter.OnItemClickListener<ZingArtist> mOnItemClickListener = new RecyclerViewEndlessScrollBaseAdapter.OnItemClickListener<ZingArtist>() {
         @Override
         public void onDataItemClick(ZingArtist dataItem) {
@@ -61,9 +67,12 @@ public class KFragmentZingArtist extends Fragment {
 
         @Override
         public void onErrorLoadMoreRetry() {
-
+            mAdapter.setErrorLoadingMore(false);
+            loadMoreArtists(mCurrentTotalArtistCount);
         }
     };
+
+    private View.OnClickListener onErrorRetryClickListener = view -> loadArtistList();
 
     public static KFragmentZingArtist newInstance(int artistType) {
         Log.d(DEBUG_TAG, "Create fragment for artistype = " + artistType);
@@ -128,8 +137,7 @@ public class KFragmentZingArtist extends Fragment {
      * Load artist list from Zing Mp3's server
      */
     private void loadArtistList() {
-        setLoadingState(true);
-
+        setViewTypeVisibitiy(ViewType.LOADING);
         try {
             String url = ZingMp3API.getListArtistURL(mArtistType, 0);
 
@@ -137,7 +145,6 @@ public class KFragmentZingArtist extends Fragment {
             compositeSubscriptionForOnStop.add(getArtistRequest
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doOnError(throwable -> Toast.makeText(mContext, "Error while getting artist list", Toast.LENGTH_SHORT).show())
                     .subscribe(new Subscriber<ResponseListArtist>() {
                         @Override
                         public void onCompleted() {
@@ -146,7 +153,7 @@ public class KFragmentZingArtist extends Fragment {
 
                         @Override
                         public void onError(Throwable e) {
-                            Toast.makeText(mContext, "Subcriber error", Toast.LENGTH_SHORT).show();
+                            setViewTypeVisibitiy(ViewType.ERROR);
                         }
 
                         @Override
@@ -172,7 +179,23 @@ public class KFragmentZingArtist extends Fragment {
             compositeSubscriptionForOnStop.add(getArtistRequest
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(this::handleArtistLoadMoreResult));
+                    .subscribe(new Subscriber<ResponseListArtist>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.e(DEBUG_TAG, "Error occurs when loading more artist");
+                            mAdapter.setErrorLoadingMore(true);
+                        }
+
+                        @Override
+                        public void onNext(ResponseListArtist responseListArtist) {
+                            handleArtistLoadMoreResult(responseListArtist);
+                        }
+                    }));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -180,11 +203,11 @@ public class KFragmentZingArtist extends Fragment {
 
     private void handleArtistListResult(ResponseListArtist result) {
         if (result.getZingArtists().size() > 0) {
-            setLoadingState(false);
-
+            setViewTypeVisibitiy(ViewType.DISPLAY_DATA);
             mAdapter.addDataItems(result.getZingArtists());
         } else {
             Toast.makeText(mContext, "No artist.", Toast.LENGTH_SHORT).show();
+            setViewTypeVisibitiy(ViewType.ERROR);
         }
     }
 
@@ -211,23 +234,33 @@ public class KFragmentZingArtist extends Fragment {
         mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemCount) {
-                loadMoreArtists(totalItemCount);
+                mCurrentTotalArtistCount = totalItemCount;
+                loadMoreArtists(mCurrentTotalArtistCount);
             }
         });
+
+        mErrorLoading.setOnClickListener(onErrorRetryClickListener);
     }
 
-    /**
-     * Switch visiblity of ProgressBar and RecyclerView
-     *
-     * @param loading : true if display progressbar
-     */
-    private void setLoadingState(boolean loading) {
-        if (loading) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            mRecyclerView.setVisibility(View.GONE);
-        } else {
-            mProgressBar.setVisibility(View.GONE);
-            mRecyclerView.setVisibility(View.VISIBLE);
+    private void setViewTypeVisibitiy(ViewType displayContent) {
+        switch (displayContent) {
+            case LOADING:
+                mProgressBar.setVisibility(View.VISIBLE);
+                mRecyclerView.setVisibility(View.GONE);
+                mErrorLoading.setVisibility(View.GONE);
+                break;
+            case DISPLAY_DATA:
+                mProgressBar.setVisibility(View.GONE);
+                mRecyclerView.setVisibility(View.VISIBLE);
+                mErrorLoading.setVisibility(View.GONE);
+                break;
+            case ERROR:
+                mProgressBar.setVisibility(View.GONE);
+                mRecyclerView.setVisibility(View.GONE);
+                mErrorLoading.setVisibility(View.VISIBLE);
+                break;
+            default:
+                break;
         }
     }
 
@@ -235,5 +268,11 @@ public class KFragmentZingArtist extends Fragment {
         int VPOP = 1;
         int US_UK = 3;
         int K_POP = 2;
+    }
+
+    private enum ViewType {
+        LOADING,
+        DISPLAY_DATA,
+        ERROR
     }
 }

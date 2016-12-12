@@ -48,10 +48,16 @@
 
     <!-- Activites -->
     <string name="msg_no_connection">Oops! Can\'t retrieve data.\nMake sure your network connection is active and try again.</string>
-    <string name="msg_load_data_error">Data load error occurred! Tap to retry.</string>
+    <string name="msg_load_data_error">There was problem while retrieving data!\nTap to retry.</string>
     <string name="display_no_comment">No comment.</string>
     <string name="action_save_current">Save current record</string>
     <string name="action_record_new_song">Sing new song</string>
     <string name="action_record_restart">Restart</string>
     <string name="action_record_resume">Resume</string>
+
+    <!-- Artist sorting spinner -->
+    <string-array name="spinner_sorting">
+        <item>Hot trend</item>
+        <item>Alphabetical</item>
+    </string-array>
 </resources>

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,7 +16,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.github.ybq.parallaxviewpager.ParallaxViewPager;
-import com.viewpagerindicator.CirclePageIndicator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,6 +44,7 @@ import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics;
 import vn.com.frankle.karaokelover.util.FileUtils;
 import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
+import vn.com.frankle.karaokelover.views.widgets.InkPageIndicator;
 
 /**
  * Created by duclm on 9/18/2016.
@@ -57,14 +58,16 @@ public class KFragmentHome extends Fragment {
     private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
     @BindView(R.id.cover_container_viewpager)
     ParallaxViewPager mCoverContainer;
-    @BindView(R.id.cover_viewpager_indicator)
-    CirclePageIndicator mViewpagerIndicator;
+    @BindView(R.id.viewpager_indicator)
+    InkPageIndicator mViewpagerIndicator;
     @BindView(R.id.recycleview_hot_artists)
     RecyclerView mRecycleViewHotArtists;
     @BindView(R.id.progressbar_hot_artist)
     ProgressBar mProgressBarHotArtist;
-    @BindView(R.id.layout_home_content)
-    RelativeLayout mLayoutContent;
+    @BindView(R.id.layout_content_home)
+    NestedScrollView mLayoutContent;
+    @BindView(R.id.fragment_home_content)
+    RelativeLayout mFragmentHomeContent;
     @BindView(R.id.layout_connection_error)
     RelativeLayout mLayoutNoConnection;
 
@@ -114,8 +117,6 @@ public class KFragmentHome extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        KApplication.get(mContext).appComponent().inject(this);
-
         mPhyScreenWidthInPixel = getArguments().getInt(KEY_PHYSIC_SCREEN_SIZE);
     }
 
@@ -141,15 +142,15 @@ public class KFragmentHome extends Fragment {
     private void checkInternetConnectionAndInitilaizeViews() {
         if (Utils.isOnline(mContext)) {
             setupViews();
-            setHotArtistLoadingState(true);
+            setViewLoadingState(true);
             retrieveHotTrendAndArtistsKaraokes();
         } else {
-            setConnectionErrorStateView(true);
+            setContentLayoutType(LayoutType.CONNECTION_ERROR);
         }
     }
 
     private void setupViews() {
-        setConnectionErrorStateView(false);
+        setContentLayoutType(LayoutType.CONTENT);
         // Set up viewpager of hot song content to aspect ration of 16:9
         mCoverContainer.getLayoutParams().height = mPhyScreenWidthInPixel * 9 / 16;
 
@@ -222,7 +223,7 @@ public class KFragmentHome extends Fragment {
 
             @Override
             public void onError(Throwable e) {
-                setConnectionErrorStateView(true);
+                setContentLayoutType(LayoutType.CONNECTION_ERROR);
             }
 
             @Override
@@ -233,7 +234,7 @@ public class KFragmentHome extends Fragment {
                 mViewpagerIndicator.setViewPager(mCoverContainer);
 
                 mHotArtistAdapter.updateAdapterData(eventFinishLoadingHotTrendAndArtist.getListHotArtistWithKaraokes());
-                setHotArtistLoadingState(false);
+                setViewLoadingState(false);
             }
         }));
     }
@@ -243,21 +244,32 @@ public class KFragmentHome extends Fragment {
      *
      * @param loading : true if display progressbar
      */
-    private void setHotArtistLoadingState(boolean loading) {
+    private void setViewLoadingState(boolean loading) {
         if (loading) {
             mProgressBarHotArtist.setVisibility(View.VISIBLE);
+            mFragmentHomeContent.setVisibility(View.GONE);
         } else {
             mProgressBarHotArtist.setVisibility(View.GONE);
+            mFragmentHomeContent.setVisibility(View.VISIBLE);
         }
     }
 
-    private void setConnectionErrorStateView(boolean error) {
-        if (error) {
-            mLayoutContent.setVisibility(View.GONE);
-            mLayoutNoConnection.setVisibility(View.VISIBLE);
-        } else {
-            mLayoutNoConnection.setVisibility(View.GONE);
-            mLayoutContent.setVisibility(View.VISIBLE);
+    private void setContentLayoutType(LayoutType typeLayout) {
+        switch (typeLayout) {
+            case CONTENT:
+                mLayoutContent.setVisibility(View.VISIBLE);
+                mLayoutNoConnection.setVisibility(View.GONE);
+                break;
+            case CONNECTION_ERROR:
+                mLayoutContent.setVisibility(View.GONE);
+                mLayoutNoConnection.setVisibility(View.VISIBLE);
+                break;
         }
+    }
+
+    enum LayoutType {
+        CONTENT,
+        CONNECTION_ERROR,
+        INTERNAL_ERROR
     }
 }

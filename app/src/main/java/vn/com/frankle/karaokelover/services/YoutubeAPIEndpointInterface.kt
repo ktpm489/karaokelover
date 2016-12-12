@@ -3,11 +3,8 @@ package vn.com.frankle.karaokelover.services
 import retrofit2.http.GET
 import retrofit2.http.Query
 import rx.Observable
-import vn.com.frankle.karaokelover.services.responses.ResponseCommentThreads
-import vn.com.frankle.karaokelover.services.responses.ResponseSearch
-import vn.com.frankle.karaokelover.services.responses.ResponseSnippetContentDetails
-import vn.com.frankle.karaokelover.services.responses.ResponseSnippetStatistics
-import vn.com.frankle.karaokelover.services.responses.ResponseStatisticContentDetails
+import vn.com.frankle.karaokelover.services.responses.*
+import vn.com.frankle.karaokelover.services.responses.youtube.playlist.ResponsePlaylist
 
 /**
  * Created by duclm on 7/23/2016.
@@ -16,6 +13,9 @@ import vn.com.frankle.karaokelover.services.responses.ResponseStatisticContentDe
 interface YoutubeAPIEndpointInterface {
     @GET("videos?part=snippet,statistics&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
     fun getYoutubeVideoById(@Query("id") videoID: String): Observable<ResponseSnippetStatistics>
+
+    @GET("playlists?part=contentDetails&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
+    fun getYoutubePlaylistById(@Query("id") playlistId: String): Observable<ResponsePlaylist>
 
     @GET("videos?part=snippet,contentDetails&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
     fun getYoutubeDetailContentById(@Query("id") videoID: String): Observable<ResponseSnippetContentDetails>
