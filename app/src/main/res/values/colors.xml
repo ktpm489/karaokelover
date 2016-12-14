@@ -2,10 +2,10 @@
 <resources>
     <color name="colorPrimary">#FF2C2E35</color>
     <color name="colorPrimaryDark">#FF24252B</color>
-    <color name="colorAccent">#FF5722</color>
+    <color name="colorAccent">#E91E63</color>
     <color name="background_dark">#FF242429</color>
     <color name="background_light">#FAFAFA</color>
-    <color name="colorAccentBlur">#CCFF5722</color>
+    <color name="colorAccentBlur">#CCE91E63</color>
 
     <color name="content_placeholder">#ffe0e0e0</color>
     <color name="mid_grey">#40808080</color>
@@ -17,7 +17,7 @@
     <color name="text_secondary_light">#b3ffffff</color> <!-- 70% -->
     <color name="text_thirdly_light">#80ffffff</color> <!-- 70% -->
     <color name="text_disabled_light">#1fffffff</color> <!-- 50% -->
-    <color name="ripple">#43FF5722</color> <!-- 26% of color accent -->
+    <color name="ripple">#43E91E63</color> <!-- 26% of color accent -->
 
     <!-- Common colors for Light Theme -->
     <color name="text_primary_dark">#de000000</color> <!-- 87% -->

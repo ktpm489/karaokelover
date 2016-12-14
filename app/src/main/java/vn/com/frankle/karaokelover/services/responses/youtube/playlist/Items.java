@@ -9,8 +9,8 @@ public class Items {
     private String etag;
     @SerializedName("id")
     private String id;
-    @SerializedName("contentDetails")
-    private ContentDetails contentDetails;
+    @SerializedName("snippet")
+    private Snippet snippet;
 
     public String getKind() {
         return kind;
@@ -36,11 +36,11 @@ public class Items {
         this.id = id;
     }
 
-    public ContentDetails getContentDetails() {
-        return contentDetails;
+    public Snippet getSnippet() {
+        return snippet;
     }
 
-    public void setContentDetails(ContentDetails contentDetails) {
-        this.contentDetails = contentDetails;
+    public void setSnippet(Snippet snippet) {
+        this.snippet = snippet;
     }
 }

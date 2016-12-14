@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 /**
- * Created by duclm on 11-Dec-16.
+ * Created by duclm on 13-Dec-16.
  */
 
 public class ResponsePlaylist {
@@ -13,6 +13,8 @@ public class ResponsePlaylist {
     private String kind;
     @SerializedName("etag")
     private String etag;
+    @SerializedName("nextPageToken")
+    private String nextPageToken;
     @SerializedName("pageInfo")
     private PageInfo pageInfo;
     @SerializedName("items")
@@ -32,6 +34,14 @@ public class ResponsePlaylist {
 
     public void setEtag(String etag) {
         this.etag = etag;
+    }
+
+    public String getNextPageToken() {
+        return nextPageToken;
+    }
+
+    public void setNextPageToken(String nextPageToken) {
+        this.nextPageToken = nextPageToken;
     }
 
     public PageInfo getPageInfo() {

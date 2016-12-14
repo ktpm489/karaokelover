@@ -1,11 +1,13 @@
 package vn.com.frankle.karaokelover.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -35,6 +37,7 @@ import rx.subscriptions.CompositeSubscription;
 import vn.com.frankle.karaokelover.KApplication;
 import vn.com.frankle.karaokelover.KSharedPreference;
 import vn.com.frankle.karaokelover.R;
+import vn.com.frankle.karaokelover.activities.KActivityPlaylist;
 import vn.com.frankle.karaokelover.adapters.KHotArtistAdapter;
 import vn.com.frankle.karaokelover.adapters.KPagerAdapterHotKaraokeSong;
 import vn.com.frankle.karaokelover.database.entities.ArtistWithKaraoke;
@@ -70,6 +73,10 @@ public class KFragmentHome extends Fragment {
     RelativeLayout mFragmentHomeContent;
     @BindView(R.id.layout_connection_error)
     RelativeLayout mLayoutNoConnection;
+    @BindView(R.id.playlist_pop)
+    CardView mPlaylistPop;
+    @BindView(R.id.playlist_bolero)
+    CardView mPlaylistBolero;
 
     private Context mContext;
     private KSharedPreference mSharedPrefs;
@@ -142,9 +149,11 @@ public class KFragmentHome extends Fragment {
     private void checkInternetConnectionAndInitilaizeViews() {
         if (Utils.isOnline(mContext)) {
             setupViews();
+            setContentLayoutType(LayoutType.CONTENT);
             setViewLoadingState(true);
             retrieveHotTrendAndArtistsKaraokes();
         } else {
+            setViewLoadingState(false);
             setContentLayoutType(LayoutType.CONNECTION_ERROR);
         }
     }
@@ -161,6 +170,20 @@ public class KFragmentHome extends Fragment {
         mRecycleViewHotArtists.setHasFixedSize(true);
         mRecycleViewHotArtists.setLayoutManager(layoutManager);
         mRecycleViewHotArtists.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(mContext, 16), SpaceItemDecoration.VERTICAL));
+
+        mPlaylistBolero.setOnClickListener(view -> {
+            Intent playlistIntent = new Intent(mContext, KActivityPlaylist.class);
+            playlistIntent.putExtra(KActivityPlaylist.EXTRA_PLAYLIST_ID, "PLUbkgCMcrankMiOxyHhN4RSxDgE1JRVIi");
+            playlistIntent.putExtra(KActivityPlaylist.EXTRA_TITLE, KActivityPlaylist.PLAYLIST_TITLE.BOLERO);
+            startActivity(playlistIntent);
+        });
+
+        mPlaylistPop.setOnClickListener(view -> {
+            Intent playlistIntent = new Intent(mContext, KActivityPlaylist.class);
+            playlistIntent.putExtra(KActivityPlaylist.EXTRA_PLAYLIST_ID, "PL75PeaMqYS56hHy9Obnj2JlQmYy-vgxox");
+            playlistIntent.putExtra(KActivityPlaylist.EXTRA_TITLE, KActivityPlaylist.PLAYLIST_TITLE.POP);
+            startActivity(playlistIntent);
+        });
     }
 
     /**

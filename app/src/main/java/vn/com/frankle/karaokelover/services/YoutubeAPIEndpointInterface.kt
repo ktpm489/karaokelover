@@ -14,8 +14,11 @@ interface YoutubeAPIEndpointInterface {
     @GET("videos?part=snippet,statistics&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
     fun getYoutubeVideoById(@Query("id") videoID: String): Observable<ResponseSnippetStatistics>
 
-    @GET("playlists?part=contentDetails&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
-    fun getYoutubePlaylistById(@Query("id") playlistId: String): Observable<ResponsePlaylist>
+    @GET("playlistItems?part=snippet&maxResults=15&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
+    fun getYoutubePlaylistItems(@Query("playlistId") playlistId: String): Observable<ResponsePlaylist>
+
+    @GET("playlistItems?part=snippet&maxResults=15&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
+    fun getYoutubePlaylistItemsNextPage(@Query("playlistId") playlistId: String, @Query("pageToken") nextPageToken: String): Observable<ResponsePlaylist>
 
     @GET("videos?part=snippet,contentDetails&key=AIzaSyC-DSJP7roLCjod8aOnzAq0o2-L0NJZXYU")
     fun getYoutubeDetailContentById(@Query("id") videoID: String): Observable<ResponseSnippetContentDetails>
