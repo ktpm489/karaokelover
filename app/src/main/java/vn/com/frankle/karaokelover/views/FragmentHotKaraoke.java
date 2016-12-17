@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +17,9 @@ import com.bumptech.glide.Glide;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.activities.KActivityHome;
 import vn.com.frankle.karaokelover.activities.KActivityPlayVideo;
-import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.fragments.KFragmentFavorite;
 import vn.com.frankle.karaokelover.util.Utils;
 
@@ -27,6 +28,8 @@ import vn.com.frankle.karaokelover.util.Utils;
  */
 
 public class FragmentHotKaraoke extends Fragment {
+
+    private static final String DEBUG_TAG = FragmentHotKaraoke.class.getSimpleName();
 
     private Context mContext;
     private Bundle mBundle;
@@ -46,6 +49,12 @@ public class FragmentHotKaraoke extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBundle = getArguments();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.d(DEBUG_TAG, "onSaveInstanceState");
+        super.onSaveInstanceState(outState);
     }
 
     @Nullable

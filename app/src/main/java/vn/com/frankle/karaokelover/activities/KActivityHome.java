@@ -12,6 +12,7 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -35,15 +36,20 @@ import vn.com.frankle.karaokelover.util.Utils;
 
 public class KActivityHome extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private final String DEBUG_TAG = this.getClass().getSimpleName();
+
+    private enum FragmentContentType {
+        HOME,
+        ARTIST,
+        FAVORITE
+    }
+
     private static final String KEY_MENU_SELECTED_ITEM = "key_menu_selected_item";
-
-
+    private static final String KEY_CURRENT_FRAGMENT = "key_current_fragment";
     private static final int PERMISSION_AUDIO_RECORD = 0;
     private static final int RC_SEARCH = 0;
-    private static final int FRAGMENT_HOME = 0;
-    private static final int FRAGMENT_ARTIST = 1;
-    private static final int FRAGMENT_FAVORITE = 2;
-    private final String DEBUG_TAG = this.getClass().getSimpleName();
+
     @BindView(R.id.layout_main_activity_content)
     LinearLayout mLayoutMainContent;
 
@@ -67,6 +73,7 @@ public class KActivityHome extends AppCompatActivity
     private KFragmentFavorite mFavoriteFragment;
 
     private int mCurrentSelectedMenuItem;
+    private FragmentContentType mCurrentFragmentType;
 
     @Override
     protected void onStart() {
@@ -88,6 +95,13 @@ public class KActivityHome extends AppCompatActivity
         Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_MENU_SELECTED_ITEM, this.mCurrentSelectedMenuItem);
+        outState.putSerializable(KEY_CURRENT_FRAGMENT, mCurrentFragmentType);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d(DEBUG_TAG, "onConfigurationChanged");
+        super.onConfigurationChanged(newConfig);
     }
 
     @Override
@@ -96,7 +110,16 @@ public class KActivityHome extends AppCompatActivity
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
             this.mCurrentSelectedMenuItem = savedInstanceState.getInt(KEY_MENU_SELECTED_ITEM);
+            // Restore the selected fragment
+            this.mCurrentFragmentType = (FragmentContentType) savedInstanceState.getSerializable(KEY_CURRENT_FRAGMENT);
+            switchFragment(mCurrentFragmentType);
         }
+    }
+
+    @Override
+    protected void onRestart() {
+        Log.d(DEBUG_TAG, "onRestart");
+        super.onRestart();
     }
 
     @Override
@@ -105,12 +128,31 @@ public class KActivityHome extends AppCompatActivity
         setContentView(R.layout.layout_activity_home);
         ButterKnife.bind(this);
 
+        FragmentManager fm = getSupportFragmentManager();
+        mHomeFragment = (KFragmentHome) fm.findFragmentByTag(KFragmentHome.TAG);
+        mArtistFragment = (KFragmentArtists) fm.findFragmentByTag(KFragmentArtists.TAG);
+        mFavoriteFragment = (KFragmentFavorite) fm.findFragmentByTag(KFragmentFavorite.TAG);
+
+        if (mHomeFragment == null) {
+            mHomeFragment = new KFragmentHome();
+        }
+
+        if (mArtistFragment == null) {
+            mArtistFragment = new KFragmentArtists();
+        }
+
+        if (mFavoriteFragment == null) {
+            mFavoriteFragment = new KFragmentFavorite();
+        }
+
         setSupportActionBar(mToolbar);
 
         // Set up Navigation View
         setUpNavigationView();
 
-        loadFragment(FRAGMENT_HOME);
+        if (savedInstanceState == null) {
+            switchFragment(FragmentContentType.HOME);
+        }
 
         //Request for needed permission (INTERNET, STORAGE)
         requestPermission();
@@ -224,72 +266,71 @@ public class KActivityHome extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void loadFragment(int fragmentToShow) {
-        switch (fragmentToShow) {
-            case FRAGMENT_HOME:
+    /**
+     * Switch to fragment based on selected menu of Navigation drawer
+     *
+     * @param type : type of fragment to switch to
+     */
+    private void switchFragment(FragmentContentType type) {
+        FragmentTransaction ft = fm.beginTransaction();
+        switch (type) {
+            case HOME:
+                mCurrentFragmentType = FragmentContentType.HOME;
                 mToolbar.setTitle("Karaoke Lover");
                 mTabLayout.setVisibility(View.GONE);
-                if (mHomeFragment == null || !mHomeFragment.isVisible()) {
-                    if (mFavoriteFragment != null && mFavoriteFragment.isVisible()) {
-                        fm.beginTransaction().hide(mFavoriteFragment).commit();
-                    }
-                    if (mArtistFragment != null && mArtistFragment.isVisible()) {
-                        fm.beginTransaction().hide(mArtistFragment).commit();
-                    }
-                    if (mHomeFragment != null) {
-                        fm.beginTransaction().show(mHomeFragment).commit();
-                    } else {
-                        Bundle extraData = new Bundle();
-                        extraData.putInt(KFragmentHome.KEY_PHYSIC_SCREEN_SIZE, mPhyScreenWidthInPixel);
-                        mHomeFragment = new KFragmentHome();
-                        mHomeFragment.setArguments(extraData);
-                        fm.beginTransaction().add(R.id.main_content, mHomeFragment).commit();
-                    }
+
+                if (mHomeFragment.isAdded()) {
+                    ft.show(mHomeFragment);
+                } else {
+                    ft.add(R.id.main_content, mHomeFragment, KFragmentHome.TAG);
                 }
+
+                if (mArtistFragment.isAdded()) {
+                    ft.hide(mArtistFragment);
+                }
+                if (mFavoriteFragment.isAdded()) {
+                    ft.hide(mFavoriteFragment);
+                }
+                ft.commit();
                 break;
-            case FRAGMENT_ARTIST:
+            case ARTIST:
+                mCurrentFragmentType = FragmentContentType.ARTIST;
                 mToolbar.setTitle("Artists");
                 mTabLayout.setVisibility(View.VISIBLE);
-                if (mArtistFragment == null || !mArtistFragment.isVisible()) {
-                    if (mFavoriteFragment != null && mFavoriteFragment.isVisible()) {
-                        fm.beginTransaction().hide(mFavoriteFragment).commit();
-                    }
-                    if (mHomeFragment != null && mHomeFragment.isVisible()) {
-                        fm.beginTransaction().hide(mHomeFragment).commit();
-                    }
-                    if (mArtistFragment != null) {
-                        fm.beginTransaction().show(mArtistFragment).commit();
-                    } else {
-                        try {
-                            mArtistFragment = KFragmentArtists.class.newInstance();
-                        } catch (InstantiationException | IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        fm.beginTransaction().add(R.id.main_content, mArtistFragment).commit();
-                    }
+
+                if (mArtistFragment.isAdded()) {
+                    ft.show(mArtistFragment);
+                } else {
+                    ft.add(R.id.main_content, mArtistFragment, KFragmentArtists.TAG);
                 }
+
+                if (mHomeFragment.isAdded()) {
+                    ft.hide(mHomeFragment);
+                }
+                if (mFavoriteFragment.isAdded()) {
+                    ft.hide(mFavoriteFragment);
+                }
+                ft.commit();
+
                 break;
-            case FRAGMENT_FAVORITE:
+            case FAVORITE:
+                mCurrentFragmentType = FragmentContentType.FAVORITE;
                 mToolbar.setTitle("My Favorites");
                 mTabLayout.setVisibility(View.GONE);
-                if (mFavoriteFragment == null || !mFavoriteFragment.isVisible()) {
-                    if (mArtistFragment != null && mArtistFragment.isVisible()) {
-                        fm.beginTransaction().hide(mArtistFragment).commit();
-                    }
-                    if (mHomeFragment != null && mHomeFragment.isVisible()) {
-                        fm.beginTransaction().hide(mHomeFragment).commit();
-                    }
-                    if (mFavoriteFragment != null) {
-                        fm.beginTransaction().show(mFavoriteFragment).commit();
-                    } else {
-                        try {
-                            mFavoriteFragment = KFragmentFavorite.class.newInstance();
-                        } catch (InstantiationException | IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        fm.beginTransaction().add(R.id.main_content, mFavoriteFragment, KFragmentFavorite.Companion.getTAG()).commit();
-                    }
+
+                if (mFavoriteFragment.isAdded()) {
+                    ft.show(mFavoriteFragment);
+                } else {
+                    ft.add(R.id.main_content, mFavoriteFragment, KFragmentFavorite.TAG);
                 }
+
+                if (mHomeFragment.isAdded()) {
+                    ft.hide(mHomeFragment);
+                }
+                if (mArtistFragment.isAdded()) {
+                    ft.hide(mArtistFragment);
+                }
+                ft.commit();
                 break;
         }
     }
@@ -302,14 +343,14 @@ public class KActivityHome extends AppCompatActivity
         this.mCurrentSelectedMenuItem = id;
 
         if (id == R.id.nav_home) {
-            loadFragment(FRAGMENT_HOME);
+            switchFragment(FragmentContentType.HOME);
         } else if (id == R.id.nav_my_recording) {
             // Set flag to indicate that this item has been clicked
             mFlagWaitDrawerClosed = true;
         } else if (id == R.id.nav_artists) {
-            loadFragment(FRAGMENT_ARTIST);
+            switchFragment(FragmentContentType.ARTIST);
         } else if (id == R.id.nav_favorite) {
-            loadFragment(FRAGMENT_FAVORITE);
+            switchFragment(FragmentContentType.FAVORITE);
         } else if (id == R.id.nav_setting) {
             mFlagWaitDrawerClosed = true;
         } else if (id == R.id.nav_exit) {

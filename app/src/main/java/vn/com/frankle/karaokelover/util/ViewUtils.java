@@ -246,7 +246,6 @@ public class ViewUtils {
                 paddingBottom);
     }
 
-
     public static int convertDpToPx(int dp){
         return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
     }

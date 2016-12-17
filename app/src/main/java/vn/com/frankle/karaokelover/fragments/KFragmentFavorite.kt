@@ -118,6 +118,9 @@ class KFragmentFavorite : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Retain this fragment across configuration changes.
+        retainInstance = true
+
         val application = activity.application as KApplication
         application.appComponent.inject(this)
     }
@@ -223,8 +226,9 @@ class KFragmentFavorite : Fragment() {
 
     companion object {
 
-        val TAG = "FRAGMENT_FAVORITE"
+        @JvmField val TAG = KFragmentFavorite::class.java.simpleName
         @JvmField val REQUEST_CODE_RELOAD_FAVORITE_LIST = 111
         private val DEBUG_TAG = KFragmentFavorite::class.java.simpleName
+
     }
 }

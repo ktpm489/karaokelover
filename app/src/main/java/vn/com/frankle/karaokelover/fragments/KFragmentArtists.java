@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import vn.com.frankle.karaokelover.activities.KActivityHome;
 import vn.com.frankle.karaokelover.R;
+import vn.com.frankle.karaokelover.activities.KActivityHome;
 import vn.com.frankle.karaokelover.adapters.KFragmentAdapterArtists;
 
 /**
@@ -21,9 +21,17 @@ import vn.com.frankle.karaokelover.adapters.KFragmentAdapterArtists;
 
 public class KFragmentArtists extends Fragment {
 
+    public static final String TAG = KFragmentArtists.class.getSimpleName();
+
     @BindView(R.id.viewpager_artist)
     ViewPager mViewPager;
     private Context mContext;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Override
     public void onAttach(Context context) {

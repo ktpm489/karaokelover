@@ -51,8 +51,7 @@ public class KPagerAdapterHotKaraokeSong extends FragmentStatePagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         Log.d(DEBUG_TAG, "instantiateItem: position = " + position);
-        FragmentHotKaraoke createdFragment = (FragmentHotKaraoke) super.instantiateItem(container, position);
-        return createdFragment;
+        return super.instantiateItem(container, position);
     }
 
     @Override

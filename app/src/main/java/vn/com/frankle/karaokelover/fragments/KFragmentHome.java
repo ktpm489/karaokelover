@@ -1,5 +1,6 @@
 package vn.com.frankle.karaokelover.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,8 +57,9 @@ import vn.com.frankle.karaokelover.views.widgets.InkPageIndicator;
 
 public class KFragmentHome extends Fragment {
 
-    public static final String KEY_PHYSIC_SCREEN_SIZE = "key_physic_screen_size";
     private static final String DEBUG_TAG = KFragmentHome.class.getSimpleName();
+    public static final String TAG = KFragmentHome.class.getSimpleName();
+
     @NonNull
     private final CompositeSubscription compositeSubscriptionForOnStop = new CompositeSubscription();
     @BindView(R.id.cover_container_viewpager)
@@ -80,7 +83,6 @@ public class KFragmentHome extends Fragment {
 
     private Context mContext;
     private KSharedPreference mSharedPrefs;
-    private int mPhyScreenWidthInPixel;
     private KHotArtistAdapter mHotArtistAdapter;
 
     public KFragmentHome() {
@@ -107,34 +109,30 @@ public class KFragmentHome extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        // Unregister eventBus
-//        KApplication.eventBus.unregister(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        compositeSubscriptionForOnStop.unsubscribe();
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d(DEBUG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        mPhyScreenWidthInPixel = getArguments().getInt(KEY_PHYSIC_SCREEN_SIZE);
+        setRetainInstance(true);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d(DEBUG_TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        Log.d(DEBUG_TAG, "onViewStateRestored");
+        super.onViewStateRestored(savedInstanceState);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(DEBUG_TAG, "onCreateView");
+
         View layout = inflater.inflate(R.layout.layout_fragment_home, container, false);
 
         ButterKnife.bind(this, layout);
@@ -144,6 +142,39 @@ public class KFragmentHome extends Fragment {
         checkInternetConnectionAndInitilaizeViews();
 
         return layout;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.d(DEBUG_TAG, "onSaveInstanceState");
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onPause() {
+        Log.d(DEBUG_TAG, "onPause");
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        Log.d(DEBUG_TAG, "onStop");
+        super.onStop();
+        // Unregister eventBus
+//        KApplication.eventBus.unregister(this);
+    }
+
+    @Override
+    public void onDestroyView() {
+        Log.d(DEBUG_TAG, "onDestroyView");
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        compositeSubscriptionForOnStop.unsubscribe();
     }
 
     private void checkInternetConnectionAndInitilaizeViews() {
@@ -161,7 +192,9 @@ public class KFragmentHome extends Fragment {
     private void setupViews() {
         setContentLayoutType(LayoutType.CONTENT);
         // Set up viewpager of hot song content to aspect ration of 16:9
-        mCoverContainer.getLayoutParams().height = mPhyScreenWidthInPixel * 9 / 16;
+        DisplayMetrics displayMetric = new DisplayMetrics();
+        ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(displayMetric);
+        mCoverContainer.getLayoutParams().height = displayMetric.widthPixels * 9 / 16;
 
         mHotArtistAdapter = new KHotArtistAdapter(mContext);
         mRecycleViewHotArtists.setAdapter(mHotArtistAdapter);
@@ -251,7 +284,7 @@ public class KFragmentHome extends Fragment {
 
             @Override
             public void onNext(EventFinishLoadingHotTrendAndArtist eventFinishLoadingHotTrendAndArtist) {
-                KPagerAdapterHotKaraokeSong mHotKaraokePagerAdapter = new KPagerAdapterHotKaraokeSong(getFragmentManager(), eventFinishLoadingHotTrendAndArtist.getListHotTrendKaraokes());
+                KPagerAdapterHotKaraokeSong mHotKaraokePagerAdapter = new KPagerAdapterHotKaraokeSong(getChildFragmentManager(), eventFinishLoadingHotTrendAndArtist.getListHotTrendKaraokes());
                 mCoverContainer.setAdapter(mHotKaraokePagerAdapter);
                 mCoverContainer.setOffscreenPageLimit(4);
                 mViewpagerIndicator.setViewPager(mCoverContainer);
