@@ -34,7 +34,7 @@ public class ViewHolderArtistItem extends ViewHolderBase<ZingArtist> {
     public void bindData(Context context, ZingArtist dataItem) {
         mArtistName.setText(dataItem.getName());
 
-        Glide.with(context).load(ZingMp3API.getArtistAvatarURL(dataItem.getAvatar())).placeholder(R.drawable.drawable_background_default).into(mAvatar);
+        Glide.with(context).load(ZingMp3API.getZingArtistAvatarURL(dataItem.getAvatar())).placeholder(R.drawable.drawable_background_default).into(mAvatar);
     }
 
     @Override

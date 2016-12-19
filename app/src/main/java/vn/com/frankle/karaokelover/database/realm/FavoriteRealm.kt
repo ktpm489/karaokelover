@@ -12,6 +12,6 @@ open class FavoriteRealm(
         @Index var video_id: String? = null
 ) : RealmObject() {
     companion object Column {
-        val COLUMN_VIDEO_ID = "video_id"
+        @JvmField val COLUMN_VIDEO_ID = "video_id"
     }
 }

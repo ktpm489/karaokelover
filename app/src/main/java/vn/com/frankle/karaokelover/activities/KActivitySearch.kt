@@ -212,6 +212,10 @@ class KActivitySearch : AppCompatActivity() {
             if (!TextUtils.isEmpty(mCurrentSearchQuery)) {
                 search_view.setQuery(mCurrentSearchQuery, false)
                 searchYoutubeVideo()
+                // Store search query for suggestion later
+//                val suggestions: SearchRecentSuggestions = SearchRecentSuggestions(this@KActivitySearch,
+//                        KaraokeSearchProvider.AUTHORITY, KaraokeSearchProvider.MODE)
+//                suggestions.saveRecentQuery(mCurrentSearchQuery, null)
             }
         }
     }
@@ -460,6 +464,8 @@ class KActivitySearch : AppCompatActivity() {
                             handleSearchResult(videoSearchItems)
                         }
                     }))
+
+
         } else {
             switchConnectionErrorLayout(true)
         }
@@ -514,7 +520,7 @@ class KActivitySearch : AppCompatActivity() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onPopupMenuItemClick(event: EventPopupMenuItemClick) {
-        val inserted = realm.where(FavoriteRealm::class.java).equalTo(FavoriteRealm.COLUMN_VIDEO_ID, event.dataItem.videoId).findFirst()
+        val inserted = realm.where(FavoriteRealm::class.java).equalTo(FavoriteRealm.COLUMN_VIDEO_ID, event.data.videoId).findFirst()
 
         when (event.action) {
             EventPopupMenuItemClick.ACTION.ADD_FAVORITE -> {
@@ -524,7 +530,7 @@ class KActivitySearch : AppCompatActivity() {
                 } else {
                     realm.executeTransaction {
                         val favoriteVideo = realm.createObject(FavoriteRealm::class.java, System.currentTimeMillis())
-                        favoriteVideo.video_id = event.dataItem.videoId
+                        favoriteVideo.video_id = event.data.videoId
                         Toast.makeText(this@KActivitySearch, "Added to the favorite list", Toast.LENGTH_SHORT).show()
                         KApplication.eventBus.post(EventUpdateFavoriteList())
                     }

@@ -25,7 +25,7 @@
         <item name="android:dialogTheme">@style/KaraokeLoverTheme.Dialog</item>
     </style>
 
-    <style name="KaraokeLoverTheme.ArtistWithSongs" parent="KaraokeLoverTheme">
+    <style name="KaraokeLoverTheme.ArtistWithSongs" parent="KaraokeLoverTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
@@ -37,6 +37,8 @@
     <style name="KaraokeLoverTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="KaraokeLoverTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="KaraokeLoverTheme.DarkPopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />
 
 
     <style name="SearchViewTheme" parent="KaraokeLoverTheme.AppBarOverlay">

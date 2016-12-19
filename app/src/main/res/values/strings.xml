@@ -54,6 +54,7 @@
     <string name="action_record_new_song">Sing new song</string>
     <string name="action_record_restart">Restart</string>
     <string name="action_record_resume">Resume</string>
+    <string name="info_biography_not_available">Dữ liệu chưa được cập nhật.</string>
 
     <!-- Artist sorting spinner -->
     <string-array name="spinner_sorting">

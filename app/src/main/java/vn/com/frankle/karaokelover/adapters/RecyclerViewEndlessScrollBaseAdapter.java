@@ -25,8 +25,8 @@ public abstract class RecyclerViewEndlessScrollBaseAdapter<T extends Comparable<
     protected ArrayList<T> mDataList;
     private OnItemClickListener mItemListener;
 
-    private boolean isEndlessScroll;
-    private boolean isLoadMoreError;
+    protected boolean isEndlessScroll;
+    protected boolean isLoadMoreError;
 
     RecyclerViewEndlessScrollBaseAdapter(Context context) {
         this.mContext = context;

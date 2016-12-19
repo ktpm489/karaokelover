@@ -35,11 +35,11 @@ class ViewHolderVideoItem(itemView: View) : ViewHolderBase<VideoSearchItem>(item
                     }
         }
 
-        popupMenu.add("Add to playlist")
-                .setOnMenuItemClickListener {
-                    /**TO-DO-------------------*/
-                    true
-                }
+//        popupMenu.add("Add to playlist")
+//                .setOnMenuItemClickListener {
+//                    /**TO-DO-------------------*/
+//                    true
+//                }
     }
 
     override fun bindData(context: Context, dataItem: VideoSearchItem) {

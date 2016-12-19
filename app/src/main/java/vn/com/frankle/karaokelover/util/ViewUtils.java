@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Outline;
 import android.graphics.Rect;
@@ -39,12 +40,15 @@ import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.ImageView;
 
+import vn.com.frankle.karaokelover.R;
+
 /**
  * Utility methods for working with Views.
  */
 public class ViewUtils {
 
-    private ViewUtils() { }
+    private ViewUtils() {
+    }
 
     private static int actionBarSize = -1;
 
@@ -63,12 +67,12 @@ public class ViewUtils {
      * PhoneWindowManager.
      */
     public static boolean isNavBarOnBottom(@NonNull Context context) {
-        final Resources res= context.getResources();
+        final Resources res = context.getResources();
         final Configuration cfg = context.getResources().getConfiguration();
-        final DisplayMetrics dm =res.getDisplayMetrics();
+        final DisplayMetrics dm = res.getDisplayMetrics();
         boolean canMove = (dm.widthPixels != dm.heightPixels &&
                 cfg.smallestScreenWidthDp < 600);
-        return(!canMove || dm.widthPixels < dm.heightPixels);
+        return (!canMove || dm.widthPixels < dm.heightPixels);
     }
 
     public static RippleDrawable createRipple(@ColorInt int color,
@@ -129,7 +133,7 @@ public class ViewUtils {
 
     /**
      * Recursive binary search to find the best size for the text.
-     *
+     * <p>
      * Adapted from https://github.com/grantland/android-autofittextview
      */
     public static float getSingleLineTextSize(String text,
@@ -246,11 +250,28 @@ public class ViewUtils {
                 paddingBottom);
     }
 
-    public static int convertDpToPx(int dp){
+    public static int convertDpToPx(int dp) {
         return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
     }
 
-    public static int convertPxToDp(int px){
+    public static int convertPxToDp(int px) {
         return (int) (px / Resources.getSystem().getDisplayMetrics().density);
+    }
+
+    public static int getStatusBarHeight(Context context) {
+        int result = 0;
+        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = context.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+    public static int getToolBarHeight(Context context) {
+        int[] attrs = new int[]{R.attr.actionBarSize};
+        TypedArray ta = context.obtainStyledAttributes(attrs);
+        int toolBarHeight = ta.getDimensionPixelSize(0, -1);
+        ta.recycle();
+        return toolBarHeight;
     }
 }

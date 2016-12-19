@@ -17,6 +17,8 @@ public class ViewHolderArtistBio extends ViewHolderBase<ZingArtistDetail> {
 
     @BindView(R.id.tv_artist_bio)
     TextView mArtistBio;
+    @BindView(R.id.btn_bio_more)
+    TextView mBtnMore;
 
     public ViewHolderArtistBio(View itemView) {
         super(itemView);
@@ -26,7 +28,14 @@ public class ViewHolderArtistBio extends ViewHolderBase<ZingArtistDetail> {
 
     @Override
     public void bindData(Context context, ZingArtistDetail dataItem) {
-        mArtistBio.setText(dataItem.getBiography());
+        String biography = dataItem.getBiography();
+        if (biography != null && !biography.trim().isEmpty()) {
+            mArtistBio.setText(dataItem.getBiography());
+        } else {
+            mArtistBio.setText(R.string.info_biography_not_available);
+            mBtnMore.setVisibility(View.GONE);
+        }
+
     }
 
     @Override

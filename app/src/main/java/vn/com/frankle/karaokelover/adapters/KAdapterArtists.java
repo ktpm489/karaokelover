@@ -101,7 +101,7 @@ public class KAdapterArtists extends RecyclerView.Adapter<KAdapterArtists.ViewHo
 
             mArtistName.setText(artist.getName());
 
-            Glide.with(context).load(ZingMp3API.getArtistAvatarURL(artist.getAvatar())).into(mAvatar);
+            Glide.with(context).load(ZingMp3API.getZingArtistAvatarURL(artist.getAvatar())).into(mAvatar);
             itemView.setOnClickListener(v -> listener.onArtistClick(artist));
         }
     }

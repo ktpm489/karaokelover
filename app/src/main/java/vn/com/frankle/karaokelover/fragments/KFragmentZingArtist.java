@@ -128,7 +128,7 @@ public class KFragmentZingArtist extends Fragment {
         Bundle args = new Bundle();
         args.putString(KActivityArtistDetails.EXTRA_ARTIST_NAME, clickedArtist.getName());
         args.putString(KActivityArtistDetails.EXTRA_ARTIST_ID, String.valueOf(clickedArtist.getArtistId()));
-        args.putString(KActivityArtistDetails.EXTRA_AVATAR_URL, ZingMp3API.getArtistAvatarURL(clickedArtist.getAvatar()));
+        args.putString(KActivityArtistDetails.EXTRA_AVATAR_URL, ZingMp3API.getZingArtistAvatarURL(clickedArtist.getAvatar()));
         artistDetails.putExtras(args);
         mContext.startActivity(artistDetails);
     }

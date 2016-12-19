@@ -71,11 +71,17 @@ public class ZingMp3API {
         return getZingMp3RequestURL(URL_ARTIST_INFO, jsonData);
     }
 
-    public static String getArtistAvatarURL(String artistUrl) {
+    public static String getZingArtistAvatarURL(String artistUrl) {
+        if (artistUrl == null || artistUrl.trim().isEmpty()) {
+            return null;
+        }
         return URL_AVATAR_IMG + artistUrl;
     }
 
     public static String getZingArtistCoverURL(String coverUrl) {
+        if (coverUrl == null || coverUrl.trim().isEmpty()) {
+            return null;
+        }
         return URL_ZING_ARTIST_COVER + coverUrl;
     }
 }

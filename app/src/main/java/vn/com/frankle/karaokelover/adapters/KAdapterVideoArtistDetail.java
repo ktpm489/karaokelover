@@ -74,7 +74,12 @@ public class KAdapterVideoArtistDetail extends RecyclerViewEndlessScrollBaseAdap
         if (position == 0) {
             return ViewHolderBase.VIEW_TYPE.HEADER;
         }
-        return position >= (mDataList.size() + 1) ? ViewHolderBase.VIEW_TYPE.LOADING_INDICATOR : ViewHolderBase.VIEW_TYPE.DATA_ITEM;
+        if (isEndlessScroll) {
+            if (position >= mDataList.size() + 1) {
+                return isLoadMoreError ? ViewHolderBase.VIEW_TYPE.CONNECTION_ERROR : ViewHolderBase.VIEW_TYPE.LOADING_INDICATOR;
+            }
+        }
+        return ViewHolderBase.VIEW_TYPE.DATA_ITEM;
     }
 
     @Override
