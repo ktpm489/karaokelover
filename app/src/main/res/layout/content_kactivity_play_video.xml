@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="vn.com.frankle.karaokelover.activities.KActivityPlayVideo"
-    tools:showIn="@layout/activity_kplay_video">
+    tools:showIn="@layout/activity_play_video">
 
     <include layout="@layout/content_connection_error" />
 
@@ -14,18 +14,9 @@
         android:id="@+id/youtube_player"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="?attr/actionBarSize">
+        android:layout_alignParentTop="true">
 
     </FrameLayout>
-
-    <!--<fragment-->
-    <!--android:id="@+id/youtube_player"-->
-    <!--android:name="vn.com.frankle.karaokelover.fragments.KYoutubePlayerFragment"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_alignParentTop="true"-->
-    <!--android:layout_marginTop="?attr/actionBarSize" />-->
 
     <RelativeLayout
         android:id="@+id/layout_play_video"

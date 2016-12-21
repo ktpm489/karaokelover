@@ -23,7 +23,7 @@ import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubePlayer
 import com.orhanobut.logger.Logger
 import io.realm.Realm
-import kotlinx.android.synthetic.main.activity_kplay_video.*
+import kotlinx.android.synthetic.main.activity_play_video.*
 import kotlinx.android.synthetic.main.content_connection_error.*
 import kotlinx.android.synthetic.main.content_error_loading.*
 import kotlinx.android.synthetic.main.content_kactivity_play_video.*
@@ -86,7 +86,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_kplay_video)
+        setContentView(R.layout.activity_play_video)
 
         // Set activity to unitialize state
         setActivityState(mUninitState)
@@ -98,8 +98,9 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         mCurrentVideoTitle = intent.getStringExtra("title")
         mCurrentVideoId = intent.getStringExtra("videoid")
 
-        setSupportActionBar(apv_toolbar)
+        supportActionBar!!.setHomeButtonEnabled(true)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+
         supportActionBar!!.title = mCurrentVideoTitle
 
         layout_connection_error.setOnClickListener { checkInternetConnectionAndInitViews() }

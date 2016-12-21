@@ -55,7 +55,7 @@
         <activity
             android:name=".activities.KActivityPlayVideo"
             android:label="@string/title_activity_kplay_video"
-            android:theme="@style/KaraokeLoverTheme.NoActionBar" />
+            android:theme="@style/KaraokeLoverTheme" />
 
         <service android:name=".services.YoutubeAudioDownloadService" />
 
