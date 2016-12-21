@@ -23,4 +23,8 @@
         android:scrollbars="vertical"
         android:visibility="gone" />
 
+    <include layout="@layout/fragment_favorite_no_item" />
+
+    <include layout="@layout/content_connection_error" />
+
 </RelativeLayout>

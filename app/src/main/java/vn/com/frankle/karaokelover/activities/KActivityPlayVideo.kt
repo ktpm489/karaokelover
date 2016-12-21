@@ -74,7 +74,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     private var recorderSecondsElapsed = 0
     private val handler = Handler()
     private var mYoutubePlayer: YouTubePlayer? = null
-    private val mSharedPref: KSharedPreference = KSharedPreference()
+    private val mSharedPref: KSharedPreference = KSharedPreference(this@KActivityPlayVideo)
 
     private lateinit var mState: KActivityPlayVideoBaseState
     // States of activity

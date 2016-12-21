@@ -247,7 +247,7 @@ public class KFragmentHome extends Fragment {
      * Get observable for list of host artists and their karaokes that will be displayed on Home screen
      */
     private Observable<List<ArtistWithKaraoke>> getObservableHotArtistsListWithKaraokes() {
-        mSharedPrefs = new KSharedPreference();
+        mSharedPrefs = new KSharedPreference(mContext);
 
         ArrayList<String> favouriteArtistList = mSharedPrefs.getFavouriteArtists(mContext);
         Log.d(DEBUG_TAG, "favouriteArtistList = " + Arrays.toString(favouriteArtistList.toArray()));

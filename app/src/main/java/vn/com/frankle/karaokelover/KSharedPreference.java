@@ -22,14 +22,18 @@ public class KSharedPreference {
 
     private static final String KEY_FAVOURITES = "karaoke_favourite";
     private static final String KEY_FAVOURITE_ARTISTS = "karaoke_favourite_artist";
+    private static final String KEY_RELOAD_FAVORITE_LIST_FLAG = "karaoke_reload_favorite_list";
     private static final String KEY_RECORDING_PROGRESS = "karaoke_recording_progress";
     private static final String KEY_RECORDING_VIDEOID = "karaoke_recording_videoid";
 
     private String defaultFavoriteArtists[] = {"Backstreet Boys", "Trung Quân Idol", "Sơn Tùng MTP"};
     private final Set<String> DEFAULT_FAVORITE_ARTISTS = new HashSet<>(Arrays.asList(defaultFavoriteArtists));
 
-    public KSharedPreference() {
+    private Context mContext;
+
+    public KSharedPreference(Context context) {
         super();
+        this.mContext = context;
     }
 
     /**
@@ -123,5 +127,18 @@ public class KSharedPreference {
         }
 
         return favouriteArtists;
+    }
+
+    public boolean getFavoriteListReloadFlag() {
+        SharedPreferences sf = mContext.getSharedPreferences(PREFS_KARAOKETUBE, Context.MODE_PRIVATE);
+        return sf.getBoolean(KEY_RELOAD_FAVORITE_LIST_FLAG, false);
+    }
+
+    public void setFavoriteListReloadFlag(boolean needReload) {
+        SharedPreferences settings = mContext.getSharedPreferences(PREFS_KARAOKETUBE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putBoolean(KEY_RELOAD_FAVORITE_LIST_FLAG, needReload);
+        editor.commit();
     }
 }

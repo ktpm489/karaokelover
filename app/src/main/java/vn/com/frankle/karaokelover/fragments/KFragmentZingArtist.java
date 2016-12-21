@@ -228,7 +228,7 @@ public class KFragmentZingArtist extends Fragment {
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(mContext, 16), SpaceItemDecoration.VERTICAL));
+        mRecyclerView.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(mContext, 0), SpaceItemDecoration.VERTICAL));
         mAdapter = new KAdapterZingArtist(mContext, mOnItemClickListener);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {

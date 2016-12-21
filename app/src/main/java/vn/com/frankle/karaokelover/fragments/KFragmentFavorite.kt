@@ -9,12 +9,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import com.pushtorefresh.storio.sqlite.StorIOSQLite
 import io.realm.Realm
+import kotlinx.android.synthetic.main.content_connection_error.*
+import kotlinx.android.synthetic.main.fragment_favorite_no_item.*
 import kotlinx.android.synthetic.main.layout_fragment_my_favorite.*
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import rx.Subscriber
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
@@ -37,6 +39,13 @@ import javax.inject.Inject
 
 class KFragmentFavorite : Fragment() {
 
+    enum class LayoutType {
+        LOADING,
+        NO_ITEM,
+        LIST_ITEM,
+        ERROR
+    }
+
     @Inject lateinit var storIOSQLite: StorIOSQLite
     @Inject lateinit var realm: Realm
 
@@ -44,13 +53,16 @@ class KFragmentFavorite : Fragment() {
 
 
     private var mContext: Context? = null
-    private val mAppPrefs = KSharedPreference()
+    private val mAppPrefs = KSharedPreference(mContext)
     private var mCurSizeList = 0
     private var mFavoriteAdapter: KAdapterYoutbeVideoSearchLimit? = null
     // Flag to indicate whether reload the video list or not
-    // Basically when realm results get notified by change somewhere, we set this flag to true
-    // and we will use this flag at onResume
-    private var mRefreshList = false
+    // Read this flag value from SharedPreference
+    private var mIsNeededRealod = false
+    // Flag is used to decide whether to call a function at onResume event or not
+    // When the fragment first created, this flag is false that's mean it will not
+    // call dedicated function at onResume
+    private var mCallOnResume = false
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -70,11 +82,14 @@ class KFragmentFavorite : Fragment() {
     override fun onResume() {
         super.onResume()
         Log.d(DEBUG_TAG, "onResume")
-        if (this.mRefreshList) {
-            // This flag is true -> need to reload list of favorite videos
-            getFavoriteVideosFromDB()
-            // Reset flag
-            this.mRefreshList = false
+        if (mCallOnResume) {
+            mIsNeededRealod = mAppPrefs.favoriteListReloadFlag
+            if (mIsNeededRealod) {
+                getFavoriteVideosFromDB()
+                mAppPrefs.favoriteListReloadFlag = false
+            }
+        } else {
+            mCallOnResume = true
         }
     }
 
@@ -133,6 +148,38 @@ class KFragmentFavorite : Fragment() {
         return layout
     }
 
+    fun setContentLayoutType(layoutType: LayoutType) {
+        when (layoutType) {
+            LayoutType.LOADING -> {
+                progressbar_favorite.visibility = View.VISIBLE
+                recyclerview_my_favorite.visibility = View.GONE
+                layout_favorite_no_item.visibility = View.GONE
+                layout_connection_error.visibility = View.GONE
+            }
+
+            LayoutType.NO_ITEM -> {
+                progressbar_favorite.visibility = View.GONE
+                recyclerview_my_favorite.visibility = View.GONE
+                layout_favorite_no_item.visibility = View.VISIBLE
+                layout_connection_error.visibility = View.GONE
+            }
+
+            LayoutType.LIST_ITEM -> {
+                progressbar_favorite.visibility = View.GONE
+                recyclerview_my_favorite.visibility = View.VISIBLE
+                layout_favorite_no_item.visibility = View.GONE
+                layout_connection_error.visibility = View.GONE
+            }
+
+            LayoutType.ERROR -> {
+                progressbar_favorite.visibility = View.GONE
+                recyclerview_my_favorite.visibility = View.GONE
+                layout_favorite_no_item.visibility = View.GONE
+                layout_connection_error.visibility = View.VISIBLE
+            }
+        }
+    }
+
     /**
      * Read list of favorite videos from Realm database
      */
@@ -140,7 +187,7 @@ class KFragmentFavorite : Fragment() {
         val favorites = realm.where(FavoriteRealm::class.java).findAll()
 
         if (favorites.isEmpty()) (
-                Toast.makeText(mContext, "There is no video in favorite list", Toast.LENGTH_SHORT).show()
+                setContentLayoutType(LayoutType.NO_ITEM)
                 ) else {
             val favoriteVideoIds = favorites.map { it.video_id!! }
             loadFavoriteVideos(favoriteVideoIds)
@@ -169,26 +216,40 @@ class KFragmentFavorite : Fragment() {
         val clickListenerObservable = mFavoriteAdapter!!.itemClickListener
         compositeSubscriptionForOnStop.add(clickListenerObservable.subscribe({ handleOnVideoClickListener(it) }))
         recyclerview_my_favorite.adapter = mFavoriteAdapter
+
+        layout_connection_error.setOnClickListener { getFavoriteVideosFromDB() }
     }
 
     private fun loadFavoriteVideos(listFavoriteId: List<String>) {
-        setLoadingState(true)
+        setContentLayoutType(LayoutType.LOADING)
         mCurSizeList = listFavoriteId.size
 
         val favoriteRequest = ReactiveHelper.getFavoritesVideos(listFavoriteId)
         compositeSubscriptionForOnStop.add(favoriteRequest
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ this.handleFavoriteVideoList(it) }))
+                .subscribe(object : Subscriber<List<VideoSearchItem>>() {
+                    override fun onCompleted() {
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        setContentLayoutType(LayoutType.ERROR)
+                    }
+
+                    override fun onNext(t: List<VideoSearchItem>?) {
+                        handleFavoriteVideoList(t)
+                    }
+
+                }))
     }
 
-    private fun handleFavoriteVideoList(favoriteVideos: List<VideoSearchItem>) {
-        if (favoriteVideos.isNotEmpty()) {
-            setLoadingState(false)
+    private fun handleFavoriteVideoList(favoriteVideos: List<VideoSearchItem>?) {
+        if (favoriteVideos!!.isNotEmpty()) {
+            setContentLayoutType(LayoutType.LIST_ITEM)
 
             mFavoriteAdapter!!.setDataItemList(favoriteVideos)
         } else {
-            Toast.makeText(mContext, "Empty favorite videos list", Toast.LENGTH_SHORT).show()
+            setContentLayoutType(LayoutType.NO_ITEM)
         }
     }
 
@@ -201,27 +262,11 @@ class KFragmentFavorite : Fragment() {
     }
 
     /**
-     * Switch visiblity of ProgressBar and RecyclerView
-
-     * @param loading : true if display progressbar
-     */
-    private fun setLoadingState(loading: Boolean) {
-        if (loading) {
-            progressbar_favorite.visibility = View.VISIBLE
-            recyclerview_my_favorite.visibility = View.GONE
-        } else {
-            progressbar_favorite.visibility = View.GONE
-            recyclerview_my_favorite.visibility = View.VISIBLE
-        }
-    }
-
-    /**
      * Handle event: update favorite video list
      */
     @Subscribe(threadMode = ThreadMode.POSTING)
     fun OnEventUpdateFavoriteList(event: EventUpdateFavoriteList) {
         Log.d(DEBUG_TAG, "Event: update favorite list")
-        this.mRefreshList = true
     }
 
     companion object {

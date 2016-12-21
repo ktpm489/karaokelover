@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="512dp"
+    android:height="512dp"
+    android:viewportHeight="512"
+    android:viewportWidth="512">
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M88.370003 212.59A24.209999 24.209999 0 0 1 64.160004 236.8 24.209999 24.209999 0 0 1 39.950005 212.59 24.209999 24.209999 0 0 1 64.160004 188.38 24.209999 24.209999 0 0 1 88.370003 212.59Z" />
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M427,268a43.45,43.45,0,0,0-32.65,15.16A43.45,43.45,0,0,0,361.69,268a39.52,39.52,0,0,0-39.9,39.9c0,27.42,24.67,49.77,62,83.65l10.52,9.58,10.52-9.5c37.36-34,62-56.3,62-83.72A39.52,39.52,0,0,0,427,268Z" />
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M88.18 125.81a24.23 24.23 0 0 1 -24.229999 24.23 24.23 24.23 0 0 1 -24.23 -24.23 24.23 24.23 0 0 1 24.23 -24.23A24.23 24.23 0 0 1 88.18 125.81Z" />
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M88.18 299.62a24.23 24.23 0 0 1 -24.229999 24.22999 24.23 24.23 0 0 1 -24.23 -24.22999 24.23 24.23 0 0 1 24.23 -24.23A24.23 24.23 0 0 1 88.18 299.62Z" />
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M88.370003 386.22A24.209999 24.209999 0 0 1 64.160004 410.43 24.209999 24.209999 0 0 1 39.950005 386.22 24.209999 24.209999 0 0 1 64.160004 362.01 24.209999 24.209999 0 0 1 88.370003 386.22Z" />
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M129.96001 108.26l272.41 0 0 35.1 -272.41 0z" />
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M129.96001 195.17l272.41 0 0 35.1 -272.41 0z" />
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M308.71 305.16A52.14 52.14 0 0 1 314 282.07l-184 0 0 35.1 180 0a58.52 58.52 0 0 1 -1.29 -12.01z" />
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M342.06 368.69l-212 0 0 35.06 248.62 0C364.7 391 352.34 379.53 342.06 368.69Z" />
+</vector>
