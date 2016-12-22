@@ -18,11 +18,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.activities.KActivityArtistDetails;
-import vn.com.frankle.karaokelover.activities.KActivityHome;
 import vn.com.frankle.karaokelover.activities.KActivityPlayVideo;
 import vn.com.frankle.karaokelover.database.entities.ArtistWithKaraoke;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
-import vn.com.frankle.karaokelover.fragments.KFragmentFavorite;
 import vn.com.frankle.karaokelover.util.Utils;
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration;
 
@@ -51,7 +49,7 @@ public class KHotArtistAdapter extends RecyclerView.Adapter<KHotArtistAdapter.Vi
         Intent playVideoItent = new Intent(mContext, KActivityPlayVideo.class);
         playVideoItent.putExtra("title", item.getTitle());
         playVideoItent.putExtra("videoid", item.getVideoId());
-        ((KActivityHome) mContext).startActivityForResult(playVideoItent, KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST);
+        mContext.startActivity(playVideoItent);
     }
 
     @Override

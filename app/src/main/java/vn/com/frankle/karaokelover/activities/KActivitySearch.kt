@@ -43,6 +43,7 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
 import vn.com.frankle.karaokelover.KApplication
+import vn.com.frankle.karaokelover.KSharedPreference
 import vn.com.frankle.karaokelover.R
 import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener
 import vn.com.frankle.karaokelover.adapters.KAdapterYoutubeVideoSearch
@@ -50,7 +51,6 @@ import vn.com.frankle.karaokelover.adapters.RecyclerViewEndlessScrollBaseAdapter
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem
 import vn.com.frankle.karaokelover.database.realm.FavoriteRealm
 import vn.com.frankle.karaokelover.events.EventPopupMenuItemClick
-import vn.com.frankle.karaokelover.events.EventUpdateFavoriteList
 import vn.com.frankle.karaokelover.services.ReactiveHelper
 import vn.com.frankle.karaokelover.util.AnimUtils
 import vn.com.frankle.karaokelover.util.ImeUtils
@@ -58,6 +58,7 @@ import vn.com.frankle.karaokelover.util.Utils
 import vn.com.frankle.karaokelover.util.ViewUtils
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration
 import vn.com.frankle.karaokelover.views.widgets.BaselineGridTextView
+import java.util.*
 import javax.inject.Inject
 
 
@@ -80,6 +81,10 @@ class KActivitySearch : AppCompatActivity() {
     private var dismissing: Boolean = false
     private var mCurrentSearchQuery: String? = null
     private var mNextPageToken: String? = null
+    private val mSharedPref = KSharedPreference(this@KActivitySearch)
+    // This set is used to store video id that change its favorite state
+    // When the set is empty, it means that the favorite video list remains unchanged
+    private var mFavoriteStateSet: HashSet<String> = hashSetOf()
 
     private var mSearchAdapter: KAdapterYoutubeVideoSearch? = null
 
@@ -222,11 +227,19 @@ class KActivitySearch : AppCompatActivity() {
 
     override fun onBackPressed() {
         dismiss()
+        super.onBackPressed()
     }
 
     override fun onPause() {
+        Log.d(DEBUG_TAG, "OnPause")
+
         // needed to suppress the default window animation when closing the activity
         overridePendingTransition(0, 0)
+        // Check if favorite state list is not empty (it means that favorite videos list was changed)
+        if (!mFavoriteStateSet.isEmpty()) {
+            mSharedPref.setFavoriteListReloadFlag(this@KActivitySearch, true)
+            mFavoriteStateSet.clear()
+        }
         super.onPause()
     }
 
@@ -236,8 +249,8 @@ class KActivitySearch : AppCompatActivity() {
     }
 
     override fun onStop() {
-        super.onStop()
         KApplication.eventBus.unregister(this)
+        super.onStop()
     }
 
 
@@ -525,14 +538,14 @@ class KActivitySearch : AppCompatActivity() {
         when (event.action) {
             EventPopupMenuItemClick.ACTION.ADD_FAVORITE -> {
                 // All writes must be wrapped in a transaction to facilitate safe multi threading
-                if (inserted != null) {
-                    Toast.makeText(this@KActivitySearch, "This video is already in the favorite list", Toast.LENGTH_SHORT).show()
-                } else {
+                if (inserted == null) {
                     realm.executeTransaction {
                         val favoriteVideo = realm.createObject(FavoriteRealm::class.java, System.currentTimeMillis())
                         favoriteVideo.video_id = event.data.videoId
                         Toast.makeText(this@KActivitySearch, "Added to the favorite list", Toast.LENGTH_SHORT).show()
-                        KApplication.eventBus.post(EventUpdateFavoriteList())
+                    }
+                    if (!mFavoriteStateSet.remove(event.data.videoId!!)) {
+                        mFavoriteStateSet.add(event.data.videoId!!)
                     }
                 }
             }
@@ -540,7 +553,9 @@ class KActivitySearch : AppCompatActivity() {
                 realm.executeTransaction {
                     inserted.deleteFromRealm()
                     Toast.makeText(this@KActivitySearch, "Removed from the favorite list", Toast.LENGTH_SHORT).show()
-                    KApplication.eventBus.post(EventUpdateFavoriteList())
+                }
+                if (!mFavoriteStateSet.remove(event.data.videoId!!)) {
+                    mFavoriteStateSet.add(event.data.videoId!!)
                 }
             }
         }

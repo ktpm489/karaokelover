@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.pushtorefresh.storio.sqlite.StorIOSQLite
 import io.realm.Realm
 import kotlinx.android.synthetic.main.content_connection_error.*
@@ -24,10 +25,12 @@ import vn.com.frankle.karaokelover.KApplication
 import vn.com.frankle.karaokelover.KSharedPreference
 import vn.com.frankle.karaokelover.R
 import vn.com.frankle.karaokelover.activities.KActivityPlayVideo
-import vn.com.frankle.karaokelover.adapters.KAdapterYoutbeVideoSearchLimit
+import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener
+import vn.com.frankle.karaokelover.adapters.KAdapterYoutubeVideoSearch
+import vn.com.frankle.karaokelover.adapters.RecyclerViewEndlessScrollBaseAdapter
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem
 import vn.com.frankle.karaokelover.database.realm.FavoriteRealm
-import vn.com.frankle.karaokelover.events.EventUpdateFavoriteList
+import vn.com.frankle.karaokelover.events.EventPopupMenuItemClick
 import vn.com.frankle.karaokelover.services.ReactiveHelper
 import vn.com.frankle.karaokelover.util.Utils
 import vn.com.frankle.karaokelover.views.SpaceItemDecoration
@@ -55,7 +58,8 @@ class KFragmentFavorite : Fragment() {
     private var mContext: Context? = null
     private val mAppPrefs = KSharedPreference(mContext)
     private var mCurSizeList = 0
-    private var mFavoriteAdapter: KAdapterYoutbeVideoSearchLimit? = null
+    private lateinit var mFavoriteAdapter: KAdapterYoutubeVideoSearch
+    internal lateinit var onScrollListener: EndlessRecyclerViewScrollListener
     // Flag to indicate whether reload the video list or not
     // Read this flag value from SharedPreference
     private var mIsNeededRealod = false
@@ -83,10 +87,10 @@ class KFragmentFavorite : Fragment() {
         super.onResume()
         Log.d(DEBUG_TAG, "onResume")
         if (mCallOnResume) {
-            mIsNeededRealod = mAppPrefs.favoriteListReloadFlag
+            mIsNeededRealod = mAppPrefs.getFavoriteListReloadFlag(mContext)
             if (mIsNeededRealod) {
+                Log.d(DEBUG_TAG, "Reload favorite list from DB")
                 getFavoriteVideosFromDB()
-                mAppPrefs.favoriteListReloadFlag = false
             }
         } else {
             mCallOnResume = true
@@ -148,6 +152,16 @@ class KFragmentFavorite : Fragment() {
         return layout
     }
 
+    private val mOnItemClickListener = object : RecyclerViewEndlessScrollBaseAdapter.OnItemClickListener<VideoSearchItem> {
+        override fun onDataItemClick(dataItem: VideoSearchItem) {
+            handleOnVideoClickListener(dataItem)
+        }
+
+        override fun onErrorLoadMoreRetry() {
+            // Currently not supported load more feature
+        }
+    }
+
     fun setContentLayoutType(layoutType: LayoutType) {
         when (layoutType) {
             LayoutType.LOADING -> {
@@ -184,6 +198,10 @@ class KFragmentFavorite : Fragment() {
      * Read list of favorite videos from Realm database
      */
     fun getFavoriteVideosFromDB() {
+        Log.d(DEBUG_TAG, "Get favorite list from DB")
+        // Reset reload flag to false
+        mAppPrefs.setFavoriteListReloadFlag(mContext, false)
+
         val favorites = realm.where(FavoriteRealm::class.java).findAll()
 
         if (favorites.isEmpty()) (
@@ -194,14 +212,14 @@ class KFragmentFavorite : Fragment() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d(DEBUG_TAG, "onActivityResult")
-        when (requestCode) {
-            KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST -> getFavoriteVideosFromDB()
-        }
-
-    }
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        Log.d(DEBUG_TAG, "onActivityResult")
+//        when (requestCode) {
+//            KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST -> getFavoriteVideosFromDB()
+//        }
+//
+//    }
 
     /**
      * Setup view for displaying search result
@@ -212,11 +230,18 @@ class KFragmentFavorite : Fragment() {
         recyclerview_my_favorite.layoutManager = layoutManager
         recyclerview_my_favorite.setHasFixedSize(true)
         recyclerview_my_favorite.addItemDecoration(SpaceItemDecoration(Utils.convertDpToPixel(mContext, 0), SpaceItemDecoration.VERTICAL))
-        mFavoriteAdapter = KAdapterYoutbeVideoSearchLimit(mContext)
-        val clickListenerObservable = mFavoriteAdapter!!.itemClickListener
-        compositeSubscriptionForOnStop.add(clickListenerObservable.subscribe({ handleOnVideoClickListener(it) }))
+        mFavoriteAdapter = KAdapterYoutubeVideoSearch(mContext!!, mOnItemClickListener)
+        mFavoriteAdapter.setEndlessScroll(false)
+//        val clickListenerObservable = mFavoriteAdapter!!.itemClickListener
+//        compositeSubscriptionForOnStop.add(clickListenerObservable.subscribe({ handleOnVideoClickListener(it) }))
         recyclerview_my_favorite.adapter = mFavoriteAdapter
-
+        onScrollListener = object : EndlessRecyclerViewScrollListener(layoutManager) {
+            override fun onLoadMore(page: Int, totalItemCount: Int) {
+                // Currently not support yet, implement later
+            }
+        }
+        onScrollListener.setLoadMoreEnable(false)
+        recyclerview_my_favorite.addOnScrollListener(onScrollListener)
         layout_connection_error.setOnClickListener { getFavoriteVideosFromDB() }
     }
 
@@ -247,7 +272,7 @@ class KFragmentFavorite : Fragment() {
         if (favoriteVideos!!.isNotEmpty()) {
             setContentLayoutType(LayoutType.LIST_ITEM)
 
-            mFavoriteAdapter!!.setDataItemList(favoriteVideos)
+            mFavoriteAdapter.setDataItems(favoriteVideos)
         } else {
             setContentLayoutType(LayoutType.NO_ITEM)
         }
@@ -258,21 +283,31 @@ class KFragmentFavorite : Fragment() {
         playVideoItent.putExtra("title", video.title)
         playVideoItent.putExtra("videoid", video.videoId)
         playVideoItent.putExtra("from_favorite", true)
-        startActivityForResult(playVideoItent, REQUEST_CODE_RELOAD_FAVORITE_LIST)
+        startActivity(playVideoItent)
     }
 
     /**
      * Handle event: update favorite video list
      */
     @Subscribe(threadMode = ThreadMode.POSTING)
-    fun OnEventUpdateFavoriteList(event: EventUpdateFavoriteList) {
+    fun OnPopUpMenuItemClick(event: EventPopupMenuItemClick) {
         Log.d(DEBUG_TAG, "Event: update favorite list")
+        val inserted = realm.where(FavoriteRealm::class.java).equalTo(FavoriteRealm.COLUMN_VIDEO_ID, event.data.videoId).findFirst()
+
+        when (event.action) {
+            EventPopupMenuItemClick.ACTION.REMOVE_FAVORITE -> {
+                realm.executeTransaction {
+                    inserted.deleteFromRealm()
+                    Toast.makeText(mContext, "Removed from the favorite list", Toast.LENGTH_SHORT).show()
+                }
+                mFavoriteAdapter.removeDataItem(event.data)
+            }
+        }
     }
 
     companion object {
 
         @JvmField val TAG = KFragmentFavorite::class.java.simpleName
-        @JvmField val REQUEST_CODE_RELOAD_FAVORITE_LIST = 111
         private val DEBUG_TAG = KFragmentFavorite::class.java.simpleName
 
     }

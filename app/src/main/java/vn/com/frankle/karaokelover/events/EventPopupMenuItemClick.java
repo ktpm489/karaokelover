@@ -15,10 +15,12 @@ public class EventPopupMenuItemClick {
 
     private VideoSearchItem data;
     private int action;
+    private int mPosition;
 
-    public EventPopupMenuItemClick(VideoSearchItem data, int action) {
+    public EventPopupMenuItemClick(VideoSearchItem data, int action, int position) {
         this.data = data;
         this.action = action;
+        this.mPosition = position;
     }
 
     public VideoSearchItem getData() {
@@ -27,5 +29,9 @@ public class EventPopupMenuItemClick {
 
     public int getAction() {
         return action;
+    }
+
+    public int getPosition() {
+        return mPosition;
     }
 }

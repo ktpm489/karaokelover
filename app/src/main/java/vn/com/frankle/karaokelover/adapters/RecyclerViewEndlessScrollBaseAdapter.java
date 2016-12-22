@@ -117,6 +117,17 @@ public abstract class RecyclerViewEndlessScrollBaseAdapter<T extends Comparable<
     }
 
     /**
+     * Set adapter with new list of data
+     *
+     * @param dataList : new data list
+     */
+    public void setDataItems(List<T> dataList) {
+        mDataList.clear();
+        mDataList.addAll(dataList);
+        notifyDataSetChanged();
+    }
+
+    /**
      * Add a single data item to the recyclerview
      *
      * @param dataItem : data item to be added

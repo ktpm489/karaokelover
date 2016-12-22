@@ -377,11 +377,6 @@ public class KActivityHome extends AppCompatActivity
                     if (TextUtils.isEmpty(query)) return;
                 }
                 break;
-            case KFragmentFavorite.REQUEST_CODE_RELOAD_FAVORITE_LIST:
-                if (mFavoriteFragment != null) {
-                    mFavoriteFragment.getFavoriteVideosFromDB();
-                }
-                break;
         }
     }
 

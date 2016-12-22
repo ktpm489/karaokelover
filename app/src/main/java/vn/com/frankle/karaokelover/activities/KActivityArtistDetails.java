@@ -27,7 +27,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,6 +41,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 import vn.com.frankle.karaokelover.KApplication;
+import vn.com.frankle.karaokelover.KSharedPreference;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener;
 import vn.com.frankle.karaokelover.adapters.KAdapterVideoArtistDetail;
@@ -112,6 +115,10 @@ public class KActivityArtistDetails extends AppCompatActivity {
     private String mArtistId;
     private String mArtistAvatarUrl;
     private String mNextPageToken;
+    // This set is used to store video id that change its favorite state
+    // When the set is empty, it means that the favorite video list remains unchanged
+    private Set<String> mFavoriteStateSet = new HashSet<>();
+    private KSharedPreference mSharedPrefs = new KSharedPreference(this);
 
     private Realm realm;
 
@@ -154,6 +161,17 @@ public class KActivityArtistDetails extends AppCompatActivity {
         mToolbarNoConnection.setNavigationOnClickListener(view -> this.finish());
 
         checkInternetConnectionAndInitilaizeViews();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // If favorite state set is not empty, it means that the favorite video list has been changed
+        if (!mFavoriteStateSet.isEmpty()) {
+            mSharedPrefs.setFavoriteListReloadFlag(this, true);
+            // We updated favorite reload flag in SharedPreference, so clear the set
+            mFavoriteStateSet.clear();
+        }
     }
 
     @Override
@@ -453,23 +471,30 @@ public class KActivityArtistDetails extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPopupMenuClick(EventPopupMenuItemClick event) {
+        String videoId = event.getData().getVideoId();
         FavoriteRealm inserted = realm.where(FavoriteRealm.class).equalTo(FavoriteRealm.COLUMN_VIDEO_ID, event.getData().getVideoId()).findFirst();
 
         switch (event.getAction()) {
             case EventPopupMenuItemClick.ACTION.ADD_FAVORITE:
-                if (inserted != null) {
-                    Toast.makeText(this, "This video is already in the favorite list", Toast.LENGTH_SHORT).show();
-                } else {
-                    realm.executeTransaction(realm1 -> {
-                        FavoriteRealm favoriteVideo = realm1.createObject(FavoriteRealm.class, System.currentTimeMillis());
-                        favoriteVideo.setVideo_id(event.getData().getVideoId());
-                        Toast.makeText(this, "Added to the favorite list", Toast.LENGTH_SHORT).show();
-                    });
+                realm.executeTransaction(realm1 -> {
+                    FavoriteRealm favoriteVideo = realm1.createObject(FavoriteRealm.class, System.currentTimeMillis());
+                    favoriteVideo.setVideo_id(videoId);
+                    Toast.makeText(this, "Added to the favorite list", Toast.LENGTH_SHORT).show();
+                });
+                // Add video id to favorite change set
+                // Or remove if the video id is already in the set
+                if (!mFavoriteStateSet.add(videoId)) {
+                    mFavoriteStateSet.remove(videoId);
                 }
                 break;
             case EventPopupMenuItemClick.ACTION.REMOVE_FAVORITE:
                 realm.executeTransaction(realm1 -> inserted.deleteFromRealm());
                 Toast.makeText(this, "Removed from the favorite list", Toast.LENGTH_SHORT).show();
+                // Add video id to favorite change set
+                // Or remove if the video id is already in the set
+                if (!mFavoriteStateSet.add(videoId)) {
+                    mFavoriteStateSet.remove(videoId);
+                }
                 break;
         }
     }

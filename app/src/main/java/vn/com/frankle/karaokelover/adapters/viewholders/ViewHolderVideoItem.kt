@@ -24,13 +24,13 @@ class ViewHolderVideoItem(itemView: View) : ViewHolderBase<VideoSearchItem>(item
         if (dataItem.isInFavoriteList()) {
             popupMenu.add("Remove from favorite")
                     .setOnMenuItemClickListener { item ->
-                        KApplication.eventBus.post(EventPopupMenuItemClick(dataItem, EventPopupMenuItemClick.ACTION.REMOVE_FAVORITE))
+                        KApplication.eventBus.post(EventPopupMenuItemClick(dataItem, EventPopupMenuItemClick.ACTION.REMOVE_FAVORITE, adapterPosition))
                         true
                     }
         } else {
             popupMenu.add("Add to favorite")
                     .setOnMenuItemClickListener { item ->
-                        KApplication.eventBus.post(EventPopupMenuItemClick(dataItem, EventPopupMenuItemClick.ACTION.ADD_FAVORITE))
+                        KApplication.eventBus.post(EventPopupMenuItemClick(dataItem, EventPopupMenuItemClick.ACTION.ADD_FAVORITE, adapterPosition))
                         true
                     }
         }

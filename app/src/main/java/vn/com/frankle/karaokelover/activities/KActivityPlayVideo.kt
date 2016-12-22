@@ -1,6 +1,5 @@
 package vn.com.frankle.karaokelover.activities
 
-import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
@@ -45,7 +44,6 @@ import vn.com.frankle.karaokelover.adapters.RecyclerViewEndlessScrollBaseAdapter
 import vn.com.frankle.karaokelover.adapters.viewholders.ViewHolderComment
 import vn.com.frankle.karaokelover.database.realm.FavoriteRealm
 import vn.com.frankle.karaokelover.events.EventPrepareRecordingCountdown
-import vn.com.frankle.karaokelover.events.EventUpdateFavoriteList
 import vn.com.frankle.karaokelover.fragments.KYoutubePlayerFragment
 import vn.com.frankle.karaokelover.services.responses.ResponseCommentThreads
 import vn.com.frankle.karaokelover.services.responses.youtube.commentthread.CommentThread
@@ -65,7 +63,11 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     private var mCurrentVideoTitle: String? = null
     private var mCurrentSavedFilename: String? = null
     private var mCurrentCommentPageToken: String? = null
-    private var mFavoriteState: Boolean = false
+    // Flag is used to store favorite state of current video when the activity load for the first time
+    private var mInitFavoriteStateFlag: Boolean = false
+    // Flag used to store current favorite state of current video
+    private var mCurrentFavoriteStateFlag: Boolean = false
+
     private lateinit var mYoutubePlayerFragment: KYoutubePlayerFragment
     // Store previously video's position
     private var mLastVideoPos: Int = 0
@@ -528,10 +530,12 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         val favoriteVideo = realm.where(FavoriteRealm::class.java).equalTo(FavoriteRealm.COLUMN_VIDEO_ID, mCurrentVideoId).findFirst()
 
         if (favoriteVideo == null) {
-            mFavoriteState = false
+            mInitFavoriteStateFlag = false
+            mCurrentFavoriteStateFlag = false
             favoriteMenu.setIcon(R.drawable.drawable_menu_favourite)
         } else {
-            mFavoriteState = true
+            mInitFavoriteStateFlag = true
+            mCurrentFavoriteStateFlag = true
             favoriteMenu.setIcon(R.drawable.drawable_menu_favourite_added)
         }
         return true
@@ -650,18 +654,17 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
             realm.executeTransaction {
                 val favoriteVideo = realm.createObject(FavoriteRealm::class.java, System.currentTimeMillis())
                 favoriteVideo.video_id = mCurrentVideoId
-                Toast.makeText(this@KActivityPlayVideo, "Added to the favorite list", Toast.LENGTH_SHORT).show()
-                KApplication.eventBus.post(EventUpdateFavoriteList())
             }
+            // update current favorite state flag
+            mCurrentFavoriteStateFlag = true
             favoriteMenuItem.setIcon(R.drawable.drawable_menu_favourite_added)
             Toast.makeText(this, "Added to the favorite list", Toast.LENGTH_SHORT).show()
         } else {// Currently in favorite list -> remove it
             realm.executeTransaction {
                 favoriteInserted.deleteFromRealm()
-                Toast.makeText(this@KActivityPlayVideo, "Removed from the favorite list", Toast.LENGTH_SHORT).show()
-                KApplication.eventBus.post(EventUpdateFavoriteList())
             }
-
+            // update current favorite state flag
+            mCurrentFavoriteStateFlag = false
             favoriteMenuItem.setIcon(R.drawable.drawable_menu_favourite)
             Toast.makeText(this, "Removed to the favorite list", Toast.LENGTH_SHORT).show()
         }
@@ -758,14 +761,10 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     override fun onBackPressed() {
         Log.d(DEBUG_TAG, "onBackPressed")
 
-        val favoriteVideo = realm.where(FavoriteRealm::class.java).equalTo(FavoriteRealm.COLUMN_VIDEO_ID, mCurrentVideoId).findFirst()
-        val changeState = if (favoriteVideo != null) true else false
-
-        if (changeState != mFavoriteState) {
-            // User change state of favorite
-            Log.d(DEBUG_TAG, "Send intent to update favorite video list")
-            val updateFavoriteList = Intent()
-            setResult(Activity.RESULT_OK, updateFavoriteList)
+        if (mInitFavoriteStateFlag.compareTo(mCurrentFavoriteStateFlag) != 0) {
+            // Favorite state of current video has changed
+            // Update SharedPreference for reloading favorite list later
+            mSharedPref.setFavoriteListReloadFlag(this@KActivityPlayVideo, true)
         }
         super.onBackPressed()
     }

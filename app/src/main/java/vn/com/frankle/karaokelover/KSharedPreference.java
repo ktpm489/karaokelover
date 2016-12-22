@@ -129,13 +129,13 @@ public class KSharedPreference {
         return favouriteArtists;
     }
 
-    public boolean getFavoriteListReloadFlag() {
-        SharedPreferences sf = mContext.getSharedPreferences(PREFS_KARAOKETUBE, Context.MODE_PRIVATE);
+    public boolean getFavoriteListReloadFlag(Context context) {
+        SharedPreferences sf = context.getSharedPreferences(PREFS_KARAOKETUBE, Context.MODE_PRIVATE);
         return sf.getBoolean(KEY_RELOAD_FAVORITE_LIST_FLAG, false);
     }
 
-    public void setFavoriteListReloadFlag(boolean needReload) {
-        SharedPreferences settings = mContext.getSharedPreferences(PREFS_KARAOKETUBE, Context.MODE_PRIVATE);
+    public void setFavoriteListReloadFlag(Context context, boolean needReload) {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_KARAOKETUBE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
         editor.putBoolean(KEY_RELOAD_FAVORITE_LIST_FLAG, needReload);
