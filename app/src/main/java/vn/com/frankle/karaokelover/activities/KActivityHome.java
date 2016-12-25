@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -239,6 +240,8 @@ public class KActivityHome extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
+
+
     }
 
     @Override
@@ -359,7 +362,7 @@ public class KActivityHome extends AppCompatActivity
         } else if (id == R.id.nav_setting) {
             mFlagWaitDrawerClosed = true;
         } else if (id == R.id.nav_exit) {
-
+            buildExitConfirmationDialog();
         }
         mDrawerLayout.closeDrawer(GravityCompat.START);
 
@@ -383,6 +386,21 @@ public class KActivityHome extends AppCompatActivity
                 }
                 break;
         }
+    }
+
+    /**
+     * User discard the recording
+     */
+    private void buildExitConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Exit");
+        builder.setMessage("Are you sure to exit the application?");
+        builder.setPositiveButton("Yes", (dialogInterface, i) -> {
+            this.finish();
+        });
+        builder.setNegativeButton("No", (dialogInterface, i) -> {
+        });
+        builder.create().show();
     }
 
     /**
