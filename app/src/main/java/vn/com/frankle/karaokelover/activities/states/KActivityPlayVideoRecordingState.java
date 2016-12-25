@@ -28,7 +28,7 @@ public class KActivityPlayVideoRecordingState extends KActivityPlayVideoBaseStat
 
     @Override
     public void onPause() {
-        mActivityInstance.stopRecording();
+        mActivityInstance.onStopRecording();
     }
 
     @Override

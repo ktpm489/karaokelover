@@ -67,6 +67,8 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     private var mInitFavoriteStateFlag: Boolean = false
     // Flag used to store current favorite state of current video
     private var mCurrentFavoriteStateFlag: Boolean = false
+    // Flag used to enable/disable recording button
+    private var mEnableRecorderFlag = false
 
     private lateinit var mYoutubePlayerFragment: KYoutubePlayerFragment
     // Store previously video's position
@@ -163,13 +165,15 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
 
         override fun onVideoStarted() {
             Log.i(DEBUG_TAG, "YouTubePlayer.PlayerStateChangeListener - OnVideoStarted")
+            // Enable recorder button
+            mEnableRecorderFlag = true
         }
 
         override fun onVideoEnded() {
             Log.i(DEBUG_TAG, "YouTubePlayer.PlayerStateChangeListener - OnVideoEnded")
             if (mRecorder != null && mRecorder!!.mIsRecording.get()) {
                 // The application is recording
-                stopRecording()
+                onStopRecording()
             }
         }
 
@@ -220,6 +224,9 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
             } else {
                 Log.d(DEBUG_TAG, "Restored from a previously saved state")
             }
+
+            // Enable recorder button
+            mEnableRecorderFlag = true
         }
 
         override fun onInitializationFailure(provider: YouTubePlayer.Provider, youTubeInitializationResult: YouTubeInitializationResult) {
@@ -230,6 +237,9 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
                         "Failed to initialize video, please try again!",
                         Toast.LENGTH_LONG).show()
             }
+
+            // Enable recorder button
+            mEnableRecorderFlag = false
         }
     }
 
@@ -250,6 +260,8 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
 
         override fun onInitializationFailure(provider: YouTubePlayer.Provider, youTubeInitializationResult: YouTubeInitializationResult) {
             Log.d(DEBUG_TAG, "YoutubePlayer - onInitializationFailure")
+            // Enable recorder button
+            mEnableRecorderFlag = false
         }
     }
 
@@ -299,22 +311,30 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     /**
      * Handle record button click event
      */
-    private fun onRecordButtonClick() {
-        if (!mRecorder!!.mIsRecording.get()) {
-            mCurrentSavedFilename = mCurrentVideoTitle!! + ".wav"
+    private fun onStartRecording() {
+        if (mEnableRecorderFlag) {
+            if (!mRecorder!!.mIsRecording.get()) {
+                mCurrentSavedFilename = mCurrentVideoTitle!! + ".wav"
 
-            if (!Utils.isAvailableFilename(mCurrentSavedFilename)) {
-                val builder = AlertDialog.Builder(this)
-                builder.setMessage(resources.getString(R.string.msg_filename_existed))
-                builder.setNegativeButton("NO") { dialog, which -> dialog.cancel() }
-                builder.setPositiveButton("YES") { dialog, which -> DeleteRecordedFileTask().execute() }
-                builder.create().show()
-            } else {
-                Log.d(DEBUG_TAG, "Start preparing recording task")
-                PrepareRecordingTask().execute()
+                if (!Utils.isAvailableFilename(mCurrentSavedFilename)) {
+                    val builder = AlertDialog.Builder(this)
+                    builder.setMessage(resources.getString(R.string.msg_filename_existed))
+                    builder.setNegativeButton("NO") { dialog, which -> dialog.cancel() }
+                    builder.setPositiveButton("YES") { dialog, which -> DeleteRecordedFileTask().execute() }
+                    builder.create().show()
+                } else {
+                    Log.d(DEBUG_TAG, "Start preparing recording task")
+                    PrepareRecordingTask().execute()
+                }
             }
         } else {
-            Log.d(DEBUG_TAG, "Stop recording...")
+            Toast.makeText(this@KActivityPlayVideo, "Recording is not available. Please wait until the video start playing.", Toast.LENGTH_SHORT).show()
+        }
+
+    }
+
+    fun onStopRecording() {
+        if (mRecorder != null && mRecorder!!.mIsRecording.get()) {
             switchRecordButton(false)
             mRecorder!!.stop()
             stopRecordingTimer()
@@ -391,8 +411,8 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         fragmentManager.beginTransaction().replace(R.id.youtube_player, mYoutubePlayerFragment).commit()
         mYoutubePlayerFragment.initialize(Constants.YOUTUBE_API_KEY, onInitializedListener)
 
-        btn_record!!.setOnClickListener({ onRecordButtonClick() })
-        btn_recording!!.setOnClickListener({ onRecordButtonClick() })
+        btn_record!!.setOnClickListener({ onStartRecording() })
+        btn_recording!!.setOnClickListener({ onStopRecording() })
 
         //Setup comment view
         val layoutManager = LinearLayoutManager(this)
@@ -716,18 +736,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         startRecordingTimer()
 
         setActivityState(mRecordingState)
-    }
-
-    /**
-     * Stop recording voice
-     */
-    fun stopRecording() {
-        if (mRecorder != null && mRecorder!!.mIsRecording.get()) {
-            switchRecordButton(false)
-            stopRecordingTimer()
-            mRecorder!!.stop()
-            buildPostRecordDialog()
-        }
     }
 
     /**
