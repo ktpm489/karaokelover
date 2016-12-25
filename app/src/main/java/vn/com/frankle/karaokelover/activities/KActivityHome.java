@@ -226,6 +226,11 @@ public class KActivityHome extends AppCompatActivity
         mNavigationView.getMenu().getItem(0).setChecked(true);
     }
 
+    public void backToHomeFragment() {
+        mNavigationView.getMenu().getItem(0).setChecked(true);
+        switchFragment(FragmentContentType.HOME);
+    }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

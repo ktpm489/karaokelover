@@ -126,7 +126,7 @@ public class ReactiveHelper {
         return Observable.from(listFavoriteId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(s -> KApplication.rxYoutubeAPIService.getYoutubeVideoById(s)
+                .concatMap(s -> KApplication.rxYoutubeAPIService.getYoutubeVideoById(s)
                         .flatMap(ReactiveHelper::getStatisticsContentDetails)
                 )
                 .toList();

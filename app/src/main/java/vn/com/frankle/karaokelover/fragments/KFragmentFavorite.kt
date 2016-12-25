@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.pushtorefresh.storio.sqlite.StorIOSQLite
 import io.realm.Realm
+import io.realm.Sort
 import kotlinx.android.synthetic.main.content_connection_error.*
 import kotlinx.android.synthetic.main.fragment_favorite_no_item.*
 import kotlinx.android.synthetic.main.layout_fragment_my_favorite.*
@@ -24,6 +25,7 @@ import rx.subscriptions.CompositeSubscription
 import vn.com.frankle.karaokelover.KApplication
 import vn.com.frankle.karaokelover.KSharedPreference
 import vn.com.frankle.karaokelover.R
+import vn.com.frankle.karaokelover.activities.KActivityHome
 import vn.com.frankle.karaokelover.activities.KActivityPlayVideo
 import vn.com.frankle.karaokelover.adapters.EndlessRecyclerViewScrollListener
 import vn.com.frankle.karaokelover.adapters.KAdapterYoutubeVideoSearch
@@ -60,6 +62,9 @@ class KFragmentFavorite : Fragment() {
     private var mCurSizeList = 0
     private lateinit var mFavoriteAdapter: KAdapterYoutubeVideoSearch
     internal lateinit var onScrollListener: EndlessRecyclerViewScrollListener
+    private lateinit var mFullListVideoId: List<String>
+    // Page index: for indicating current page in case of more than 15 videos in favorite list
+    private var mCurrentPageIndex = 0
     // Flag to indicate whether reload the video list or not
     // Read this flag value from SharedPreference
     private var mIsNeededRealod = false
@@ -67,6 +72,7 @@ class KFragmentFavorite : Fragment() {
     // When the fragment first created, this flag is false that's mean it will not
     // call dedicated function at onResume
     private var mCallOnResume = false
+
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -158,7 +164,8 @@ class KFragmentFavorite : Fragment() {
         }
 
         override fun onErrorLoadMoreRetry() {
-            // Currently not supported load more feature
+            mFavoriteAdapter.setErrorLoadingMore(false)
+            loadMoreFavoriteVideos()
         }
     }
 
@@ -194,6 +201,7 @@ class KFragmentFavorite : Fragment() {
         }
     }
 
+
     /**
      * Read list of favorite videos from Realm database
      */
@@ -201,14 +209,22 @@ class KFragmentFavorite : Fragment() {
         Log.d(DEBUG_TAG, "Get favorite list from DB")
         // Reset reload flag to false
         mAppPrefs.setFavoriteListReloadFlag(mContext, false)
+        mCurrentPageIndex = 0
 
-        val favorites = realm.where(FavoriteRealm::class.java).findAll()
+        val favorites = realm.where(FavoriteRealm::class.java).findAllSorted("id", Sort.DESCENDING)
 
         if (favorites.isEmpty()) (
                 setContentLayoutType(LayoutType.NO_ITEM)
                 ) else {
-            val favoriteVideoIds = favorites.map { it.video_id!! }
-            loadFavoriteVideos(favoriteVideoIds)
+            mFullListVideoId = favorites.map { it.video_id!! }
+            if (mFullListVideoId.size > 10) {
+                mFavoriteAdapter.setEndlessScroll(true)
+                onScrollListener.setLoadMoreEnable(true)
+                loadFavoriteVideos(mFullListVideoId.subList(0, 9))
+                mCurrentPageIndex += 1
+            } else {
+                loadFavoriteVideos(mFullListVideoId)
+            }
         }
     }
 
@@ -232,17 +248,19 @@ class KFragmentFavorite : Fragment() {
         recyclerview_my_favorite.addItemDecoration(SpaceItemDecoration(Utils.convertDpToPixel(mContext, 0), SpaceItemDecoration.VERTICAL))
         mFavoriteAdapter = KAdapterYoutubeVideoSearch(mContext!!, mOnItemClickListener)
         mFavoriteAdapter.setEndlessScroll(false)
-//        val clickListenerObservable = mFavoriteAdapter!!.itemClickListener
-//        compositeSubscriptionForOnStop.add(clickListenerObservable.subscribe({ handleOnVideoClickListener(it) }))
         recyclerview_my_favorite.adapter = mFavoriteAdapter
         onScrollListener = object : EndlessRecyclerViewScrollListener(layoutManager) {
             override fun onLoadMore(page: Int, totalItemCount: Int) {
-                // Currently not support yet, implement later
+                loadMoreFavoriteVideos()
             }
         }
         onScrollListener.setLoadMoreEnable(false)
         recyclerview_my_favorite.addOnScrollListener(onScrollListener)
         layout_connection_error.setOnClickListener { getFavoriteVideosFromDB() }
+
+        btn_explore.setOnClickListener {
+            (activity as KActivityHome).backToHomeFragment()
+        }
     }
 
     private fun loadFavoriteVideos(listFavoriteId: List<String>) {
@@ -263,6 +281,43 @@ class KFragmentFavorite : Fragment() {
 
                     override fun onNext(t: List<VideoSearchItem>?) {
                         handleFavoriteVideoList(t)
+                    }
+
+                }))
+    }
+
+    private fun loadMoreFavoriteVideos() {
+        val startIndex = mCurrentPageIndex * 10
+        val calculatedIndex = mCurrentPageIndex * 10 + 9
+        val endIndex: Int
+        if (calculatedIndex < mFullListVideoId.size - 1) {
+            endIndex = calculatedIndex
+        } else {
+            endIndex = mFullListVideoId.size - 1
+        }
+        val nextVideosId = mFullListVideoId.subList(startIndex, endIndex)
+
+        val favoriteRequest = ReactiveHelper.getFavoritesVideos(nextVideosId)
+        compositeSubscriptionForOnStop.add(favoriteRequest
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : Subscriber<List<VideoSearchItem>>() {
+                    override fun onCompleted() {
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        mFavoriteAdapter.setErrorLoadingMore(true)
+                    }
+
+                    override fun onNext(t: List<VideoSearchItem>?) {
+                        mFavoriteAdapter.addDataItems(t)
+                        if (endIndex == mFullListVideoId.size - 1) {
+                            mFavoriteAdapter.setEndlessScroll(false)
+                            onScrollListener.setLoadMoreEnable(false)
+                        } else {
+                            // Increase page index
+                            mCurrentPageIndex += 1
+                        }
                     }
 
                 }))
@@ -301,6 +356,12 @@ class KFragmentFavorite : Fragment() {
                     Toast.makeText(mContext, "Removed from the favorite list", Toast.LENGTH_SHORT).show()
                 }
                 mFavoriteAdapter.removeDataItem(event.data)
+                if (mFavoriteAdapter.itemCount == 0) {
+                    setContentLayoutType(LayoutType.NO_ITEM)
+                } else if (mFavoriteAdapter.itemCount < 10) {
+                    mFavoriteAdapter.setEndlessScroll(false)
+                    onScrollListener.setLoadMoreEnable(false)
+                }
             }
         }
     }

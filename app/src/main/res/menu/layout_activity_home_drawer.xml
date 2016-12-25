@@ -8,6 +8,7 @@
             android:title="@string/nav_home" />
         <item
             android:id="@+id/nav_my_recording"
+            android:checkable="false"
             android:icon="@drawable/ic_nav_mykaraokes"
             android:title="@string/nav_my_recordings" />
         <item
@@ -35,16 +36,16 @@
     </group>
 
     <!--<item android:title="Communicate">-->
-        <!--<menu>-->
-            <!--<item-->
-                <!--android:id="@+id/nav_share"-->
-                <!--android:icon="@drawable/ic_nav_setting"-->
-                <!--android:title="Setting" />-->
-            <!--<item-->
-                <!--android:id="@+id/nav_send"-->
-                <!--android:icon="@drawable/ic_nav_exit"-->
-                <!--android:title="Exit" />-->
-        <!--</menu>-->
+    <!--<menu>-->
+    <!--<item-->
+    <!--android:id="@+id/nav_share"-->
+    <!--android:icon="@drawable/ic_nav_setting"-->
+    <!--android:title="Setting" />-->
+    <!--<item-->
+    <!--android:id="@+id/nav_send"-->
+    <!--android:icon="@drawable/ic_nav_exit"-->
+    <!--android:title="Exit" />-->
+    <!--</menu>-->
     <!--</item>-->
 
 </menu>
