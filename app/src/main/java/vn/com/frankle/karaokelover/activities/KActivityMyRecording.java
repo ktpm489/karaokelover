@@ -6,19 +6,23 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.transition.AutoTransition;
 import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,11 +38,22 @@ import vn.com.frankle.karaokelover.views.recyclerview.SlideInItemAnimator;
 
 public class KActivityMyRecording extends AppCompatActivity {
 
+    enum LayoutType {
+        EMPTY,
+        RECORDING_LIST
+    }
+
+
     @BindView(R.id.recycleview_my_recording)
     RecyclerView mRecyclerView;
+    @BindView(R.id.content_no_recording)
+    RelativeLayout mLayoutNoRecording;
+
     private KAdapterMyRecordings adapter;
     private Transition expandCollapse;
     private RecordedFileItemAnimator recordedFileItemAnimator;
+    // This array list to store current available recording file
+    private List<File> mRecordingList = new ArrayList<>();
 
     /**
      * We run a transition to expand/collapse recorded item view. Scrolling the RecyclerView while this is
@@ -105,59 +120,72 @@ public class KActivityMyRecording extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // Show the Up button in the action bar.
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("My Recordings");
+        }
 
         loadMyRecordings();
     }
 
     private void loadMyRecordings() {
         File recordingDir = new File(KApplication.Companion.getRECORDING_DIRECTORY_URI());
+        try {
+            File recordings[] = recordingDir.listFiles(new RecordingFileFilter());
+            if (recordings != null && recordings.length > 0) {
+                setContentLayoutType(LayoutType.RECORDING_LIST);
 
+                Collections.addAll(mRecordingList, recordings);
 
-        File recordings[] = recordingDir.listFiles(new RecordingFileFilter());
-        FileCompare[] pairs = new FileCompare[recordings.length];
-        for (int i = 0; i < recordings.length; i++) {
-            pairs[i] = new FileCompare(recordings[i]);
-        }
-        // Sort list of recording based on last modified date
-        // The latest modified file is displayed first
-        Arrays.sort(pairs);
-        for (int i = 0; i < recordings.length; i++) {
-            recordings[i] = pairs[i].file;
-        }
+                FileCompare[] pairs = new FileCompare[recordings.length];
+                for (int i = 0; i < recordings.length; i++) {
+                    pairs[i] = new FileCompare(recordings[i]);
+                }
+                // Sort list of recording based on last modified date
+                // The latest modified file is displayed first
+                Arrays.sort(pairs);
+                for (int i = 0; i < recordings.length; i++) {
+                    recordings[i] = pairs[i].file;
+                }
 
-        expandCollapse = new AutoTransition();
-        expandCollapse.setDuration(getResources().getInteger(R.integer.recorded_item_expand_collapse_duration));
-        expandCollapse.setInterpolator(AnimUtils.getFastOutSlowInInterpolator(KActivityMyRecording.this));
-        expandCollapse.addListener(new TransitionUtils.TransitionListenerAdapter() {
-            @Override
-            public void onTransitionStart(Transition transition) {
-                mRecyclerView.setOnTouchListener(touchEater);
+                expandCollapse = new AutoTransition();
+                expandCollapse.setDuration(getResources().getInteger(R.integer.recorded_item_expand_collapse_duration));
+                expandCollapse.setInterpolator(AnimUtils.getFastOutSlowInInterpolator(KActivityMyRecording.this));
+                expandCollapse.addListener(new TransitionUtils.TransitionListenerAdapter() {
+                    @Override
+                    public void onTransitionStart(Transition transition) {
+                        mRecyclerView.setOnTouchListener(touchEater);
+                    }
+
+                    @Override
+                    public void onTransitionEnd(Transition transition) {
+                        recordedFileItemAnimator.setAnimateMoves(true);
+                        mRecyclerView.setOnTouchListener(null);
+                    }
+                });
+
+                adapter = new KAdapterMyRecordings(this, recordings, recordedSongAdapterListener);
+                LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+                layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                mRecyclerView.setLayoutManager(layoutManager);
+                mRecyclerView.addItemDecoration(new InsetDividerDecoration(
+                        KAdapterMyRecordings.ViewHolderRecording.class,
+                        getResources().getDimensionPixelSize(R.dimen.divider_height),
+                        getResources().getDimensionPixelSize(R.dimen.keyline_1),
+                        ContextCompat.getColor(this, R.color.divider_light)));
+
+                recordedFileItemAnimator = new RecordedFileItemAnimator();
+                mRecyclerView.setItemAnimator(recordedFileItemAnimator);
+                mRecyclerView.setAdapter(adapter);
+            } else {
+                setContentLayoutType(LayoutType.EMPTY);
             }
-
-            @Override
-            public void onTransitionEnd(Transition transition) {
-                recordedFileItemAnimator.setAnimateMoves(true);
-                mRecyclerView.setOnTouchListener(null);
-            }
-        });
-
-        adapter = new KAdapterMyRecordings(this, recordings, recordedSongAdapterListener);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.addItemDecoration(new InsetDividerDecoration(
-                KAdapterMyRecordings.ViewHolderRecording.class,
-                getResources().getDimensionPixelSize(R.dimen.divider_height),
-                getResources().getDimensionPixelSize(R.dimen.keyline_1),
-                ContextCompat.getColor(this, R.color.divider_light)));
-
-        recordedFileItemAnimator = new RecordedFileItemAnimator();
-        mRecyclerView.setItemAnimator(recordedFileItemAnimator);
-        mRecyclerView.setAdapter(adapter);
+        } catch (SecurityException e) {
+            Toast.makeText(this, "Cannot read the recording directory. Please try again!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -225,10 +253,27 @@ public class KActivityMyRecording extends AppCompatActivity {
                 deleteProgessDialog.dismiss();
                 adapter.removeItemAtPosition(deletedPos);
                 adapter.setExpandedItemPosition(RecyclerView.NO_POSITION);
+                mRecordingList.remove(deletedPos);
+                if (mRecordingList.isEmpty()) {
+                    setContentLayoutType(LayoutType.EMPTY);
+                }
                 Toast.makeText(KActivityMyRecording.this, getResources().getString(R.string.toast_delete_file_success), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(KActivityMyRecording.this, getResources().getString(R.string.toast_delete_file_error), Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    private void setContentLayoutType(LayoutType layoutType) {
+        switch (layoutType) {
+            case EMPTY:
+                mRecyclerView.setVisibility(View.GONE);
+                mLayoutNoRecording.setVisibility(View.VISIBLE);
+                break;
+            case RECORDING_LIST:
+                mRecyclerView.setVisibility(View.VISIBLE);
+                mLayoutNoRecording.setVisibility(View.GONE);
+                break;
         }
     }
 }

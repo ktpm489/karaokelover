@@ -9,6 +9,7 @@
     tools:context="vn.com.frankle.karaokelover.activities.KActivityMyRecording"
     tools:showIn="@layout/layout_activity_my_recordings">
 
+    <include layout="@layout/content_no_recording" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycleview_my_recording"

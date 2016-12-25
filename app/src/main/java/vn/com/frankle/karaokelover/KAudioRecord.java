@@ -85,42 +85,50 @@ public class KAudioRecord {
             if (mAudioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
                 Logger.t(DEBUG_TAG).d("Actual run recording in thread");
                 File recordFileDir = new File(KApplication.Companion.getRECORDING_DIRECTORY_URI());
-                File recordFile = new File(recordFileDir, mFilename);
-                try {
-                    mAudioRecord.startRecording();
-                } catch (IllegalStateException e) {
-                    mDataListener.onAudioRecordError();
-                    return;
+                boolean createDirSuccess = true;
+                if (!recordFileDir.exists()) {
+                    createDirSuccess = recordFileDir.mkdir();
                 }
-
-                try {
-                    FileOutputStream os;
-                    if (mIsResume) {
-                        os = new FileOutputStream(recordFile, true);
-                    } else {
-                        os = new FileOutputStream(recordFile, false);
+                if (createDirSuccess) {
+                    File recordFile = new File(recordFileDir, mFilename);
+                    try {
+                        mAudioRecord.startRecording();
+                    } catch (IllegalStateException e) {
+                        mDataListener.onAudioRecordError();
+                        return;
                     }
-                    // Write out the wav file header
-                    writeWavHeader(os, RECORDER_CHANNELS_IN, RECORDER_SAMPLE_RATE, RECORDER_AUDIO_ENCODING);
 
-                    while (mIsRecording.get()) {
-                        int retVal = mAudioRecord.read(mByteBuffer, 0, mByteBufferSize);
-
-                        if (retVal > 0) {
-                            os.write(mByteBuffer, 0, mByteBufferSize);
-                            mDataListener.onAudioRecordDataReceived(mByteBuffer, retVal);
+                    try {
+                        FileOutputStream os;
+                        if (mIsResume) {
+                            os = new FileOutputStream(recordFile, true);
                         } else {
-                            mDataListener.onAudioRecordError();
+                            os = new FileOutputStream(recordFile, false);
                         }
+                        // Write out the wav file header
+                        writeWavHeader(os, RECORDER_CHANNELS_IN, RECORDER_SAMPLE_RATE, RECORDER_AUDIO_ENCODING);
+
+                        while (mIsRecording.get()) {
+                            int retVal = mAudioRecord.read(mByteBuffer, 0, mByteBufferSize);
+
+                            if (retVal > 0) {
+                                os.write(mByteBuffer, 0, mByteBufferSize);
+                                mDataListener.onAudioRecordDataReceived(mByteBuffer, retVal);
+                            } else {
+                                mDataListener.onAudioRecordError();
+                            }
+                        }
+
+                        os.close();
+
+                        updateWavHeader(recordFile);
+
+                        mAudioRecord.stop();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
-                    os.close();
-
-                    updateWavHeader(recordFile);
-
-                    mAudioRecord.stop();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } else {
+                    mDataListener.onAudioRecordError();
                 }
             }
         }

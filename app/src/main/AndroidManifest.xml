@@ -63,7 +63,7 @@
             android:name=".activities.KActivityMyRecording"
             android:label="@string/title_activity_kmy_recording"
             android:parentActivityName=".activities.KActivityHome"
-            android:theme="@style/KaraokeLoverTheme.NoActionBar">
+            android:theme="@style/KaraokeLoverTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.com.frankle.karaokelover.activities.KActivityHome" />
