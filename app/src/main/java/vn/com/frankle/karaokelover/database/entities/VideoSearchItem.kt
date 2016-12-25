@@ -40,8 +40,8 @@ class VideoSearchItem(var videoId: String?, var title: String?, duration: String
     }
 
 
-    override fun compareTo(videoSearchItem: VideoSearchItem): Int {
-        if (this.videoId === videoSearchItem.videoId) {
+    override fun compareTo(other: VideoSearchItem): Int {
+        if (this.videoId === other.videoId) {
             return 0
         }
         return -1

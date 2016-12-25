@@ -74,7 +74,7 @@ public class Utils {
      * @return short-format viewcount string
      */
     public static String getViewCount(String viewcount) {
-        if (viewcount == null || viewcount.isEmpty()) {
+        if (viewcount == null || viewcount.isEmpty() || viewcount.equals("0")) {
             return "0 play";
         }
         int original_viewcount = Integer.parseInt(viewcount);
@@ -89,7 +89,7 @@ public class Utils {
      * @return short-format likecount string
      */
     public static String getLikeCount(String likecount) {
-        if (likecount == null || likecount.isEmpty()) {
+        if (likecount == null || likecount.isEmpty() || likecount.equals("0")) {
             return "0 like";
         }
         int original_likecount = Integer.parseInt(likecount);

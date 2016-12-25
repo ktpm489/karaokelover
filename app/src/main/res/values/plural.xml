@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="video_like">
+        <item quantity="one">like</item>
+        <item quantity="zero">like</item>
+        <item quantity="other">likes</item>
+    </plurals>
+
+    <plurals name="video_play">
+        <item quantity="one">play</item>
+        <item quantity="zero">play</item>
+        <item quantity="other">plays</item>
+    </plurals>
+</resources>

@@ -52,7 +52,7 @@ class ViewHolderVideoItem(itemView: View) : ViewHolderBase<VideoSearchItem>(item
         itemView.item_search_like_count.text = dataItem.likeCount
         itemView.item_search_duration.text = dataItem.duration
         Glide.with(context).load(dataItem.thumbnails)
-                .placeholder(R.drawable.drawable_background_default)
+                .placeholder(R.drawable.drawable_default_preview)
                 .into(itemView.item_search_video_preview)
         itemView.item_search_more.setOnClickListener { v ->
             mPopupMenu = PopupMenu(v.context, v)
