@@ -51,10 +51,10 @@ public class KActivitySettings extends AppCompatPreferenceActivity {
 
     public static class SettingsFragment extends PreferenceFragment {
 
-        private static final String KEY_PREF_HD_RECORD = "pref_key_audio_hd";
-        private static final String KEY_PREF_BEAT_VOLUME = "pref_key_audio_volume";
-        private static final String KEY_PREF_PREVIEW_IMG_QUALITY = "pref_key_video_preview_hd";
-        private static final String KEY_PREF_FEEDBACK = "pref_key_feedback";
+        public static final String KEY_PREF_HD_RECORD = "pref_key_audio_hd";
+        public static final String KEY_PREF_BEAT_VOLUME = "pref_key_audio_volume";
+        public static final String KEY_PREF_PREVIEW_IMG_QUALITY = "pref_key_video_preview_hd";
+        public static final String KEY_PREF_FEEDBACK = "pref_key_feedback";
 
         CheckBoxPreference hdRecordPref;
         SeekbarPreference beatVolPref;

@@ -8,6 +8,7 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.os.PersistableBundle
+import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -745,7 +746,9 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     private fun configAudioVolume() {
         // This value's result maybe vary between devices
         // Just a start number, user may change volume if it's too loud or too small
-        val percent = 0.4f
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this@KActivityPlayVideo)
+        val configBeatVolume = prefs.getInt(KActivitySettings.SettingsFragment.KEY_PREF_BEAT_VOLUME, 40)
+        val percent = Integer.valueOf(configBeatVolume) / 100.0f
 
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
