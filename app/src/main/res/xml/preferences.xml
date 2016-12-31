@@ -4,8 +4,15 @@
     <PreferenceCategory
         android:key="pref_key_category_audio"
         android:title="@string/prefs_category_audio">
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_key_audio_hd"
+            android:summary="@string/prefs_hd_record_summary"
+            android:title="@string/prefs_hd_record_title" />
+
         <vn.com.frankle.karaokelover.views.widgets.SeekbarPreference
-            android:defaultValue="30"
+            android:defaultValue="40"
             android:enabled="true"
             android:key="pref_key_audio_volume"
             android:summary=""
@@ -14,5 +21,36 @@
             app:kl_maxValue="70"
             app:kl_minValue="20"
             app:kl_unit="%" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_key_category_video"
+        android:title="@string/prefs_category_video">
+
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/prefs_preview_quality_entry"
+            android:entryValues="@array/prefs_preview_quality_value"
+            android:key="pref_key_video_preview_hd"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/prefs_hd_preview_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_key_category_about"
+        android:title="@string/prefs_category_about">
+
+        <Preference
+            android:key="pref_key_feedback"
+            android:summary="@string/prefs_feedback_summary"
+            android:title="@string/prefs_feedback_title" />
+
+        <Preference
+            android:key="pref_key_version"
+            android:summary="1.0.0"
+            android:title="@string/prefs_version_title" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -238,10 +238,8 @@ public class KActivityHome extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            buildExitConfirmationDialog();
         }
-
-
     }
 
     @Override

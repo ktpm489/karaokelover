@@ -23,18 +23,18 @@
     <string name="action_save">Save</string>
     <string name="activity_editrecording_title">Title</string>
     <string name="action_favourite">Favourite</string>
-    <string name="nav_home">Home</string>
-    <string name="nav_my_recordings">My Recordings</string>
-    <string name="nav_my_artists">My Artists</string>
-    <string name="nav_my_favourites">My Favourites</string>
-    <string name="nav_setting">Setting</string>
-    <string name="nav_exit">Exit</string>
+    <string name="nav_home">Nổi bật</string>
+    <string name="nav_my_recordings">Thu âm của tôi</string>
+    <string name="nav_my_artists">Danh sách ca sĩ</string>
+    <string name="nav_my_favourites">Bài hát yêu thích</string>
+    <string name="nav_setting">Cài đặt</string>
+    <string name="nav_exit">Thoát</string>
     <string name="title_bio">Tiểu sử</string>
-    <string name="btn_bio_readmore">READ MORE</string>
+    <string name="btn_bio_readmore">đọc tiếp</string>
 
     <!-- Dialog message -->
-    <string name="msg_filename_existed">You\'ve recorded this song. Do you want to re-record?</string>
-    <string name="msg_delete_file">Are you sure you want to permanently delete this record?</string>
+    <string name="msg_filename_existed">Bạn đã thu âm bài hát này. Bạn có muốn thu lại không (bài cũ sẽ bị xóa)?</string>
+    <string name="msg_delete_file">Bạn có chắc chắn xóa vĩnh viễn bản thu âm này?</string>
     <string name="msg_re_record">It seems like that the most recent recording was not finished. Do you want to re-record this song?</string>
 
     <!-- Toast message -->
@@ -42,9 +42,25 @@
     <string name="toast_delete_file_error">Something wrong when trying to delete old recorded file. Please try again!</string>
 
     <!-- Perferences -->
-    <string name="prefs_category_audio">Audio</string>
-    <string name="prefs_audio_volume_title">Beat volume</string>
-    <string name="prefs_audio_volume_summary">Adjust volume of beat when recording directly from device\'s microphone.</string>
+    <string name="prefs_category_audio">Thu âm</string>
+    <string name="prefs_audio_volume_title">Âm lượng nhạc nền</string>
+    <string name="prefs_audio_volume_summary">Điều chỉnh độ lớn âm lượng của video khi thu âm.</string>
+    <string name="prefs_hd_record_title">Thu âm chất lượng cao</string>
+    <string name="prefs_hd_record_summary">Bài hát sẽ được thu âm bằng định dạng *.wav và cho chất lượng âm thanh tốt hơn, tuy nhiên sẽ tốn bộ nhớ hơn.</string>
+    <string name="prefs_category_about">Về ứng dụng</string>
+    <string name="prefs_feedback_title">Phản hồi</string>
+    <string name="prefs_feedback_summary">Gửi đánh giá, nhận xét của bạn cho nhà phát triển ứng dụng</string>
+    <string name="prefs_version_title">Phiên bản</string>
+    <string name="prefs_category_video">Video</string>
+    <string name="prefs_hd_preview_title">Chất lượng ảnh xem trước</string>
+    <string-array name="prefs_preview_quality_entry">
+        <item>Thấp</item>
+        <item>Cao</item>
+    </string-array>
+    <string-array name="prefs_preview_quality_value">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
 
     <!-- Activites -->
     <string name="msg_no_connection">Oops! Can\'t retrieve data.\nMake sure your network connection is active and try again.</string>
@@ -64,4 +80,5 @@
         <item>Hot trend</item>
         <item>Alphabetical</item>
     </string-array>
+    <string name="title_activity_ksetting">Settings</string>
 </resources>

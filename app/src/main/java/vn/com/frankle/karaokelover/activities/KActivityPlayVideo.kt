@@ -20,7 +20,6 @@ import android.widget.RelativeLayout
 import android.widget.Toast
 import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubePlayer
-import com.orhanobut.logger.Logger
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_play_video.*
 import kotlinx.android.synthetic.main.content_connection_error.*
@@ -756,13 +755,11 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
 
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
         super.onSaveInstanceState(outState, outPersistentState)
-        Logger.d("onSaveInstanceState")
     }
 
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
-        Logger.d("onRestoreInstanceState")
     }
 
 

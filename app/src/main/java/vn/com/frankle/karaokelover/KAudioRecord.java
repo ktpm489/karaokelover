@@ -6,8 +6,6 @@ import android.media.MediaRecorder;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
-import com.orhanobut.logger.Logger;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -83,7 +81,6 @@ public class KAudioRecord {
         @Override
         public void run() {
             if (mAudioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
-                Logger.t(DEBUG_TAG).d("Actual run recording in thread");
                 File recordFileDir = new File(KApplication.Companion.getRECORDING_DIRECTORY_URI());
                 boolean createDirSuccess = true;
                 if (!recordFileDir.exists()) {
@@ -153,7 +150,6 @@ public class KAudioRecord {
         mExecutorService = Executors.newSingleThreadExecutor();
 
         if (mIsRecording.compareAndSet(false, true)) {
-            Logger.d("Start recording in background...");
             mExecutorService.execute(new AudioRecordRunnable(recordFilename, isResume));
             return true;
         }

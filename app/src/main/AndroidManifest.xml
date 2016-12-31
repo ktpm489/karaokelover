@@ -88,14 +88,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="vn.com.frankle.karaokelover.activities.KActivityHome" />
         </activity>
-        <activity
-            android:name=".activities.KActivityPlaylist"
-            android:theme="@style/KaraokeLoverTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="vn.com.frankle.karaokelover.activities.KActivityHome" />
-        </activity>
-
     </application>
 
 </manifest>

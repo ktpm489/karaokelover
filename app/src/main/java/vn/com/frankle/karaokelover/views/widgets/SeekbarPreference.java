@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.SeekBar;
@@ -31,7 +32,7 @@ public class SeekbarPreference extends DialogPreference implements SeekBar.OnSee
     private static final String ATTR_UNIT = "kl_unit";
 
     // Default values for defaults
-    private static final int DEFAULT_CURRENT_VALUE = 50;
+    private static final int DEFAULT_CURRENT_VALUE = 40;
     private static final int DEFAULT_MIN_VALUE = 20;
     private static final int DEFAULT_MAX_VALUE = 70;
     private static final int DEFAULT_INTERVAL = 5;
@@ -67,6 +68,15 @@ public class SeekbarPreference extends DialogPreference implements SeekBar.OnSee
         typedArray.recycle();
     }
 
+    @Override
+    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
+        super.onSetInitialValue(restorePersistedValue, defaultValue);
+    }
+
+    @Override
+    protected Object onGetDefaultValue(TypedArray a, int index) {
+        return a.getInt(index, DEFAULT_CURRENT_VALUE);
+    }
 
     @Override
     protected View onCreateDialogView() {
@@ -82,6 +92,7 @@ public class SeekbarPreference extends DialogPreference implements SeekBar.OnSee
         ButterKnife.bind(this, view);
 
         mCurrentValue = getPersistedInt(DEFAULT_CURRENT_VALUE);
+        Log.d(DEBUG_TAG, "Current value: " + mCurrentValue);
 
         mSeekbar.setMax((mMaxValue - mMinValue) / mInterval);
         mSeekbar.incrementProgressBy(mInterval);
@@ -90,6 +101,9 @@ public class SeekbarPreference extends DialogPreference implements SeekBar.OnSee
 
         String currentValue = String.valueOf(mCurrentValue) + mUnit;
         mTvCurrentValue.setText(currentValue);
+
+        setNegativeButtonText("Hủy");
+        setPositiveButtonText("Đồng Ý");
     }
 
     @Override

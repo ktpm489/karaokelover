@@ -3,9 +3,10 @@ package vn.com.frankle.karaokelover
 import android.app.Application
 import android.content.Context
 import android.os.Environment
+import android.preference.PreferenceManager
 import com.droidcba.kedditbysteps.di.AppModule
-import com.orhanobut.logger.Logger
 import io.realm.Realm
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.greenrobot.eventbus.EventBus
@@ -19,7 +20,9 @@ import vn.com.frankle.karaokelover.di.KAppComponent
 import vn.com.frankle.karaokelover.services.YoutubeAPIEndpointInterface
 import vn.com.frankle.karaokelover.services.YoutubeAudioMp3APIInterface
 import vn.com.frankle.karaokelover.services.ZingMp3APIEndpointInterface
+import vn.com.frankle.karaokelover.util.Utils
 import java.util.concurrent.TimeUnit
+
 
 /**
  * Created by duclm on 7/18/2016.
@@ -37,9 +40,9 @@ class KApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        Logger.init(TAG_DEFAULT)
-
         KApplication.context = applicationContext
+
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
 
         Realm.init(this@KApplication)
 
@@ -52,6 +55,16 @@ class KApplication : Application() {
         val builder = OkHttpClient().newBuilder()
         builder.readTimeout(10, TimeUnit.SECONDS)
         builder.connectTimeout(10, TimeUnit.SECONDS)
+        builder.cache(Cache(this.cacheDir, 10 * 10 * 1024))
+                .addInterceptor { chain ->
+                    var request = chain.request()
+                    if (Utils.isOnline(applicationContext)) {
+                        request = request.newBuilder().header("Cache-Control", "public, max-age=" + 60).build()
+                    } else {
+                        request = request.newBuilder().header("Cache-Control", "public, only-if-cached, max-stale=" + 60 * 60 * 24 * 7).build()
+                    }
+                    chain.proceed(request)
+                }
 
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.BASIC

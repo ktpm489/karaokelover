@@ -70,8 +70,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
+                        android:ellipsize="marquee"
+                        android:maxLines="2"
                         android:textColor="@color/text_primary_light"
-                        android:textSize="28sp" />
+                        android:textSize="24sp" />
 
                     <LinearLayout
                         android:id="@+id/layout_music_genres"
