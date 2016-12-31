@@ -1,6 +1,10 @@
 package vn.com.frankle.karaokelover.activities;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -10,6 +14,9 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.jaredrummler.android.device.DeviceName;
 
 import vn.com.frankle.karaokelover.AppCompatPreferenceActivity;
 import vn.com.frankle.karaokelover.R;
@@ -76,27 +83,24 @@ public class KActivitySettings extends AppCompatPreferenceActivity {
             return true;
         };
 
-        /**
-         * Binds a preference's summary to its value. More specifically, when the
-         * preference's value is changed, its summary (line of text below the
-         * preference title) is updated to reflect the value. The summary is also
-         * immediately updated upon calling this method. The exact display format is
-         * dependent on the type of preference.
-         *
-         * @see #mOnPreferenceChangeListener
-         */
-        private void bindPreferenceSummaryToValue(Preference prefs) {
-            // Set the listener to watch for value changes.
-            prefs.setOnPreferenceChangeListener(mOnPreferenceChangeListener);
-            // Trigger the listener immediately with the preference's
-            // current value.
-            if (prefs instanceof ListPreference || prefs instanceof SeekbarPreference) {
-                mOnPreferenceChangeListener.onPreferenceChange(prefs,
-                        PreferenceManager
-                                .getDefaultSharedPreferences(prefs.getContext())
-                                .getString(prefs.getKey(), ""));
+        private Preference.OnPreferenceClickListener mOnFeedbackPrefClickListener = preference -> {
+            Intent feedbackIntent = new Intent(Intent.ACTION_SENDTO);
+            feedbackIntent.setType("message/rfc822");
+            feedbackIntent.setData(Uri.parse("mailto:"));
+            feedbackIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"lavender.studio2017@gmail.com"});
+            StringBuilder feedbackTitle = new StringBuilder("[KaraokeTube][");
+            feedbackTitle.append(DeviceName.getDeviceName());
+            feedbackTitle.append(" - ");
+            feedbackTitle.append(Build.VERSION.RELEASE);
+            feedbackTitle.append("] Phản hồi");
+            feedbackIntent.putExtra(Intent.EXTRA_SUBJECT, feedbackTitle.toString());
+            try {
+                startActivity(Intent.createChooser(feedbackIntent, "Send feedback email..."));
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(getActivity(), "There is no email client", Toast.LENGTH_SHORT).show();
             }
-        }
+            return true;
+        };
 
 
         @Override
@@ -120,6 +124,7 @@ public class KActivitySettings extends AppCompatPreferenceActivity {
                     .getDefaultSharedPreferences(getActivity());
             mOnPreferenceChangeListener.onPreferenceChange(beatVolPref, sharedPref.getInt(KEY_PREF_BEAT_VOLUME, 30));
             mOnPreferenceChangeListener.onPreferenceChange(prevImgQualityPref, sharedPref.getString(KEY_PREF_PREVIEW_IMG_QUALITY, ""));
+            feedbackPref.setOnPreferenceClickListener(mOnFeedbackPrefClickListener);
         }
     }
 }
