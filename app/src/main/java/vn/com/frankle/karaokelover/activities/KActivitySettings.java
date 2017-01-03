@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.jaredrummler.android.device.DeviceName;
 
 import vn.com.frankle.karaokelover.AppCompatPreferenceActivity;
+import vn.com.frankle.karaokelover.KApplication;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.views.widgets.SeekbarPreference;
 
@@ -79,6 +80,11 @@ public class KActivitySettings extends AppCompatPreferenceActivity {
                 Log.d("PREFS", "summary = " + summary);
                 // Set the summary to reflect the new value.
                 preference.setSummary(summary);
+                if (newValue.toString().equals("0")) {
+                    KApplication.Companion.setHD_PREVIEW_VIDEO_FLAG(false);
+                } else {
+                    KApplication.Companion.setHD_PREVIEW_VIDEO_FLAG(true);
+                }
             }
             return true;
         };

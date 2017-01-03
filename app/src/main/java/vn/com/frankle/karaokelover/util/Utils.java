@@ -104,14 +104,16 @@ public class Utils {
      * @return url of video thumbnail
      */
     public static String getThumbnailURL(Thumbnails thumbnail) {
-        if (thumbnail.getMaxres() != null) {
-            return thumbnail.getMaxres().getUrl();
-        }
-        if (thumbnail.getHigh() != null) {
-            return thumbnail.getHigh().getUrl();
-        }
-        if (thumbnail.getMedium() != null) {
-            return thumbnail.getMedium().getUrl();
+        if (KApplication.Companion.getHD_PREVIEW_VIDEO_FLAG()) {
+            if (thumbnail.getMaxres() != null) {
+                return thumbnail.getMaxres().getUrl();
+            }
+            if (thumbnail.getHigh() != null) {
+                return thumbnail.getHigh().getUrl();
+            }
+            if (thumbnail.getMedium() != null) {
+                return thumbnail.getMedium().getUrl();
+            }
         }
         return thumbnail.getDefault().getUrl();
     }

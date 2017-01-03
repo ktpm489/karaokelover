@@ -14,6 +14,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import rx.schedulers.Schedulers
+import vn.com.frankle.karaokelover.activities.KActivitySettings
 import vn.com.frankle.karaokelover.di.DaggerKAppComponent
 import vn.com.frankle.karaokelover.di.DatabaseModule
 import vn.com.frankle.karaokelover.di.KAppComponent
@@ -43,6 +44,14 @@ class KApplication : Application() {
         KApplication.context = applicationContext
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
+
+        val strValue = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(KActivitySettings.SettingsFragment.KEY_PREF_PREVIEW_IMG_QUALITY, "")
+        if (strValue == "0") {
+            HD_PREVIEW_VIDEO_FLAG = false
+        } else {
+            HD_PREVIEW_VIDEO_FLAG = true
+        }
 
         Realm.init(this@KApplication)
 
@@ -119,6 +128,7 @@ class KApplication : Application() {
         private var context: Context? = null
 
         lateinit var eventBus: EventBus
+        var HD_PREVIEW_VIDEO_FLAG: Boolean = false
 
         lateinit var rxYoutubeAPIService: YoutubeAPIEndpointInterface
         lateinit var youtubeInMp3APIService: YoutubeAudioMp3APIInterface
