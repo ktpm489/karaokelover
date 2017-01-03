@@ -4,8 +4,10 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -89,7 +91,13 @@ public class KActivityMyRecording extends AppCompatActivity {
         public void onPlayClick(File file) {
             Intent intent = new Intent();
             intent.setAction(Intent.ACTION_VIEW);
-            intent.setDataAndType(Uri.fromFile(file), "audio/*");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                Uri contentUri = FileProvider.getUriForFile(KActivityMyRecording.this, "vn.com.frankle.karaokelover", file);
+                intent.setDataAndType(contentUri, "audio/*");
+            } else {
+                intent.setDataAndType(Uri.fromFile(file), "audio/*");
+            }
             startActivity(intent);
         }
 

@@ -12,7 +12,7 @@ public class RecordingFileFilter implements FileFilter {
      * Files formats currently supported by Library
      */
     public enum SupportedFileFormat {
-        MP3("mp3"),
+        THREE_GP("3gp"),
         WAV("wav");
 
         private String filesuffix;
@@ -39,19 +39,17 @@ public class RecordingFileFilter implements FileFilter {
      * Check for file extension
      *
      * @param file : filte to be checked
-     * @return true if file extension is "wav" or "mp3"
+     * @return true if file extension is "wav" or "3gp"
      */
     private boolean filterFileByExtension(File file) {
         String fileExt = getFileExtension(file.getName());
         if (fileExt == null) {
             return false;
         }
-        try {
-            SupportedFileFormat.valueOf(fileExt.toUpperCase());
+        if (fileExt.equals("3gp") || fileExt.equals("wav")) {
             return true;
-        } catch (IllegalArgumentException e) {
-            return false;
         }
+        return false;
     }
 
     public String getFileExtension(String fileName) {

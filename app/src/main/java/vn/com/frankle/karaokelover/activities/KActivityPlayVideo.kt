@@ -3,6 +3,7 @@ package vn.com.frankle.karaokelover.activities
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.media.AudioManager
 import android.os.AsyncTask
 import android.os.Bundle
@@ -79,6 +80,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     private val handler = Handler()
     private var mYoutubePlayer: YouTubePlayer? = null
     private val mSharedPref: KSharedPreference = KSharedPreference(this@KActivityPlayVideo)
+    private lateinit var mPrefs: SharedPreferences
 
     private lateinit var mState: KActivityPlayVideoBaseState
     // States of activity
@@ -95,8 +97,10 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         // Set activity to unitialize state
         setActivityState(mUninitState)
 
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this@KActivityPlayVideo)
+
         // Initialzie recorder
-        mRecorder = KAudioRecord(this)
+        mRecorder = KAudioRecord(this@KActivityPlayVideo, this)
 
         // Get extra data from received intent
         mCurrentVideoTitle = intent.getStringExtra("title")
@@ -171,7 +175,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
 
         override fun onVideoEnded() {
             Log.i(DEBUG_TAG, "YouTubePlayer.PlayerStateChangeListener - OnVideoEnded")
-            if (mRecorder != null && mRecorder!!.mIsRecording.get()) {
+            if (mRecorder != null && mRecorder!!.isRecording) {
                 // The application is recording
                 onStopRecording()
             }
@@ -188,7 +192,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
 
         override fun onPaused() {
             Log.i(DEBUG_TAG, "PlaybackEventListener - onPaused")
-            if (mRecorder != null && mRecorder!!.mIsRecording.get()) {
+            if (mRecorder != null && mRecorder!!.isRecording) {
                 // Currently is recording
                 switchRecordButton(false)
                 mRecorder!!.stop()
@@ -313,8 +317,13 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
      */
     private fun onStartRecording() {
         if (mEnableRecorderFlag) {
-            if (!mRecorder!!.mIsRecording.get()) {
-                mCurrentSavedFilename = mCurrentVideoTitle!! + ".wav"
+            if (!mRecorder!!.isRecording) {
+                val isHightQualityRecord = mPrefs.getBoolean(KActivitySettings.SettingsFragment.KEY_PREF_HD_RECORD, false)
+                if (isHightQualityRecord) {
+                    mCurrentSavedFilename = mCurrentVideoTitle!! + ".wav"
+                } else {
+                    mCurrentSavedFilename = mCurrentVideoTitle!! + ".3gp"
+                }
 
                 if (!Utils.isAvailableFilename(mCurrentSavedFilename)) {
                     val builder = AlertDialog.Builder(this)
@@ -334,7 +343,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     }
 
     fun onStopRecording() {
-        if (mRecorder != null && mRecorder!!.mIsRecording.get()) {
+        if (mRecorder != null && mRecorder!!.isRecording) {
             switchRecordButton(false)
             mRecorder!!.stop()
             stopRecordingTimer()
@@ -523,7 +532,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
             this@KActivityPlayVideo.finish()
-            mRecorder!!.releaseRecorder()
             if (postRecordDialog != null) {
                 postRecordDialog!!.dismiss()
             }
@@ -533,7 +541,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
             val intent = Intent(this, KActivityMyRecording::class.java)
             startActivity(intent)
             this@KActivityPlayVideo.finish()
-            mRecorder!!.releaseRecorder()
             if (postRecordDialog != null) {
                 postRecordDialog!!.dismiss()
             }
