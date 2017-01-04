@@ -38,6 +38,10 @@ public class JSONHelper {
         JSONObject jsonData = new JSONObject();
         try {
             jsonData.put("id", type);
+            // This is temporary hack because of Zing server internal error -.-
+            if (pageNumber == 16 && type == 1) {
+                pageNumber += 3;
+            }
             jsonData.put("start", pageNumber);
             jsonData.put("length", 15);
         } catch (Exception e) {

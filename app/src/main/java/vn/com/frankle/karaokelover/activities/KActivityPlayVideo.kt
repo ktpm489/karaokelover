@@ -106,10 +106,13 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         mCurrentVideoTitle = intent.getStringExtra("title")
         mCurrentVideoId = intent.getStringExtra("videoid")
 
-        supportActionBar!!.setHomeButtonEnabled(true)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-
-        supportActionBar!!.title = mCurrentVideoTitle
+        val actionBar = supportActionBar
+        if (actionBar != null) {
+            // Show the Up button in the action bar.
+            actionBar.setHomeButtonEnabled(true)
+            actionBar.setDisplayHomeAsUpEnabled(true)
+            actionBar.title = mCurrentVideoTitle
+        }
 
         layout_connection_error.setOnClickListener { checkInternetConnectionAndInitViews() }
         content_error_loading.setOnClickListener { loadVideoComments() }
@@ -575,6 +578,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         val menuId = item.itemId
         when (menuId) {
             R.id.menu_favourite -> handleFavoriteClick(item)
+            android.R.id.home -> this.finish()
         }
 
         return true
