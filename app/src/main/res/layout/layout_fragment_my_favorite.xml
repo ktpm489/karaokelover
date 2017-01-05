@@ -25,6 +25,6 @@
 
     <include layout="@layout/fragment_favorite_no_item" />
 
-    <include layout="@layout/content_connection_error" />
+    <include layout="@layout/content_error_loading" />
 
 </RelativeLayout>

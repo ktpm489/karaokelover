@@ -13,7 +13,7 @@ import android.widget.Toast
 import com.pushtorefresh.storio.sqlite.StorIOSQLite
 import io.realm.Realm
 import io.realm.Sort
-import kotlinx.android.synthetic.main.content_connection_error.*
+import kotlinx.android.synthetic.main.content_error_loading.*
 import kotlinx.android.synthetic.main.fragment_favorite_no_item.*
 import kotlinx.android.synthetic.main.layout_fragment_my_favorite.*
 import org.greenrobot.eventbus.Subscribe
@@ -86,16 +86,13 @@ class KFragmentFavorite : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        Log.d(DEBUG_TAG, "onPause")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d(DEBUG_TAG, "onResume")
         if (mCallOnResume) {
             mIsNeededRealod = mAppPrefs.getFavoriteListReloadFlag(mContext)
             if (mIsNeededRealod) {
-                Log.d(DEBUG_TAG, "Reload favorite list from DB")
                 getFavoriteVideosFromDB()
             }
         } else {
@@ -105,13 +102,11 @@ class KFragmentFavorite : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        Log.d(DEBUG_TAG, "onStart")
         KApplication.eventBus.register(this)
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d(DEBUG_TAG, "onStop")
         KApplication.eventBus.unregister(this)
     }
 
@@ -175,28 +170,28 @@ class KFragmentFavorite : Fragment() {
                 progressbar_favorite.visibility = View.VISIBLE
                 recyclerview_my_favorite.visibility = View.GONE
                 layout_favorite_no_item.visibility = View.GONE
-                layout_connection_error.visibility = View.GONE
+                content_error_loading.visibility = View.GONE
             }
 
             LayoutType.NO_ITEM -> {
                 progressbar_favorite.visibility = View.GONE
                 recyclerview_my_favorite.visibility = View.GONE
                 layout_favorite_no_item.visibility = View.VISIBLE
-                layout_connection_error.visibility = View.GONE
+                content_error_loading.visibility = View.GONE
             }
 
             LayoutType.LIST_ITEM -> {
                 progressbar_favorite.visibility = View.GONE
                 recyclerview_my_favorite.visibility = View.VISIBLE
                 layout_favorite_no_item.visibility = View.GONE
-                layout_connection_error.visibility = View.GONE
+                content_error_loading.visibility = View.GONE
             }
 
             LayoutType.ERROR -> {
                 progressbar_favorite.visibility = View.GONE
                 recyclerview_my_favorite.visibility = View.GONE
                 layout_favorite_no_item.visibility = View.GONE
-                layout_connection_error.visibility = View.VISIBLE
+                content_error_loading.visibility = View.VISIBLE
             }
         }
     }
@@ -256,7 +251,7 @@ class KFragmentFavorite : Fragment() {
         }
         onScrollListener.setLoadMoreEnable(false)
         recyclerview_my_favorite.addOnScrollListener(onScrollListener)
-        layout_connection_error.setOnClickListener { getFavoriteVideosFromDB() }
+        content_error_loading.setOnClickListener { getFavoriteVideosFromDB() }
 
         btn_explore.setOnClickListener {
             (activity as KActivityHome).backToHomeFragment()
@@ -346,7 +341,6 @@ class KFragmentFavorite : Fragment() {
      */
     @Subscribe(threadMode = ThreadMode.POSTING)
     fun OnPopUpMenuItemClick(event: EventPopupMenuItemClick) {
-        Log.d(DEBUG_TAG, "Event: update favorite list")
         val inserted = realm.where(FavoriteRealm::class.java).equalTo(FavoriteRealm.COLUMN_VIDEO_ID, event.data.videoId).findFirst()
 
         when (event.action) {
