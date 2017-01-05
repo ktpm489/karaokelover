@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import vn.com.frankle.karaokelover.KApplication;
 import vn.com.frankle.karaokelover.R;
 import vn.com.frankle.karaokelover.fragments.KFragmentArtists;
 import vn.com.frankle.karaokelover.fragments.KFragmentFavorite;
@@ -282,7 +283,7 @@ public class KActivityHome extends AppCompatActivity
         switch (type) {
             case HOME:
                 mCurrentFragmentType = FragmentContentType.HOME;
-                mToolbar.setTitle("Karaoke Lover");
+                mToolbar.setTitle(KApplication.appResource.getString(R.string.app_name));
                 mTabLayout.setVisibility(View.GONE);
 
                 if (mHomeFragment.isAdded()) {
@@ -301,7 +302,7 @@ public class KActivityHome extends AppCompatActivity
                 break;
             case ARTIST:
                 mCurrentFragmentType = FragmentContentType.ARTIST;
-                mToolbar.setTitle("Artists");
+                mToolbar.setTitle(KApplication.appResource.getString(R.string.title_fragment_artist));
                 mTabLayout.setVisibility(View.VISIBLE);
 
                 if (mArtistFragment.isAdded()) {
@@ -321,7 +322,7 @@ public class KActivityHome extends AppCompatActivity
                 break;
             case FAVORITE:
                 mCurrentFragmentType = FragmentContentType.FAVORITE;
-                mToolbar.setTitle("My Favorites");
+                mToolbar.setTitle(KApplication.appResource.getString(R.string.title_fragment_favorite));
                 mTabLayout.setVisibility(View.GONE);
 
                 if (mFavoriteFragment.isAdded()) {
@@ -391,12 +392,12 @@ public class KActivityHome extends AppCompatActivity
      */
     private void buildExitConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Exit");
-        builder.setMessage("Are you sure to exit the application?");
-        builder.setPositiveButton("Yes", (dialogInterface, i) -> {
+        builder.setTitle(KApplication.appResource.getString(R.string.dialog_exit_title));
+        builder.setMessage(KApplication.appResource.getString(R.string.dialog_exit_msg));
+        builder.setPositiveButton(KApplication.appResource.getString(R.string.dialog_exit_positive), (dialogInterface, i) -> {
             this.finish();
         });
-        builder.setNegativeButton("No", (dialogInterface, i) -> {
+        builder.setNegativeButton(KApplication.appResource.getString(R.string.dialog_exit_negative), (dialogInterface, i) -> {
         });
         builder.create().show();
     }

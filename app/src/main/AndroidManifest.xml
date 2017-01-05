@@ -54,7 +54,6 @@
             android:theme="@style/KaraokeLoverTheme.ArtistWithSongs" />
         <activity
             android:name=".activities.KActivityPlayVideo"
-            android:label="@string/title_activity_kplay_video"
             android:theme="@style/KaraokeLoverTheme" />
 
         <service android:name=".services.YoutubeAudioDownloadService" />
@@ -70,7 +69,6 @@
         </activity>
         <activity
             android:name=".activities.KActivityEditRecording"
-            android:label="@string/title_activity_kkedit_recording"
             android:parentActivityName=".activities.KActivityPlayVideo"
             android:theme="@style/KaraokeLoverTheme.NoActionBar">
             <meta-data

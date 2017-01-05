@@ -241,7 +241,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
                 youTubeInitializationResult.getErrorDialog(this@KActivityPlayVideo, 1).show()
             } else {
                 Toast.makeText(this@KActivityPlayVideo,
-                        "Failed to initialize video, please try again!",
+                        KApplication.appResource.getString(R.string.toast_video_init_fail),
                         Toast.LENGTH_LONG).show()
             }
 
@@ -335,12 +335,11 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
                     builder.setPositiveButton("YES") { dialog, which -> DeleteRecordedFileTask().execute() }
                     builder.create().show()
                 } else {
-                    Log.d(DEBUG_TAG, "Start preparing recording task")
                     PrepareRecordingTask().execute()
                 }
             }
         } else {
-            Toast.makeText(this@KActivityPlayVideo, "Recording is not available. Please wait until the video start playing.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@KActivityPlayVideo, KApplication.appResource.getString(R.string.toast_record_not_available), Toast.LENGTH_SHORT).show()
         }
 
     }
@@ -689,7 +688,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
             // update current favorite state flag
             mCurrentFavoriteStateFlag = true
             favoriteMenuItem.setIcon(R.drawable.drawable_menu_favourite_added)
-            Toast.makeText(this, "Added to the favorite list", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, KApplication.appResource.getString(R.string.toast_added_favorite), Toast.LENGTH_SHORT).show()
         } else {// Currently in favorite list -> remove it
             realm.executeTransaction {
                 favoriteInserted.deleteFromRealm()
@@ -697,7 +696,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
             // update current favorite state flag
             mCurrentFavoriteStateFlag = false
             favoriteMenuItem.setIcon(R.drawable.drawable_menu_favourite)
-            Toast.makeText(this, "Removed to the favorite list", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, KApplication.appResource.getString(R.string.toast_removed_favorite), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -895,7 +894,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         override fun onPreExecute() {
             super.onPreExecute()
 
-            deleteProgessDialog.setMessage("Deleting old recorded file...")
+            deleteProgessDialog.setMessage(KApplication.appResource.getString(R.string.dialog_msg_deleting_file))
             deleteProgessDialog.isIndeterminate = true
             deleteProgessDialog.show()
         }

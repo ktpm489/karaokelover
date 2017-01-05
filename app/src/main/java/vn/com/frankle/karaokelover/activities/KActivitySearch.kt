@@ -434,8 +434,6 @@ class KActivitySearch : AppCompatActivity() {
     private fun handleResultLoadMore(loadMoreResult: List<VideoSearchItem>) {
         if (loadMoreResult.isNotEmpty()) {
             mSearchAdapter!!.addDataItems(loadMoreResult)
-        } else {
-            Toast.makeText(this, "There is no more video.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -542,7 +540,7 @@ class KActivitySearch : AppCompatActivity() {
                     realm.executeTransaction {
                         val favoriteVideo = realm.createObject(FavoriteRealm::class.java, System.currentTimeMillis())
                         favoriteVideo.video_id = event.data.videoId
-                        Toast.makeText(this@KActivitySearch, "Added to the favorite list", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, KApplication.appResource.getString(R.string.toast_added_favorite), Toast.LENGTH_SHORT).show()
                     }
                     if (!mFavoriteStateSet.remove(event.data.videoId!!)) {
                         mFavoriteStateSet.add(event.data.videoId!!)
@@ -552,7 +550,7 @@ class KActivitySearch : AppCompatActivity() {
             EventPopupMenuItemClick.ACTION.REMOVE_FAVORITE -> {
                 realm.executeTransaction {
                     inserted.deleteFromRealm()
-                    Toast.makeText(this@KActivitySearch, "Removed from the favorite list", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, KApplication.appResource.getString(R.string.toast_removed_favorite), Toast.LENGTH_SHORT).show()
                 }
                 if (!mFavoriteStateSet.remove(event.data.videoId!!)) {
                     mFavoriteStateSet.add(event.data.videoId!!)

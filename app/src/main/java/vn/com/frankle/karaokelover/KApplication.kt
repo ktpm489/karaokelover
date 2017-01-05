@@ -2,6 +2,7 @@ package vn.com.frankle.karaokelover
 
 import android.app.Application
 import android.content.Context
+import android.content.res.Resources
 import android.os.Environment
 import android.preference.PreferenceManager
 import com.droidcba.kedditbysteps.di.AppModule
@@ -42,6 +43,8 @@ class KApplication : Application() {
         super.onCreate()
 
         KApplication.context = applicationContext
+
+        appResource = resources
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
 
@@ -133,6 +136,7 @@ class KApplication : Application() {
         lateinit var rxYoutubeAPIService: YoutubeAPIEndpointInterface
         lateinit var youtubeInMp3APIService: YoutubeAudioMp3APIInterface
         lateinit var rxZingMp3APIService: ZingMp3APIEndpointInterface
+        lateinit var appResource: Resources
 
         operator fun get(context: Context): KApplication {
             return context.applicationContext as KApplication

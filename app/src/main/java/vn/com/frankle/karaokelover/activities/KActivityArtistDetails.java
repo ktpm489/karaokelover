@@ -375,12 +375,12 @@ public class KActivityArtistDetails extends AppCompatActivity {
 
         return KApplication.rxYoutubeAPIService
                 .searchKaraokeVideos(karaokeQuery)
-                .concatMap(
+                .flatMap(
                         responseSearch -> {
                             mNextPageToken = responseSearch.getNextPageToken();
                             return Observable.from(responseSearch.getItems())
                                     .subscribeOn(Schedulers.newThread())
-                                    .concatMap(ReactiveHelper::getStatisticsContentDetails);
+                                    .flatMap(ReactiveHelper::getStatisticsContentDetails);
                         })
                 .toList();
 //        compositeSubscriptionForOnStop.add(
@@ -479,7 +479,7 @@ public class KActivityArtistDetails extends AppCompatActivity {
                 realm.executeTransaction(realm1 -> {
                     FavoriteRealm favoriteVideo = realm1.createObject(FavoriteRealm.class, System.currentTimeMillis());
                     favoriteVideo.setVideo_id(videoId);
-                    Toast.makeText(this, "Added to the favorite list", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, KApplication.appResource.getString(R.string.toast_added_favorite), Toast.LENGTH_SHORT).show();
                 });
                 // Add video id to favorite change set
                 // Or remove if the video id is already in the set
@@ -489,7 +489,7 @@ public class KActivityArtistDetails extends AppCompatActivity {
                 break;
             case EventPopupMenuItemClick.ACTION.REMOVE_FAVORITE:
                 realm.executeTransaction(realm1 -> inserted.deleteFromRealm());
-                Toast.makeText(this, "Removed from the favorite list", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, KApplication.appResource.getString(R.string.toast_removed_favorite), Toast.LENGTH_SHORT).show();
                 // Add video id to favorite change set
                 // Or remove if the video id is already in the set
                 if (!mFavoriteStateSet.add(videoId)) {

@@ -353,7 +353,7 @@ class KFragmentFavorite : Fragment() {
             EventPopupMenuItemClick.ACTION.REMOVE_FAVORITE -> {
                 realm.executeTransaction {
                     inserted.deleteFromRealm()
-                    Toast.makeText(mContext, "Removed from the favorite list", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(mContext, KApplication.appResource.getString(R.string.toast_removed_favorite), Toast.LENGTH_SHORT).show()
                 }
                 mFavoriteAdapter.removeDataItem(event.data)
                 if (mFavoriteAdapter.itemCount == 0) {

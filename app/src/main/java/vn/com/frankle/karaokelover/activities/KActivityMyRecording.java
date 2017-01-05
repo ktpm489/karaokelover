@@ -133,7 +133,7 @@ public class KActivityMyRecording extends AppCompatActivity {
             // Show the Up button in the action bar.
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle("My Recordings");
+            actionBar.setTitle(KApplication.appResource.getString(R.string.title_activity_kmy_recording));
         }
 
         loadMyRecordings();
@@ -192,7 +192,7 @@ public class KActivityMyRecording extends AppCompatActivity {
                 setContentLayoutType(LayoutType.EMPTY);
             }
         } catch (SecurityException e) {
-            Toast.makeText(this, "Cannot read the recording directory. Please try again!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, KApplication.appResource.getString(R.string.toast_error_reading_directory), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -242,7 +242,7 @@ public class KActivityMyRecording extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
 
-            deleteProgessDialog.setMessage("Deleting old recorded file...");
+            deleteProgessDialog.setMessage(KApplication.appResource.getString(R.string.action_delete_old_recording));
             deleteProgessDialog.setIndeterminate(true);
             deleteProgessDialog.show();
         }

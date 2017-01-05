@@ -101,9 +101,9 @@ public class KActivitySettings extends AppCompatPreferenceActivity {
             feedbackTitle.append("] Phản hồi");
             feedbackIntent.putExtra(Intent.EXTRA_SUBJECT, feedbackTitle.toString());
             try {
-                startActivity(Intent.createChooser(feedbackIntent, "Send feedback email..."));
+                startActivity(Intent.createChooser(feedbackIntent, KApplication.appResource.getString(R.string.action_feedback)));
             } catch (ActivityNotFoundException e) {
-                Toast.makeText(getActivity(), "There is no email client", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), KApplication.appResource.getString(R.string.action_feedback_no_email_client), Toast.LENGTH_SHORT).show();
             }
             return true;
         };

@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 
@@ -58,6 +57,7 @@ public class KFragmentZingArtist extends Fragment {
     private int mArtistType;
     private KAdapterZingArtist mAdapter;
     private int mCurrentTotalArtistCount;
+    private EndlessRecyclerViewScrollListener onScrollListener;
 
     private RecyclerViewEndlessScrollBaseAdapter.OnItemClickListener<ZingArtist> mOnItemClickListener = new RecyclerViewEndlessScrollBaseAdapter.OnItemClickListener<ZingArtist>() {
         @Override
@@ -74,8 +74,8 @@ public class KFragmentZingArtist extends Fragment {
 
     private View.OnClickListener onErrorRetryClickListener = view -> loadArtistList();
 
+
     public static KFragmentZingArtist newInstance(int artistType) {
-        Log.d(DEBUG_TAG, "Create fragment for artistype = " + artistType);
         Bundle args = new Bundle();
         args.putInt("ARTIST_TYPE", artistType);
         KFragmentZingArtist fragment = new KFragmentZingArtist();
@@ -206,7 +206,6 @@ public class KFragmentZingArtist extends Fragment {
             setViewTypeVisibitiy(ViewType.DISPLAY_DATA);
             mAdapter.addDataItems(result.getZingArtists());
         } else {
-            Toast.makeText(mContext, "No artist.", Toast.LENGTH_SHORT).show();
             setViewTypeVisibitiy(ViewType.ERROR);
         }
     }
@@ -216,7 +215,8 @@ public class KFragmentZingArtist extends Fragment {
             mAdapter.addDataItems(result.getZingArtists());
         } else {
             // TO-DO: implement proper handler later
-            Toast.makeText(mContext, "No artist.", Toast.LENGTH_SHORT).show();
+            mAdapter.setEndlessScroll(false);
+            onScrollListener.setLoadMoreEnable(false);
         }
     }
 
@@ -231,13 +231,14 @@ public class KFragmentZingArtist extends Fragment {
         mRecyclerView.addItemDecoration(new SpaceItemDecoration(Utils.convertDpToPixel(mContext, 0), SpaceItemDecoration.VERTICAL));
         mAdapter = new KAdapterZingArtist(mContext, mOnItemClickListener);
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
+        onScrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemCount) {
                 mCurrentTotalArtistCount = totalItemCount;
                 loadMoreArtists(mCurrentTotalArtistCount);
             }
-        });
+        };
+        mRecyclerView.addOnScrollListener(onScrollListener);
 
         mErrorLoading.setOnClickListener(onErrorRetryClickListener);
     }

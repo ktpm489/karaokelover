@@ -1,24 +1,24 @@
 <resources>
-    <string name="app_name">Karaoke Lover</string>
+    <string name="app_name">Karaoke Tube</string>
+    <string name="title_fragment_artist">Ca sĩ</string>
+    <string name="title_fragment_favorite">Yêu thích</string>
+    <string name="title_activity_kmy_recording">Thu âm của tôi</string>
+    <string name="title_activity_setting">Cài đặt</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
-    <string name="action_search">Search</string>
-    <string name="action_record">Record</string>
+    <string name="action_settings">Cài đặt</string>
+    <string name="action_search">Tìm kiếm</string>
+    <string name="action_record">Thu âm</string>
 
-    <string name="share_send_to">Send to…</string>
+    <string name="share_send_to">Gửi tới…</string>
 
     <!-- Search -->
-    <string name="search_hint">Search karaoke videos…</string>
-    <string name="no_search_results">No results for\n“%1$s”</string>
+    <string name="search_hint">Tìm video karaoke…</string>
+    <string name="no_search_results">Không tìm thấy kết quả cho từ khóa\n“%1$s”</string>
     <string name="btn_more">MORE</string>
 
-    <string name="title_activity_kplay_video">KActivityPlayVideo</string>
-    <string name="title_activity_kmy_recording">My Recordings</string>
-    <string name="title_activity_kkedit_recording">Edit</string>
-    <string name="title_activity_setting">Settings</string>
 
     <string name="action_save">Save</string>
     <string name="activity_editrecording_title">Title</string>
@@ -36,10 +36,6 @@
     <string name="msg_filename_existed">Bạn đã thu âm bài hát này. Bạn có muốn thu lại không (bài cũ sẽ bị xóa)?</string>
     <string name="msg_delete_file">Bạn có chắc chắn xóa vĩnh viễn bản thu âm này?</string>
     <string name="msg_re_record">It seems like that the most recent recording was not finished. Do you want to re-record this song?</string>
-
-    <!-- Toast message -->
-    <string name="toast_delete_file_success">File has been deleted successfully!</string>
-    <string name="toast_delete_file_error">Something wrong when trying to delete old recorded file. Please try again!</string>
 
     <!-- Perferences -->
     <string name="prefs_category_audio">Thu âm</string>
@@ -63,17 +59,17 @@
     </string-array>
 
     <!-- Activites -->
-    <string name="msg_no_connection">Oops! Can\'t retrieve data.\nMake sure your network connection is active and try again.</string>
-    <string name="msg_load_data_error">There was problem while retrieving data!\nTap to retry.</string>
-    <string name="display_no_comment">No comment.</string>
-    <string name="action_save_current">Save current record</string>
-    <string name="action_record_new_song">Sing new song</string>
-    <string name="action_record_restart">Restart</string>
+    <string name="msg_no_connection">Không thể tải dữ liệu.\nHãy chắc chắn kết nối internet của bạn hoạt động và thử lại.</string>
+    <string name="msg_load_data_error">Lỗi khi tải dữ liệu!\nChạm để thử lại.</string>
+    <string name="display_no_comment">Không có bình luận.</string>
+    <string name="action_save_current">Lưu bản thu âm này</string>
+    <string name="action_record_new_song">Hát bài hát khác</string>
+    <string name="action_record_restart">Hát lại từ đầu</string>
     <string name="action_record_resume">Resume</string>
     <string name="info_biography_not_available">Dữ liệu chưa được cập nhật.</string>
-    <string name="info_no_favorite_video">No favorite video.</string>
-    <string name="button_explore">EXPLORE</string>
-    <string name="info_no_recording">No recording.</string>
+    <string name="info_no_favorite_video">Chưa có video yêu thích.</string>
+    <string name="button_explore">KHÁM PHÁ</string>
+    <string name="info_no_recording">Chưa có bài thu âm.</string>
 
     <!-- Artist sorting spinner -->
     <string-array name="spinner_sorting">
@@ -81,4 +77,33 @@
         <item>Alphabetical</item>
     </string-array>
     <string name="title_activity_ksetting">Settings</string>
+
+    <string name="action_remove_favorite">Xóa khỏi yêu thích</string>
+    <string name="action_add_favorite">Thêm vào yêu thích</string>
+
+    <!-- Exit Dialog -->
+    <string name="dialog_exit_title">Thoát ứng dụng</string>
+    <string name="dialog_exit_msg">Bạn có chắc chắn muốn thoát ứng dụng bây giờ?</string>
+    <string name="dialog_exit_positive">Thoát</string>
+    <string name="dialog_exit_negative">Hủy</string>
+
+    <!-- Dialog -->
+    <string name="dialog_negative">Hủy</string>
+    <string name="dialog_positve">Đồng Ý</string>
+    <string name="dialog_msg_deleting_file">Đang xóa thu âm cũ…</string>
+
+    <!-- Toast message -->
+    <string name="toast_video_init_fail">Lỗi khi khởi tạo video. Hãy thử lại!</string>
+    <string name="toast_record_not_available">Thu âm chưa khả dụng, xin hãy đợi đến khi video bắt đầu phát.</string>
+    <string name="toast_added_favorite">Đã thêm vào yêu thích</string>
+    <string name="toast_removed_favorite">Đã xóa khỏi yêu thích</string>
+    <string name="toast_error_reading_directory">Không thể truy xuất thư mục lưu trữ file thu âm. Xin hãy thử lại sau!</string>
+    <string name="toast_delete_file_success">File được xóa thành công!</string>
+    <string name="toast_delete_file_error">Lỗi khi xóa file. Hãy thử lại sau!</string>
+
+    <!-- Message -->
+    <string name="action_feedback">Gửi phản hồi tới…</string>
+    <string name="action_feedback_no_email_client">Không tồn tại trình email khả dụng.</string>
+    <string name="action_delete_old_recording">Đang xóa file thu âm cũ…</string>
+
 </resources>
