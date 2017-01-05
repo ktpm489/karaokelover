@@ -74,8 +74,8 @@ public class KFragmentHome extends Fragment {
     NestedScrollView mLayoutContent;
     @BindView(R.id.fragment_home_content)
     RelativeLayout mFragmentHomeContent;
-    @BindView(R.id.layout_connection_error)
-    RelativeLayout mLayoutNoConnection;
+    @BindView(R.id.content_error_loading)
+    RelativeLayout mLayoutErrorLoading;
     @BindView(R.id.playlist_pop)
     CardView mPlaylistPop;
     @BindView(R.id.playlist_bolero)
@@ -137,7 +137,7 @@ public class KFragmentHome extends Fragment {
 
         ButterKnife.bind(this, layout);
 
-        mLayoutNoConnection.setOnClickListener(v -> checkInternetConnectionAndInitilaizeViews());
+        mLayoutErrorLoading.setOnClickListener(v -> checkInternetConnectionAndInitilaizeViews());
 
         checkInternetConnectionAndInitilaizeViews();
 
@@ -314,11 +314,11 @@ public class KFragmentHome extends Fragment {
         switch (typeLayout) {
             case CONTENT:
                 mLayoutContent.setVisibility(View.VISIBLE);
-                mLayoutNoConnection.setVisibility(View.GONE);
+                mLayoutErrorLoading.setVisibility(View.GONE);
                 break;
             case CONNECTION_ERROR:
                 mLayoutContent.setVisibility(View.GONE);
-                mLayoutNoConnection.setVisibility(View.VISIBLE);
+                mLayoutErrorLoading.setVisibility(View.VISIBLE);
                 break;
         }
     }

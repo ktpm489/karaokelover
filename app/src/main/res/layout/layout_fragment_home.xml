@@ -8,7 +8,7 @@
     tools:context="vn.com.frankle.karaokelover.activities.KActivityHome"
     tools:showIn="@layout/app_bar_kactivity_home">
 
-    <include layout="@layout/content_connection_error" />
+    <include layout="@layout/content_error_loading" />
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/layout_content_home"
