@@ -24,8 +24,6 @@ import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubePlayer
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_play_video.*
-import kotlinx.android.synthetic.main.content_connection_error.*
-import kotlinx.android.synthetic.main.content_error_loading.*
 import kotlinx.android.synthetic.main.content_kactivity_play_video.*
 import kotlinx.android.synthetic.main.content_no_comment.*
 import org.greenrobot.eventbus.Subscribe
@@ -114,8 +112,8 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
             actionBar.title = mCurrentVideoTitle
         }
 
-        layout_connection_error.setOnClickListener { checkInternetConnectionAndInitViews() }
-        content_error_loading.setOnClickListener { loadVideoComments() }
+        layout_content_error_loading.setOnClickListener { checkInternetConnectionAndInitViews() }
+        layout_comment_error_loading.setOnClickListener { loadVideoComments() }
 
         checkInternetConnectionAndInitViews()
     }
@@ -794,25 +792,25 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
                 progressbar_comment!!.visibility = View.VISIBLE
                 recyclerview_comments!!.visibility = View.GONE
                 content_no_comment!!.visibility = View.GONE
-                content_error_loading!!.visibility = View.GONE
+                layout_comment_error_loading!!.visibility = View.GONE
             }
             ContentViewtype.RECYCLER_VIEW_COMMENT -> {
                 progressbar_comment!!.visibility = View.GONE
                 recyclerview_comments!!.visibility = View.VISIBLE
                 content_no_comment!!.visibility = View.GONE
-                content_error_loading!!.visibility = View.GONE
+                layout_comment_error_loading!!.visibility = View.GONE
             }
             ContentViewtype.NO_COMMENT -> {
                 progressbar_comment!!.visibility = View.GONE
                 recyclerview_comments!!.visibility = View.GONE
                 content_no_comment!!.visibility = View.VISIBLE
-                content_error_loading!!.visibility = View.GONE
+                layout_comment_error_loading!!.visibility = View.GONE
             }
             ContentViewtype.ERROR_LOAD_COMMENT -> {
                 progressbar_comment!!.visibility = View.GONE
                 recyclerview_comments!!.visibility = View.GONE
                 content_no_comment!!.visibility = View.GONE
-                content_error_loading!!.visibility = View.VISIBLE
+                layout_comment_error_loading!!.visibility = View.VISIBLE
             }
         }
     }
@@ -820,20 +818,20 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     private fun setLayoutVisibility(layoutType: LayoutType) {
         when (layoutType) {
             LayoutType.ERROR_NO_CONNECTION -> {
-                layout_connection_error!!.visibility = View.VISIBLE
+                layout_content_error_loading!!.visibility = View.VISIBLE
                 layout_play_video!!.visibility = View.GONE
                 layout_record!!.visibility = View.GONE
                 youtube_player.visibility = View.GONE
             }
             LayoutType.PLAYING -> {
-                layout_connection_error!!.visibility = View.GONE
+                layout_content_error_loading!!.visibility = View.GONE
                 layout_play_video!!.visibility = View.VISIBLE
                 layout_record!!.visibility = View.GONE
                 youtube_player.visibility = View.VISIBLE
             }
             LayoutType.RECORDING -> {
                 layout_ready!!.visibility = View.GONE
-                layout_connection_error!!.visibility = View.GONE
+                layout_content_error_loading!!.visibility = View.GONE
                 layout_play_video!!.visibility = View.GONE
                 layout_record!!.visibility = View.VISIBLE
                 youtube_player.visibility = View.VISIBLE

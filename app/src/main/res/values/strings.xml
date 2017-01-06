@@ -48,7 +48,7 @@
     <string name="prefs_feedback_summary">Gửi đánh giá, nhận xét của bạn cho nhà phát triển ứng dụng</string>
     <string name="prefs_version_title">Phiên bản</string>
     <string name="prefs_category_video">Video</string>
-    <string name="prefs_hd_preview_title">Chất lượng ảnh xem trước</string>
+    <string name="prefs_hd_preview_title">Chất lượng hình thu nhỏ (thumbnail)</string>
     <string-array name="prefs_preview_quality_entry">
         <item>Thấp</item>
         <item>Cao</item>
@@ -60,7 +60,7 @@
 
     <!-- Activites -->
     <string name="msg_no_connection">Không thể tải dữ liệu.\nHãy chắc chắn kết nối internet của bạn hoạt động và thử lại.</string>
-    <string name="msg_load_data_error">Lỗi khi tải dữ liệu!\nChạm để thử lại.</string>
+    <string name="msg_load_data_error">Không thể tải dữ liệu!\nChạm để thử lại.</string>
     <string name="display_no_comment">Không có bình luận.</string>
     <string name="action_save_current">Lưu bản thu âm này</string>
     <string name="action_record_new_song">Hát bài hát khác</string>
