@@ -33,7 +33,7 @@ import android.widget.SearchView
 import android.widget.Toast
 import butterknife.OnClick
 import io.realm.Realm
-import kotlinx.android.synthetic.main.content_connection_error.*
+import kotlinx.android.synthetic.main.content_error_loading.*
 import kotlinx.android.synthetic.main.layout_activity_search.*
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -263,7 +263,7 @@ class KActivitySearch : AppCompatActivity() {
         compositeSubscriptionForOnStop.unsubscribe()
     }
 
-    @OnClick(R.id.container_error_connection)
+    @OnClick(R.id.container_content_error)
     fun retryOnConnectionError() {
         searchYoutubeVideo()
     }
@@ -337,6 +337,24 @@ class KActivitySearch : AppCompatActivity() {
             closeResults.start()
         }
 
+        // if error container is being showed, circular hide them
+        if (container_content_error.height > 0) {
+            val closeErrorLayout = ViewAnimationUtils.createCircularReveal(
+                    container_content_error,
+                    searchIconCenterX,
+                    0,
+                    Math.hypot(searchIconCenterX.toDouble(), container_content_error!!.height.toDouble()).toFloat(),
+                    0f)
+            closeErrorLayout.duration = 500L
+            closeErrorLayout.interpolator = AnimUtils.getFastOutSlowInInterpolator(this@KActivitySearch)
+            closeErrorLayout.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    container_content_error!!.visibility = View.GONE
+                }
+            })
+            closeErrorLayout.start()
+        }
+
         // fade out the scrim
         scrim!!.animate()
                 .alpha(0f)
@@ -364,7 +382,7 @@ class KActivitySearch : AppCompatActivity() {
 
             override fun onQueryTextChange(query: String): Boolean {
                 if (TextUtils.isEmpty(query)) {
-                    clearResults()
+                    clearContainerContent()
                 }
                 return true
             }
@@ -372,15 +390,21 @@ class KActivitySearch : AppCompatActivity() {
         search_view!!.setOnQueryTextFocusChangeListener { v, hasFocus -> }
         scrim.setOnClickListener { dismiss() }
         searchback.setOnClickListener { dismiss() }
-        layout_connection_error.setOnClickListener { searchYoutubeVideo() }
+        content_error_loading.setOnClickListener {
+            searchYoutubeVideo()
+        }
     }
 
-    private fun clearResults() {
+    /**
+     * Clear view container's content when hitting clear search text button
+     */
+    private fun clearContainerContent() {
         TransitionManager.beginDelayedTransition(container, auto)
         mSearchAdapter!!.removeAllDataItem()
         search_results!!.visibility = View.GONE
         progressbar!!.visibility = View.GONE
         results_scrim!!.visibility = View.GONE
+        container_content_error!!.visibility = View.GONE
         setNoResultsVisibility(View.GONE)
     }
 
@@ -438,7 +462,7 @@ class KActivitySearch : AppCompatActivity() {
     }
 
     private fun searchYoutubeVideo() {
-        clearResults()
+        clearContainerContent()
         ImeUtils.hideIme(search_view!!)
         search_view!!.clearFocus()
 
@@ -518,13 +542,13 @@ class KActivitySearch : AppCompatActivity() {
     }
 
     private fun switchConnectionErrorLayout(isError: Boolean) {
+        TransitionManager.beginDelayedTransition(container, auto)
         if (isError) {
-            TransitionManager.beginDelayedTransition(container, auto)
             progressbar!!.visibility = View.GONE
-            container_error_connection!!.visibility = View.VISIBLE
-            layout_connection_error!!.visibility = View.VISIBLE
+            container_content_error!!.visibility = View.VISIBLE
+            content_error_loading!!.visibility = View.VISIBLE
         } else {
-            container_error_connection!!.visibility = View.GONE
+            content_error_loading!!.visibility = View.GONE
             progressbar!!.visibility = View.VISIBLE
         }
     }

@@ -111,13 +111,14 @@
     </FrameLayout>
 
     <FrameLayout
-        android:id="@+id/container_error_connection"
+        android:id="@+id/container_content_error"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?android:actionBarSize"
+        android:background="@color/background_dark"
         android:visibility="gone">
 
-        <include layout="@layout/content_connection_error" />
+        <include layout="@layout/content_error_loading" />
     </FrameLayout>
 
 </FrameLayout>
