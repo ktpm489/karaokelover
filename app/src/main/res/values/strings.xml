@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Karaoke Tube</string>
+    <string name="app_name">Hát Karaoke</string>
     <string name="title_fragment_artist">Ca sĩ</string>
     <string name="title_fragment_favorite">Yêu thích</string>
     <string name="title_activity_kmy_recording">Thu âm của tôi</string>
@@ -7,6 +7,7 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_app_version">Ver. %1$s</string>
 
     <string name="action_settings">Cài đặt</string>
     <string name="action_search">Tìm kiếm</string>

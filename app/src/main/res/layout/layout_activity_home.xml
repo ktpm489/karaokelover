@@ -20,7 +20,6 @@
         android:layout_gravity="start"
         android:background="@color/colorPrimary"
         android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_kactivity_home"
         app:itemBackground="@drawable/drawable_navigation_item_background"
         app:itemIconTint="@drawable/drawable_navigation_item_icon_tint"
         app:itemTextColor="@drawable/drawable_navigation_item_textcolor"

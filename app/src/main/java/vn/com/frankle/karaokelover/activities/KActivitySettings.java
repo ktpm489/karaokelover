@@ -3,6 +3,8 @@ package vn.com.frankle.karaokelover.activities;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -56,11 +58,13 @@ public class KActivitySettings extends AppCompatPreferenceActivity {
         public static final String KEY_PREF_BEAT_VOLUME = "pref_key_audio_volume";
         public static final String KEY_PREF_PREVIEW_IMG_QUALITY = "pref_key_video_preview_hd";
         public static final String KEY_PREF_FEEDBACK = "pref_key_feedback";
+        public static final String KEY_PREF_APP_VERSION = "pref_key_version";
 
         CheckBoxPreference hdRecordPref;
         SeekbarPreference beatVolPref;
         ListPreference prevImgQualityPref;
         Preference feedbackPref;
+        Preference appVersionPref;
 
         private Preference.OnPreferenceChangeListener mOnPreferenceChangeListener = (preference, newValue) -> {
             Log.d("PREFS", "OnPreferenceChangeListener");
@@ -119,11 +123,13 @@ public class KActivitySettings extends AppCompatPreferenceActivity {
             beatVolPref = (SeekbarPreference) findPreference(KEY_PREF_BEAT_VOLUME);
             prevImgQualityPref = (ListPreference) findPreference(KEY_PREF_PREVIEW_IMG_QUALITY);
             feedbackPref = findPreference(KEY_PREF_FEEDBACK);
+            appVersionPref = findPreference(KEY_PREF_APP_VERSION);
 
             hdRecordPref.setOnPreferenceChangeListener(mOnPreferenceChangeListener);
             beatVolPref.setOnPreferenceChangeListener(mOnPreferenceChangeListener);
             prevImgQualityPref.setOnPreferenceChangeListener(mOnPreferenceChangeListener);
             feedbackPref.setOnPreferenceChangeListener(mOnPreferenceChangeListener);
+
 
             // Set default value
             SharedPreferences sharedPref = PreferenceManager
@@ -131,6 +137,15 @@ public class KActivitySettings extends AppCompatPreferenceActivity {
             mOnPreferenceChangeListener.onPreferenceChange(beatVolPref, sharedPref.getInt(KEY_PREF_BEAT_VOLUME, 30));
             mOnPreferenceChangeListener.onPreferenceChange(prevImgQualityPref, sharedPref.getString(KEY_PREF_PREVIEW_IMG_QUALITY, ""));
             feedbackPref.setOnPreferenceClickListener(mOnFeedbackPrefClickListener);
+            // Set app version summary
+            // Get app version code
+            PackageManager packageManager = getActivity().getPackageManager();
+            try {
+                PackageInfo packageInfo = packageManager.getPackageInfo(getActivity().getPackageName(), 0);
+                appVersionPref.setSummary(packageInfo.versionName);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

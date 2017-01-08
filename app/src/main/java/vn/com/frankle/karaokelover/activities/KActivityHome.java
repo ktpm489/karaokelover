@@ -3,6 +3,7 @@ package vn.com.frankle.karaokelover.activities;
 import android.Manifest;
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Point;
@@ -26,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,8 +68,6 @@ public class KActivityHome extends AppCompatActivity
     NavigationView mNavigationView;
 
     private boolean mFlagWaitDrawerClosed = false;
-
-    private int mPhyScreenWidthInPixel;
 
     private FragmentManager fm = getSupportFragmentManager();
     private KFragmentHome mHomeFragment;
@@ -187,6 +187,18 @@ public class KActivityHome extends AppCompatActivity
     }
 
     private void setUpNavigationView() {
+        View headerLayout =
+                mNavigationView.inflateHeaderView(R.layout.nav_header_kactivity_home);
+        TextView mTvAppVersion = (TextView) headerLayout.findViewById(R.id.tv_appversion);
+        // Get app version code
+        PackageManager packageManager = this.getPackageManager();
+        try {
+            PackageInfo packageInfo = packageManager.getPackageInfo(this.getPackageName(), 0);
+            mTvAppVersion.setText(String.format(KApplication.appResource.getString(R.string.navigation_app_version), packageInfo.versionName));
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override
@@ -217,7 +229,6 @@ public class KActivityHome extends AppCompatActivity
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        mPhyScreenWidthInPixel = size.x;
 
         /**
          * Navigation Drawer width is the minimum (NavDrawerMaxWidth , (ScreenSize — ActionBarSize))

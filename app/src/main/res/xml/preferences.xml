@@ -50,7 +50,6 @@
 
         <Preference
             android:key="pref_key_version"
-            android:summary="1.0.0"
             android:title="@string/prefs_version_title" />
     </PreferenceCategory>
 </PreferenceScreen>
