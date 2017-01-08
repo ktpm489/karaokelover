@@ -1,5 +1,7 @@
 package vn.com.frankle.karaokelover.activities
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
@@ -795,10 +797,18 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
                 layout_comment_error_loading!!.visibility = View.GONE
             }
             ContentViewtype.RECYCLER_VIEW_COMMENT -> {
-                progressbar_comment!!.visibility = View.GONE
-                recyclerview_comments!!.visibility = View.VISIBLE
-                content_no_comment!!.visibility = View.GONE
-                layout_comment_error_loading!!.visibility = View.GONE
+                progressbar_comment!!.animate()
+                        .alpha(0.0f)
+                        .setDuration(300)
+                        .setListener(object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator?) {
+                                super.onAnimationEnd(animation)
+                                progressbar_comment!!.visibility = View.GONE
+                                content_no_comment!!.visibility = View.GONE
+                                layout_comment_error_loading!!.visibility = View.GONE
+                                recyclerview_comments!!.visibility = View.VISIBLE
+                            }
+                        })
             }
             ContentViewtype.NO_COMMENT -> {
                 progressbar_comment!!.visibility = View.GONE

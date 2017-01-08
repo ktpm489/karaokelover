@@ -1,5 +1,7 @@
 package vn.com.frankle.karaokelover.fragments
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -181,10 +183,18 @@ class KFragmentFavorite : Fragment() {
             }
 
             LayoutType.LIST_ITEM -> {
-                progressbar_favorite.visibility = View.GONE
-                recyclerview_my_favorite.visibility = View.VISIBLE
-                layout_favorite_no_item.visibility = View.GONE
-                content_error_loading.visibility = View.GONE
+                progressbar_favorite.animate()
+                        .alpha(0.0f)
+                        .setDuration(300)
+                        .setListener(object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator?) {
+                                super.onAnimationEnd(animation)
+                                progressbar_favorite.visibility = View.GONE
+                                layout_favorite_no_item.visibility = View.GONE
+                                content_error_loading.visibility = View.GONE
+                                recyclerview_my_favorite.visibility = View.VISIBLE
+                            }
+                        })
             }
 
             LayoutType.ERROR -> {
