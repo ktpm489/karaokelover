@@ -100,17 +100,4 @@
 
     <include layout="@layout/layout_artist_detail_content" />
 
-    <include layout="@layout/layout_artist_detail_no_connection" />
-
-    <RelativeLayout
-        android:id="@+id/layout_init_loading"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
-
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
-    </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

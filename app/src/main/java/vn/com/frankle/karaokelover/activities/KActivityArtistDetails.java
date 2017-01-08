@@ -1,5 +1,7 @@
 package vn.com.frankle.karaokelover.activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,7 +51,6 @@ import vn.com.frankle.karaokelover.adapters.KAdapterVideoArtistDetail;
 import vn.com.frankle.karaokelover.adapters.RecyclerViewEndlessScrollBaseAdapter;
 import vn.com.frankle.karaokelover.database.entities.VideoSearchItem;
 import vn.com.frankle.karaokelover.database.realm.FavoriteRealm;
-import vn.com.frankle.karaokelover.events.EventFinishLoadingArtistDetailInfoAndVideos;
 import vn.com.frankle.karaokelover.events.EventPopupMenuItemClick;
 import vn.com.frankle.karaokelover.services.ReactiveHelper;
 import vn.com.frankle.karaokelover.services.responses.zingmp3.ZingArtistDetail;
@@ -72,7 +74,7 @@ public class KActivityArtistDetails extends AppCompatActivity {
     enum LayoutType {
         LOADING,
         CONTENT,
-        ERROR_CONNECTION
+        ERROR
     }
 
     @NonNull
@@ -95,18 +97,14 @@ public class KActivityArtistDetails extends AppCompatActivity {
     LinearLayout mLayoutMusicGenres;
     @BindView(R.id.layout_artist_info_cover)
     RelativeLayout mLayoutArtistInfoCover;
-    @BindView(R.id.layout_connection_error)
-    RelativeLayout mLayoutConnectionError;
     @BindView(R.id.layout_artist_detail_content)
     RelativeLayout mLayoutContent;
-    @BindView(R.id.layout_artist_detail_no_connection)
-    RelativeLayout mLayoutConnectionErrorContainer;
-    @BindView(R.id.toolbar_no_connection)
-    Toolbar mToolbarNoConnection;
-    @BindView(R.id.layout_init_loading)
-    RelativeLayout mLayoutInitLoading;
     @BindView(R.id.layout_artist_info_genre)
     LinearLayout mLayoutArtistInfoGenre;
+    @BindView(R.id.content_error_loading)
+    RelativeLayout mLayoutErrorLoading;
+    @BindView(R.id.progressbar_artist_detail)
+    ProgressBar mProgressBarArtistDetail;
 
     private KAdapterVideoArtistDetail mArtistDetailAdapter;
 
@@ -156,9 +154,7 @@ public class KActivityArtistDetails extends AppCompatActivity {
         // Hacked: hide title set by default behavior
         mCollapsingToolbar.setTitle(" ");
 
-        mLayoutConnectionError.setOnClickListener(view -> checkInternetConnectionAndInitilaizeViews());
-
-        mToolbarNoConnection.setNavigationOnClickListener(view -> this.finish());
+        mLayoutErrorLoading.setOnClickListener(view -> checkInternetConnectionAndInitilaizeViews());
 
         checkInternetConnectionAndInitilaizeViews();
     }
@@ -190,33 +186,41 @@ public class KActivityArtistDetails extends AppCompatActivity {
         if (Utils.isOnline(this)) {
             setLayoutType(LayoutType.LOADING);
             setupViews();
-            loadArtistDetailInfoAndVideos();
+            loadArtistDetailInfo();
+            loadArtistKaraokeVideos();
         } else {
-            setLayoutType(LayoutType.ERROR_CONNECTION);
+            setLayoutType(LayoutType.ERROR);
         }
     }
 
     private void setLayoutType(LayoutType layoutType) {
         switch (layoutType) {
             case LOADING:
-                mAppBar.setVisibility(View.GONE);
-                mLayoutContent.setVisibility(View.GONE);
-                mLayoutConnectionErrorContainer.setVisibility(View.VISIBLE);
-                mLayoutInitLoading.setVisibility(View.VISIBLE);
-                mLayoutConnectionError.setVisibility(View.GONE);
+                mLayoutErrorLoading.setVisibility(View.GONE);
+                mListSongs.setVisibility(View.GONE);
+                mLayoutContent.setVisibility(View.VISIBLE);
+                mProgressBarArtistDetail.setVisibility(View.VISIBLE);
                 break;
             case CONTENT:
-                mAppBar.setVisibility(View.VISIBLE);
-                mLayoutContent.setVisibility(View.VISIBLE);
-                mLayoutInitLoading.setVisibility(View.GONE);
-                mLayoutConnectionErrorContainer.setVisibility(View.GONE);
+                mProgressBarArtistDetail.animate()
+                        .alpha(0.0f)
+                        .setDuration(300)
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                mProgressBarArtistDetail.setVisibility(View.GONE);
+                                mLayoutErrorLoading.setVisibility(View.GONE);
+                                mLayoutContent.setVisibility(View.VISIBLE);
+                                mListSongs.setVisibility(View.VISIBLE);
+                            }
+                        });
                 break;
-            case ERROR_CONNECTION:
-                mAppBar.setVisibility(View.GONE);
-                mLayoutContent.setVisibility(View.GONE);
-                mLayoutInitLoading.setVisibility(View.GONE);
-                mLayoutConnectionError.setVisibility(View.VISIBLE);
-                mLayoutConnectionErrorContainer.setVisibility(View.VISIBLE);
+            case ERROR:
+                mLayoutContent.setVisibility(View.VISIBLE);
+                mProgressBarArtistDetail.setVisibility(View.GONE);
+                mListSongs.setVisibility(View.GONE);
+                mLayoutErrorLoading.setVisibility(View.VISIBLE);
                 break;
         }
     }
@@ -258,6 +262,9 @@ public class KActivityArtistDetails extends AppCompatActivity {
                 loadMoreArtistSongs();
             }
         });
+
+        // Set artist name
+        mArtistNameView.setText(mArtistName);
         // Load artist avatar
         if (mArtistAvatarUrl != null) {
             Glide.with(this)
@@ -288,8 +295,6 @@ public class KActivityArtistDetails extends AppCompatActivity {
                     .fitCenter()
                     .into(mArtistCover);
         }
-
-        mArtistNameView.setText(mArtistName);
 
         // Add genre view
         List<String> genres = Arrays.asList(infoData.getGenreName().split("\\s*,\\s*"));
@@ -332,48 +337,40 @@ public class KActivityArtistDetails extends AppCompatActivity {
         });
     }
 
-    private void handleYoutubeResponses(List<VideoSearchItem> songs) {
-        mArtistDetailAdapter.addDataItems(songs);
-    }
-
-    private void handleLoadMoreResultResponses(List<VideoSearchItem> songs) {
-        mArtistDetailAdapter.addDataItems(songs);
-    }
-
     /**
      * Load detailed information of current artist
      */
-    private Observable<ZingArtistDetail> getObservableArtistDetailInfo() {
+    private void loadArtistDetailInfo() {
 
         String jsonArtistData = JSONHelper.writeJsonDataArtistDetail(mArtistId).toString();
 
-        return KApplication.rxZingMp3APIService.getArtistDetail(jsonArtistData);
-//        compositeSubscriptionForOnStop.add(obsArtistDetail
-//                .subscribeOn(Schedulers.newThread())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Subscriber<ZingArtistDetail>() {
-//                    @Override
-//                    public void onCompleted() {
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        setLayoutType(LayoutType.ERROR_CONNECTION);
-//                    }
-//
-//                    @Override
-//                    public void onNext(ZingArtistDetail zingArtistDetail) {
-//                        handleDetailInfoResponse(zingArtistDetail);
-//                        setLayoutType(LayoutType.CONTENT);
-//                    }
-//                }));
+        Observable<ZingArtistDetail> obsArtistDetail = KApplication.rxZingMp3APIService.getArtistDetail(jsonArtistData);
+        compositeSubscriptionForOnStop.add(obsArtistDetail
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<ZingArtistDetail>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        setLayoutType(LayoutType.ERROR);
+                    }
+
+                    @Override
+                    public void onNext(ZingArtistDetail zingArtistDetail) {
+                        handleDetailInfoResponse(zingArtistDetail);
+                        setLayoutType(LayoutType.CONTENT);
+                    }
+                }));
     }
 
-    private Observable<List<VideoSearchItem>> getObservableArtistSongs() {
+    private void loadArtistKaraokeVideos() {
 
         String karaokeQuery = mArtistName + " karaoke";
 
-        return KApplication.rxYoutubeAPIService
+        Observable<List<VideoSearchItem>> obsGetArtistSong = KApplication.rxYoutubeAPIService
                 .searchKaraokeVideos(karaokeQuery)
                 .flatMap(
                         responseSearch -> {
@@ -383,56 +380,25 @@ public class KActivityArtistDetails extends AppCompatActivity {
                                     .flatMap(ReactiveHelper::getStatisticsContentDetails);
                         })
                 .toList();
-//        compositeSubscriptionForOnStop.add(
-//                obsGetArtistSong.subscribeOn(Schedulers.newThread())
-//                        .observeOn(AndroidSchedulers.mainThread())
-//                        .subscribe(new Subscriber<List<VideoSearchItem>>() {
-//                            @Override
-//                            public void onCompleted() {
-//
-//                            }
-//
-//                            @Override
-//                            public void onError(Throwable e) {
-//                                set(LayoutType.ERROR_CONNECTION);
-//                            }
-//
-//                            @Override
-//                            public void onNext(List<VideoSearchItem> videoSearchItems) {
-//                                handleYoutubeResponses(videoSearchItems);
-//                            }
-//                        }));
-    }
+        compositeSubscriptionForOnStop.add(
+                obsGetArtistSong.subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<List<VideoSearchItem>>() {
+                            @Override
+                            public void onCompleted() {
 
-    private void loadArtistDetailInfoAndVideos() {
-        Observable<EventFinishLoadingArtistDetailInfoAndVideos> networkRequest = Observable.zip(getObservableArtistDetailInfo(),
-                getObservableArtistSongs(), EventFinishLoadingArtistDetailInfoAndVideos::new)
-                .subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread());
-        // Preventing memory leak (other Observables: Put, Delete emit result once so memory leak won't live long)
-        // Because rx.Observable from Get Operation is endless (it watches for changes of tables from query)
-        // You can easily create memory leak (in this case you'll leak the Fragment and all it's fields)
-        // So please, PLEASE manage your subscriptions
-        // We suggest same mechanism via storing all subscriptions that you want to unsubscribe
-        // In something like CompositeSubscription and unsubscribe them in appropriate moment of component lifecycle
-        compositeSubscriptionForOnStop.add(networkRequest.subscribe(new Subscriber<EventFinishLoadingArtistDetailInfoAndVideos>() {
-            @Override
-            public void onCompleted() {
+                            }
 
-            }
+                            @Override
+                            public void onError(Throwable e) {
+                                setLayoutType(LayoutType.ERROR);
+                            }
 
-            @Override
-            public void onError(Throwable e) {
-                setLayoutType(LayoutType.ERROR_CONNECTION);
-            }
-
-            @Override
-            public void onNext(EventFinishLoadingArtistDetailInfoAndVideos data) {
-                setLayoutType(LayoutType.CONTENT);
-
-                handleDetailInfoResponse(data.getArtistDetailInfo());
-                mArtistDetailAdapter.addDataItems(data.getArtistVideos());
-            }
-        }));
+                            @Override
+                            public void onNext(List<VideoSearchItem> videoSearchItems) {
+                                mArtistDetailAdapter.addDataItems(videoSearchItems);
+                            }
+                        }));
     }
 
     private void loadMoreArtistSongs() {
