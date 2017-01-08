@@ -1,5 +1,7 @@
 package vn.com.frankle.karaokelover.fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -249,9 +251,18 @@ public class KFragmentZingArtist extends Fragment {
                 mErrorLoading.setVisibility(View.GONE);
                 break;
             case DISPLAY_DATA:
-                mProgressBar.setVisibility(View.GONE);
-                mRecyclerView.setVisibility(View.VISIBLE);
-                mErrorLoading.setVisibility(View.GONE);
+                mProgressBar.animate()
+                    .alpha(0.0f)
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            mProgressBar.setVisibility(View.GONE);
+                            mErrorLoading.setVisibility(View.GONE);
+                            mRecyclerView.setVisibility(View.VISIBLE);
+                        }
+                    });
                 break;
             case ERROR:
                 mProgressBar.setVisibility(View.GONE);

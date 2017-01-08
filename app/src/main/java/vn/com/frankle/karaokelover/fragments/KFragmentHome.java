@@ -309,7 +309,7 @@ public class KFragmentHome extends Fragment {
         } else {
             mProgressBarHotArtist.animate()
                     .alpha(0.0f)
-                    .setDuration(500)
+                    .setDuration(300)
                     .setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
