@@ -172,8 +172,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
 
         override fun onVideoStarted() {
             Log.i(DEBUG_TAG, "YouTubePlayer.PlayerStateChangeListener - OnVideoStarted")
-            // Enable recorder button
-            mEnableRecorderFlag = true
         }
 
         override fun onVideoEnded() {
@@ -191,6 +189,10 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     private val mPlaybackEventListener = object : YouTubePlayer.PlaybackEventListener {
         override fun onPlaying() {
             Log.i(DEBUG_TAG, "PlaybackEventListener - onPlaying")
+            // Enable recorder button
+            if (!mEnableRecorderFlag){
+                mEnableRecorderFlag = true
+            }
         }
 
         override fun onPaused() {
@@ -231,9 +233,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
             } else {
                 Log.d(DEBUG_TAG, "Restored from a previously saved state")
             }
-
-            // Enable recorder button
-            mEnableRecorderFlag = true
         }
 
         override fun onInitializationFailure(provider: YouTubePlayer.Provider, youTubeInitializationResult: YouTubeInitializationResult) {
@@ -244,9 +243,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
                         KApplication.appResource.getString(R.string.toast_video_init_fail),
                         Toast.LENGTH_LONG).show()
             }
-
-            // Enable recorder button
-            mEnableRecorderFlag = false
         }
     }
 
