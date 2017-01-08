@@ -23,6 +23,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Outline;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -36,8 +37,10 @@ import android.text.TextPaint;
 import android.util.DisplayMetrics;
 import android.util.Property;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewOutlineProvider;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import vn.com.frankle.karaokelover.R;
@@ -51,6 +54,7 @@ public class ViewUtils {
     }
 
     private static int actionBarSize = -1;
+    private static int screenHeight = 0;
 
     public static int getActionBarSize(Context context) {
         if (actionBarSize < 0) {
@@ -273,5 +277,16 @@ public class ViewUtils {
         int toolBarHeight = ta.getDimensionPixelSize(0, -1);
         ta.recycle();
         return toolBarHeight;
+    }
+
+    public static int getScreenHeight(Context c) {
+        if (screenHeight == 0) {
+            WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
+            Display display = wm.getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            screenHeight = size.y;
+        }
+        return screenHeight;
     }
 }

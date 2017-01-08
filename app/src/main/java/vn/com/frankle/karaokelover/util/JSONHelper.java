@@ -34,15 +34,15 @@ public class JSONHelper {
     /**
      * JSON data to get list of song chart (Vietnam, US-UK, Korean)
      */
-    public static JSONObject writeJsonDataArtists(int type, int pageNumber) {
+    public static JSONObject writeJsonDataArtists(int type, int startPos) {
         JSONObject jsonData = new JSONObject();
         try {
             jsonData.put("id", type);
             // This is temporary hack because of Zing server internal error -.-
-            if (pageNumber == 16 && type == 1) {
-                pageNumber += 3;
+            if (startPos >= 16 && type == 1) {
+                startPos += 3;
             }
-            jsonData.put("start", pageNumber);
+            jsonData.put("start", startPos);
             jsonData.put("length", 15);
         } catch (Exception e) {
             e.printStackTrace();

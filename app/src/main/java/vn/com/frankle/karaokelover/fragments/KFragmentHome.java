@@ -1,5 +1,7 @@
 package vn.com.frankle.karaokelover.fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -305,8 +307,17 @@ public class KFragmentHome extends Fragment {
             mProgressBarHotArtist.setVisibility(View.VISIBLE);
             mFragmentHomeContent.setVisibility(View.GONE);
         } else {
-            mProgressBarHotArtist.setVisibility(View.GONE);
-            mFragmentHomeContent.setVisibility(View.VISIBLE);
+            mProgressBarHotArtist.animate()
+                    .alpha(0.0f)
+                    .setDuration(500)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            mProgressBarHotArtist.setVisibility(View.GONE);
+                            mFragmentHomeContent.setVisibility(View.VISIBLE);
+                        }
+                    });
         }
     }
 

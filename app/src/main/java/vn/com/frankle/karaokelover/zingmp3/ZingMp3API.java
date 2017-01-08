@@ -49,9 +49,9 @@ public class ZingMp3API {
         return url.toString();
     }
 
-    public static String getListArtistURL(int type, int page)
+    public static String getListArtistURL(int type, int startPos)
             throws UnsupportedEncodingException {
-        JSONObject data = JSONHelper.writeJsonDataArtists(type, page);
+        JSONObject data = JSONHelper.writeJsonDataArtists(type, startPos);
         StringBuilder urlBuilder = new StringBuilder("http://api.mp3.zing.vn/api/mobile/artist/getartistbygenre?requestdata=");
         urlBuilder.append(data.toString());
         urlBuilder.append("&keycode=b319bd16be6d049fdb66c0752298ca30");

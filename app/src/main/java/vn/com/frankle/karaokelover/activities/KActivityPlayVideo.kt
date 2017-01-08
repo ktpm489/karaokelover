@@ -393,7 +393,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
                 mAdapterComment!!.setEndlessScroll(false)
                 onScrollListener.setLoadMoreEnable(false)
             }
-            mAdapterComment!!.addDataItems(responseCommentThreads.commentThreads)
+            mAdapterComment!!.setDataItems(responseCommentThreads.commentThreads)
         } else {
             setPlayViewVisibility(ContentViewtype.NO_COMMENT)
         }

@@ -440,7 +440,7 @@ class KActivitySearch : AppCompatActivity() {
                 progressbar!!.visibility = View.GONE
                 search_results!!.visibility = View.VISIBLE
 
-                mSearchAdapter!!.addDataItems(searchResults)
+                mSearchAdapter!!.setDataItems(searchResults)
             }
         } else {
             // No result to display
