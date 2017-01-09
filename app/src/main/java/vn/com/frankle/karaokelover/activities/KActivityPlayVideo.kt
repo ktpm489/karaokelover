@@ -190,7 +190,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         override fun onPlaying() {
             Log.i(DEBUG_TAG, "PlaybackEventListener - onPlaying")
             // Enable recorder button
-            if (!mEnableRecorderFlag){
+            if (!mEnableRecorderFlag) {
                 mEnableRecorderFlag = true
             }
         }
@@ -222,7 +222,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     }
     private val onInitializedListener = object : YouTubePlayer.OnInitializedListener {
         override fun onInitializationSuccess(provider: YouTubePlayer.Provider, youTubePlayer: YouTubePlayer, wasRestored: Boolean) {
-            Log.d(DEBUG_TAG, "YoutubePlayer - onInitializationSuccess")
             mYoutubePlayer = youTubePlayer
             mYoutubePlayer!!.setPlayerStateChangeListener(playerStateChangeListener)
             mYoutubePlayer!!.setPlaybackEventListener(mPlaybackEventListener)
@@ -230,8 +229,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
             if (!wasRestored) {
                 mYoutubePlayer!!.loadVideo(mCurrentVideoId)
                 setActivityState(mPlayingState)
-            } else {
-                Log.d(DEBUG_TAG, "Restored from a previously saved state")
             }
         }
 
@@ -251,7 +248,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
      */
     private val onReInitializedListener = object : YouTubePlayer.OnInitializedListener {
         override fun onInitializationSuccess(provider: YouTubePlayer.Provider, youTubePlayer: YouTubePlayer, wasRestored: Boolean) {
-            Log.d(DEBUG_TAG, "YoutubePlayer - onReInitializationSuccess")
             if (!wasRestored) {
                 mYoutubePlayer = youTubePlayer
                 mYoutubePlayer!!.setPlayerStateChangeListener(playerStateChangeListener)
@@ -262,7 +258,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         }
 
         override fun onInitializationFailure(provider: YouTubePlayer.Provider, youTubeInitializationResult: YouTubeInitializationResult) {
-            Log.d(DEBUG_TAG, "YoutubePlayer - onInitializationFailure")
             // Enable recorder button
             mEnableRecorderFlag = false
         }
@@ -536,11 +531,17 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         }
 
         recordSaveEarly.setOnClickListener { view ->
-            val intent = Intent(this, KActivityMyRecording::class.java)
-            startActivity(intent)
-            this@KActivityPlayVideo.finish()
-            if (postRecordDialog != null) {
-                postRecordDialog!!.dismiss()
+
+            if (recorderSecondsElapsed < 20) {
+                // Only allow to saved if record length is larger or equal to 20 second
+                Toast.makeText(this@KActivityPlayVideo, KApplication.appResource.getString(R.string.toast_record_length_too_short), Toast.LENGTH_SHORT).show()
+            } else {
+                val intent = Intent(this, KActivityMyRecording::class.java)
+                startActivity(intent)
+                this@KActivityPlayVideo.finish()
+                if (postRecordDialog != null) {
+                    postRecordDialog!!.dismiss()
+                }
             }
         }
         postRecordDialog = postRecDialgBuilder.create()
@@ -704,8 +705,6 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onEventPrepareCountdownRunning(event: EventPrepareRecordingCountdown) {
         val current = event.currentValue
-        Log.d(DEBUG_TAG, "Countdown: value = " + current)
-
         if (current == 0) {
             tv_countdown!!.text = "READY!!!"
         } else {

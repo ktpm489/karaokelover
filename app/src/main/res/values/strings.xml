@@ -101,6 +101,7 @@
     <string name="toast_error_reading_directory">Không thể truy xuất thư mục lưu trữ file thu âm. Xin hãy thử lại sau!</string>
     <string name="toast_delete_file_success">File được xóa thành công!</string>
     <string name="toast_delete_file_error">Lỗi khi xóa file. Hãy thử lại sau!</string>
+    <string name="toast_record_length_too_short">Độ dài bài hát thu âm tối thiểu là 20 giây.</string>
 
     <!-- Message -->
     <string name="action_feedback">Gửi phản hồi tới…</string>
