@@ -88,6 +88,11 @@
     <string name="dialog_exit_positive">Thoát</string>
     <string name="dialog_exit_negative">Hủy</string>
 
+    <!-- Recover dialog -->
+    <string name="dialog_recover_title">Lỗi ứng dụng</string>
+    <string name="dialog_recover_msg">Rất tiếc đã xảy ra lỗi trong quá trình sử dụng. Chúng tôi sẽ cập nhật ứng dụng trong thời gian sớm nhất. Xin lỗi bạn vì sự bất tiện này.</string>
+    <string name="dialog_recover_positive">OK</string>
+
     <!-- Dialog -->
     <string name="dialog_negative">Hủy</string>
     <string name="dialog_positve">Đồng Ý</string>

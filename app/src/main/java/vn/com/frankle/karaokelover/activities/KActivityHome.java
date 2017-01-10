@@ -54,6 +54,8 @@ public class KActivityHome extends AppCompatActivity
     private static final int PERMISSION_AUDIO_RECORD = 0;
     private static final int RC_SEARCH = 0;
 
+    public static final String INTENT_EXTRA_RECOVER = "extra_recover";
+
     @BindView(R.id.layout_main_activity_content)
     LinearLayout mLayoutMainContent;
 
@@ -129,6 +131,12 @@ public class KActivityHome extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_activity_home);
         ButterKnife.bind(this);
+
+        // Display a sorry message if is recovered from crash
+        boolean isRecover = getIntent().getBooleanExtra(INTENT_EXTRA_RECOVER, false);
+        if (isRecover) {
+            buildRecoverDialog();
+        }
 
         FragmentManager fm = getSupportFragmentManager();
         mHomeFragment = (KFragmentHome) fm.findFragmentByTag(KFragmentHome.TAG);
@@ -409,6 +417,18 @@ public class KActivityHome extends AppCompatActivity
             this.finish();
         });
         builder.setNegativeButton(KApplication.appResource.getString(R.string.dialog_exit_negative), (dialogInterface, i) -> {
+        });
+        builder.create().show();
+    }
+
+    /**
+     * Display appology dialog after recovering from crash
+     */
+    private void buildRecoverDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(KApplication.appResource.getString(R.string.dialog_recover_title));
+        builder.setMessage(KApplication.appResource.getString(R.string.dialog_recover_msg));
+        builder.setPositiveButton(KApplication.appResource.getString(R.string.dialog_recover_positive), (dialogInterface, i) -> {
         });
         builder.create().show();
     }

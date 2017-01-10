@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "998051768778",
+    "firebase_url": "https://hat-karaoke-viet-2673a.firebaseio.com",
+    "project_id": "hat-karaoke-viet-2673a",
+    "storage_bucket": "hat-karaoke-viet-2673a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:998051768778:android:11a10d43dc074fe1",
+        "android_client_info": {
+          "package_name": "vn.com.frankle.karaokelover"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "998051768778-tfd7602n831nvtuc8jlb5tka0hpj3pir.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "vn.com.frankle.karaokelover",
+            "certificate_hash": "BE9F038F3EE8AD6EFEAADD03155D3643C217ECA6"
+          }
+        },
+        {
+          "client_id": "998051768778-6cuq2257ib965jpndgtht22stq2ukhhn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQzQ7tMd-gynxeWxWJiZGmlt5AGXNHqW4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "998051768778-6cuq2257ib965jpndgtht22stq2ukhhn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

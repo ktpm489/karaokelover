@@ -2,10 +2,12 @@ package vn.com.frankle.karaokelover
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
 import android.os.Environment
 import android.preference.PreferenceManager
 import com.droidcba.kedditbysteps.di.AppModule
+import com.google.firebase.crash.FirebaseCrash
 import io.realm.Realm
 import okhttp3.Cache
 import okhttp3.OkHttpClient
@@ -15,6 +17,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import rx.schedulers.Schedulers
+import vn.com.frankle.karaokelover.activities.KActivityHome
 import vn.com.frankle.karaokelover.activities.KActivitySettings
 import vn.com.frankle.karaokelover.di.DaggerKAppComponent
 import vn.com.frankle.karaokelover.di.DatabaseModule
@@ -36,6 +39,20 @@ class KApplication : Application() {
     private var rxAudioMP3API: Retrofit? = null
     private var rxZingMp3API: Retrofit? = null
     private val youtubeInMp3: Retrofit? = null
+
+    private val mUncaughtExceptionHandler = Thread.UncaughtExceptionHandler { thread, throwable ->
+        // Report crash to firebase
+        FirebaseCrash.report(throwable)
+
+        // Restart application
+        val restartIntent = packageManager.getLaunchIntentForPackage("vn.com.frankle.karaokelover")
+        restartIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        restartIntent.putExtra(KActivityHome.INTENT_EXTRA_RECOVER, true)
+        startActivity(restartIntent)
+
+        android.os.Process.killProcess(android.os.Process.myPid())
+        System.exit(0)
+    }
 
     lateinit var appComponent: KAppComponent
 
@@ -104,6 +121,9 @@ class KApplication : Application() {
                 .baseUrl(YOUTUBE_MP3_AUDIO_URL)
                 .build()
         youtubeInMp3APIService = rxAudioMP3API!!.create(YoutubeAudioMp3APIInterface::class.java)
+
+        // Handle uncaught crash
+        Thread.setDefaultUncaughtExceptionHandler(mUncaughtExceptionHandler)
     }
 
 //    fun appComponent(): KAppComponent {
