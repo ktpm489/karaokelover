@@ -18,9 +18,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdChoicesView;
+import com.facebook.ads.AdError;
+import com.facebook.ads.AdListener;
+import com.facebook.ads.NativeAd;
 import com.github.ybq.parallaxviewpager.ParallaxViewPager;
 
 import org.json.JSONArray;
@@ -82,10 +92,16 @@ public class KFragmentHome extends Fragment {
     CardView mPlaylistPop;
     @BindView(R.id.playlist_bolero)
     CardView mPlaylistBolero;
+    @BindView(R.id.native_ad_container)
+    FrameLayout mNativeAdContainer;
 
     private Context mContext;
+
     private KSharedPreference mSharedPrefs;
     private KHotArtistAdapter mHotArtistAdapter;
+
+    private NativeAd mNativeAd;
+    private CardView mAdView;
 
     public KFragmentHome() {
         super();
@@ -139,11 +155,63 @@ public class KFragmentHome extends Fragment {
 
         ButterKnife.bind(this, layout);
 
+        // Initialize facebook ad
+        showNativeAd();
+
         mLayoutErrorLoading.setOnClickListener(v -> checkInternetConnectionAndInitilaizeViews());
 
         checkInternetConnectionAndInitilaizeViews();
 
         return layout;
+    }
+
+    /**
+     * Request facebook audience network ads
+     */
+    private void showNativeAd() {
+        mNativeAd = new NativeAd(mContext, "1193871967377066_1193874170710179");
+        mNativeAd.setAdListener(new AdListener() {
+            @Override
+            public void onError(Ad ad, AdError adError) {
+                Log.d(DEBUG_TAG, "Ad Error: " + adError.getErrorMessage());
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+                // Render the Native Ad Template
+                LayoutInflater inflater = LayoutInflater.from(mContext);
+                mAdView = (CardView) inflater.inflate(R.layout.fb_native_ad_fragment_home, mNativeAdContainer, false);
+                mNativeAdContainer.addView(mAdView);
+
+                // Create ad view
+                ImageView mNativeAdIcon = ButterKnife.findById(mAdView, R.id.native_ad_icon);
+                TextView mNativeAdTitle = ButterKnife.findById(mAdView, R.id.native_ad_title);
+                TextView mNativeAdBody = ButterKnife.findById(mAdView, R.id.native_ad_body);
+                Button mNativeAdCtaButton = ButterKnife.findById(mAdView, R.id.native_ad_call_to_action);
+                LinearLayout mAdChoiceContainer = ButterKnife.findById(mAdView, R.id.ad_choices_container);
+
+                // Download and display the ad icon.
+                NativeAd.Image adIcon = mNativeAd.getAdIcon();
+                NativeAd.downloadAndDisplayImage(adIcon, mNativeAdIcon);
+
+                // Set ad text
+                mNativeAdTitle.setText(mNativeAd.getAdTitle());
+                mNativeAdBody.setText(mNativeAd.getAdBody());
+                mNativeAdCtaButton.setText(mNativeAd.getAdCallToAction());
+
+                // Add the AdChoices icon
+                AdChoicesView adChoicesView = new AdChoicesView(mContext, mNativeAd, true);
+                mAdChoiceContainer.addView(adChoicesView);
+
+                mNativeAd.registerViewForInteraction(mNativeAdContainer);
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+
+            }
+        });
+        mNativeAd.loadAd();
     }
 
     @Override
