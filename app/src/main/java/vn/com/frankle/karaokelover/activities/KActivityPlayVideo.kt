@@ -17,11 +17,13 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.RelativeLayout
-import android.widget.Toast
+import android.widget.*
+import butterknife.ButterKnife
+import com.facebook.ads.*
 import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubePlayer
 import io.realm.Realm
@@ -35,6 +37,7 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
 import vn.com.frankle.karaokelover.*
+import vn.com.frankle.karaokelover.R
 import vn.com.frankle.karaokelover.activities.states.KActivityPlayVideoBaseState
 import vn.com.frankle.karaokelover.activities.states.KActivityPlayVideoPlayingState
 import vn.com.frankle.karaokelover.activities.states.KActivityPlayVideoRecordingState
@@ -50,6 +53,7 @@ import vn.com.frankle.karaokelover.services.responses.ResponseCommentThreads
 import vn.com.frankle.karaokelover.services.responses.youtube.commentthread.CommentThread
 import vn.com.frankle.karaokelover.util.Utils
 import vn.com.frankle.karaokelover.views.recyclerview.InsetDividerDecoration
+import vn.com.frankle.karaokelover.views.widgets.CircularImageView
 import java.io.File
 
 class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener {
@@ -263,6 +267,55 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         }
     }
 
+    private lateinit var mNativeAd: NativeAd
+    private lateinit var mAdView: LinearLayout
+
+    /**
+     * Request facebook audience network ads
+     */
+    private fun showNativeAd() {
+        mNativeAd = NativeAd(this, "1193871967377066_1194740093956920")
+        mNativeAd.setAdListener(object : AdListener {
+            override fun onError(ad: Ad, adError: AdError) {
+                Log.d(DEBUG_TAG, "Ad Error: " + adError.errorMessage)
+            }
+
+            override fun onAdLoaded(ad: Ad) {
+                // Render the Native Ad Template
+                val inflater = LayoutInflater.from(this@KActivityPlayVideo)
+                mAdView = inflater.inflate(R.layout.fb_native_ad_play_video_activity, native_ad_container, false) as LinearLayout
+                native_ad_container.addView(mAdView)
+
+                // Create ad view
+                val mNativeAdIcon = ButterKnife.findById<CircularImageView>(mAdView, R.id.native_ad_icon)
+                val mNativeAdTitle = ButterKnife.findById<TextView>(mAdView, R.id.native_ad_title)
+                val mNativeAdBody = ButterKnife.findById<TextView>(mAdView, R.id.native_ad_body)
+                val mNativeAdCtaButton = ButterKnife.findById<Button>(mAdView, R.id.native_ad_call_to_action)
+                val mAdChoiceContainer = ButterKnife.findById<LinearLayout>(mAdView, R.id.ad_choices_container)
+
+                // Download and display the ad icon.
+                val adIcon = mNativeAd.adIcon
+                NativeAd.downloadAndDisplayImage(adIcon, mNativeAdIcon)
+
+                // Set ad text
+                mNativeAdTitle.text = mNativeAd.adTitle
+                mNativeAdBody.text = mNativeAd.adBody
+                mNativeAdCtaButton.text = mNativeAd.adCallToAction
+
+                // Add the AdChoices icon
+                val adChoicesView = AdChoicesView(this@KActivityPlayVideo, mNativeAd, true)
+                mAdChoiceContainer.addView(adChoicesView)
+
+                mNativeAd.registerViewForInteraction(native_ad_container)
+            }
+
+            override fun onAdClicked(ad: Ad) {
+
+            }
+        })
+        mNativeAd.loadAd()
+    }
+
     /**
      * Callback to get sample when recording
 
@@ -352,6 +405,7 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
             setLayoutVisibility(LayoutType.PLAYING)
             setupViews()
             loadVideoComments()
+            showNativeAd()
         } else {
             setLayoutVisibility(LayoutType.ERROR_NO_CONNECTION)
         }

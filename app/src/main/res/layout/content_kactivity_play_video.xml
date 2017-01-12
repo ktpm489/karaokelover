@@ -20,11 +20,17 @@
 
     </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/native_ad_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/youtube_player" />
+
     <RelativeLayout
         android:id="@+id/layout_play_video"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/youtube_player">
+        android:layout_below="@id/native_ad_container">
 
         <ProgressBar
             android:id="@+id/progressbar_comment"
