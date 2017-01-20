@@ -45,6 +45,8 @@ public class KActivityPlayVideoPlayingState extends KActivityPlayVideoBaseState 
             }
             mCurrentVideoPos = youTubePlayer.getCurrentTimeMillis();
         }
+
+        mActivityInstance.cancelPrepareRecordingTask();
     }
 
     @Override

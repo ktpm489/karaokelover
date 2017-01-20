@@ -74,6 +74,8 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
     private var mCurrentFavoriteStateFlag: Boolean = false
     // Flag used to enable/disable recording button
     private var mEnableRecorderFlag = false
+    // Task to start a flashing screen before recording
+    private var mPrepareRecordTask: PrepareRecordingTask? = null
 
     private lateinit var mYoutubePlayerFragment: KYoutubePlayerFragment
     // Store previously video's position
@@ -340,6 +342,12 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
         return this.mYoutubePlayer
     }
 
+    fun cancelPrepareRecordingTask() {
+        if (mPrepareRecordTask != null) {
+            mPrepareRecordTask!!.cancel(true)
+        }
+    }
+
     /**
      * Task to update timer
      */
@@ -379,7 +387,8 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
                     builder.setPositiveButton("YES") { dialog, which -> DeleteRecordedFileTask().execute() }
                     builder.create().show()
                 } else {
-                    PrepareRecordingTask().execute()
+                    mPrepareRecordTask = PrepareRecordingTask()
+                    mPrepareRecordTask!!.execute()
                 }
             }
         } else {
@@ -784,6 +793,9 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
      * Start recording voice
      */
     private fun startRecording() {
+        // Set the prepare task to null
+        mPrepareRecordTask = null
+
         switchRecordButton(true)
 
         /*Auto configure audio output volume (try to prevent too loud beat)*/
@@ -922,11 +934,13 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
 
         override fun doInBackground(vararg voids: Void): Void? {
             for (i in 3 downTo 0) {
-                KApplication.eventBus.post(EventPrepareRecordingCountdown(i))
-                try {
-                    Thread.sleep(1000)
-                } catch (e: InterruptedException) {
-                    e.printStackTrace()
+                if (!isCancelled) {
+                    KApplication.eventBus.post(EventPrepareRecordingCountdown(i))
+                    try {
+                        Thread.sleep(1000)
+                    } catch (e: InterruptedException) {
+                        e.printStackTrace()
+                    }
                 }
             }
             return null
@@ -968,7 +982,8 @@ class KActivityPlayVideo : AppCompatActivity(), KAudioRecord.AudioRecordListener
 
             if (result!!) {
                 deleteProgessDialog.dismiss()
-                PrepareRecordingTask().execute()
+                mPrepareRecordTask = PrepareRecordingTask()
+                mPrepareRecordTask!!.execute()
             } else {
                 Toast.makeText(this@KActivityPlayVideo, resources.getString(R.string.toast_delete_file_error), Toast.LENGTH_SHORT).show()
             }
