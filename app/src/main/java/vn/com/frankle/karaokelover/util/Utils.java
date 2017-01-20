@@ -104,6 +104,10 @@ public class Utils {
      * @return url of video thumbnail
      */
     public static String getThumbnailURL(Thumbnails thumbnail) {
+        if (thumbnail == null) {
+            return "";
+        }
+
         if (KApplication.Companion.getHD_PREVIEW_VIDEO_FLAG()) {
             if (thumbnail.getMaxres() != null) {
                 return thumbnail.getMaxres().getUrl();
@@ -125,6 +129,10 @@ public class Utils {
      * @return human-readable time format
      */
     public static String convertYoutubeTimeformat(String time) {
+        if (time == null || time.trim().isEmpty()) {
+            return "00:00";
+        }
+
         PeriodFormatter formatterISO = ISOPeriodFormat.standard();
         Period period = formatterISO.parsePeriod(time).normalizedStandard();
 

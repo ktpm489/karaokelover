@@ -236,7 +236,8 @@ public class KActivityPlaylist extends AppCompatActivity {
                         mNextPageTokern = responsePlaylist.getNextPageToken();
                         return Observable.from(responsePlaylist.getItems())
                                 .subscribeOn(Schedulers.newThread())
-                                .flatMap(items -> getStatisticsContentDetails(items.getSnippet()));
+                                .flatMap(items -> getStatisticsContentDetails(items.getSnippet()))
+                                .filter(videoSearchItem -> !"00:00".equals(videoSearchItem.getDuration()));
                     }
                 })
                 .toList();
@@ -251,7 +252,8 @@ public class KActivityPlaylist extends AppCompatActivity {
                         mNextPageTokern = responsePlaylist.getNextPageToken();
                         return Observable.from(responsePlaylist.getItems())
                                 .subscribeOn(Schedulers.newThread())
-                                .flatMap(items -> getStatisticsContentDetails(items.getSnippet()));
+                                .flatMap(items -> getStatisticsContentDetails(items.getSnippet()))
+                                .filter(videoSearchItem -> !"00:00".equals(videoSearchItem.getDuration()));
                     }
                 })
                 .toList();

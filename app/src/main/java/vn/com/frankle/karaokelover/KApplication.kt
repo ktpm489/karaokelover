@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.Resources
 import android.os.Environment
 import android.preference.PreferenceManager
+import android.util.Log
 import com.droidcba.kedditbysteps.di.AppModule
 import com.google.firebase.crash.FirebaseCrash
 import io.realm.Realm
@@ -44,6 +45,8 @@ class KApplication : Application() {
         // Report crash to firebase
         FirebaseCrash.report(throwable)
 
+        Log.d("KApplication", throwable.message)
+
         // Restart application
         val restartIntent = packageManager.getLaunchIntentForPackage("vn.com.frankle.karaokelover")
         restartIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -52,6 +55,7 @@ class KApplication : Application() {
 
         android.os.Process.killProcess(android.os.Process.myPid())
         System.exit(0)
+
     }
 
     lateinit var appComponent: KAppComponent
@@ -123,7 +127,7 @@ class KApplication : Application() {
         youtubeInMp3APIService = rxAudioMP3API!!.create(YoutubeAudioMp3APIInterface::class.java)
 
         // Handle uncaught crash
-        Thread.setDefaultUncaughtExceptionHandler(mUncaughtExceptionHandler)
+//        Thread.setDefaultUncaughtExceptionHandler(mUncaughtExceptionHandler)
     }
 
 //    fun appComponent(): KAppComponent {
