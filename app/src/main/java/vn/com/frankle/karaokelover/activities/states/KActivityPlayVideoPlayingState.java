@@ -41,7 +41,11 @@ public class KActivityPlayVideoPlayingState extends KActivityPlayVideoBaseState 
         YouTubePlayer youTubePlayer = mActivityInstance.getYoutubePlayerInstance();
         if (youTubePlayer != null) {
             if (youTubePlayer.isPlaying()) {
-                youTubePlayer.pause();
+                try {
+                    youTubePlayer.pause();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
             }
             mCurrentVideoPos = youTubePlayer.getCurrentTimeMillis();
         }

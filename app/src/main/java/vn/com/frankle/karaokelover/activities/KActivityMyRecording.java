@@ -114,8 +114,8 @@ public class KActivityMyRecording extends AppCompatActivity {
         public void onDeleteClick(File file, int position) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(KActivityMyRecording.this);
             alertDialogBuilder.setMessage(getResources().getString(R.string.msg_delete_file));
-            alertDialogBuilder.setPositiveButton("YES", (dialog, which) -> new DeleteRecordedFileTask(position).execute(file));
-            alertDialogBuilder.setNegativeButton("NO", (dialog, which) -> dialog.cancel());
+            alertDialogBuilder.setPositiveButton(getResources().getString(R.string.dialog_positve), (dialog, which) -> new DeleteRecordedFileTask(position).execute(file));
+            alertDialogBuilder.setNegativeButton(getResources().getString(R.string.dialog_negative), (dialog, which) -> dialog.cancel());
             alertDialogBuilder.create().show();
         }
     };
